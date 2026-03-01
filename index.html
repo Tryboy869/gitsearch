@@ -2,346 +2,435 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GitSearch – Semantic GitHub Search</title>
+  <title>GITSEARCH — Semantic GitHub Search</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     :root{
       --bg:#0a0e1a;
       --card:#0d1220;
       --accent:#7b2cbf;
       --cyan:#00d4ff;
-      --pink:#ff006e;
       --text:#f1f5f9;
-      --sub:#9ca3af;
-      --line:#1e293b;
-      font-family:Courier New,monospace;
     }
+    *{box-sizing:border-box;font-family:Courier New,monospace;}
     body{background:var(--bg);color:var(--text);}
-    .card{background:var(--card);border:1px solid var(--line);}
-    .glow:focus{box-shadow:0 0 8px var(--accent);}
-    .scan{height:2px;background:var(--accent);opacity:.6;animation:scan 1.2s infinite;}
-    @keyframes scan{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
-    .fadeIn{animation:fadeIn .4s forwards;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block;margin-left:6px;animation:pulse 1.5s infinite;}
-    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-    @media (prefers-reduced-motion:reduce){*{animation:none!important;}}
-    .ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .font-mono{font-family:Courier New,monospace;}
+    .bg-bg{background:var(--bg);}
+    .bg-card{background:var(--card);}
+    .border-accent{border-color:var(--accent);}
+    .text-cyan{color:var(--cyan);}
+    .text-accent{color:var(--accent);}
+    .search-wrap:focus-within{box-shadow:0 0 0 2px var(--accent);}
+    .fadeIn{opacity:0;animation:fadeIn 0.3s forwards;}
+    @keyframes fadeIn{to{opacity:1;}}
     .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .scroll-none::-webkit-scrollbar{display:none;}
+    .scroll-none{-ms-overflow-style:none;scrollbar-width:none;}
+    .dot-pulse{width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block;animation:pulse 1.2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+    .backdrop-blur{backdrop-filter:blur(4px);}
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
-  <header class="sticky top-0 z-20 bg-opacity-90 bg-gray-900 backdrop-blur flex items-center justify-between px-4 py-3 border-b border-gray-800">
-    <img src="assets/logo.svg" alt="GitSearch" class="h-10">
+<body class="bg-bg text-text">
+  <header class="sticky top-0 z-40 bg-card border-b border-gray-800 flex items-center justify-between px-4 py-3">
+    <a href="/" aria-label="Home">
+      <img src="assets/logo.svg" alt="GITSEARCH" class="h-10">
+    </a>
     <div class="flex-1 max-w-xl mx-4">
-      <input id="q" type="search" placeholder="Search repos semantically…" class="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none glow">
+      <form id="searchForm" class="search-wrap flex rounded-md border border-gray-700 overflow-hidden">
+        <input id="searchInput" type="search" placeholder="" class="flex-1 px-3 py-2 bg-transparent outline-none text-sm" autocomplete="off">
+        <button type="submit" class="px-3 text-cyan font-mono text-sm">Search</button>
+      </form>
     </div>
-    <nav class="flex items-center gap-4">
+    <nav class="hidden md:flex items-center gap-4 text-sm">
       <a href="dashboard.html" class="hover:text-cyan">Dashboard</a>
       <a href="settings.html" class="hover:text-cyan">Settings</a>
-      <span id="user" class="hidden items-center text-sm text-cyan"></span>
+      <span id="userStatus" class="text-xs text-gray-400"></span>
     </nav>
+    <button id="menuBtn" class="md:hidden text-cyan text-xl">☰</button>
   </header>
 
-  <div class="flex flex-1">
-    <aside id="sidebar" class="hidden md:block w-[190px] flex-shrink-0 p-4 border-r border-gray-800">
-      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Domains</h2>
-      <ul id="domains" class="space-y-1 text-sm mb-4"></ul>
-      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Trending tags</h2>
-      <ul id="trending" class="space-y-1 text-sm mb-4"></ul>
-      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">History</h2>
-      <ul id="history" class="space-y-1 text-sm mb-4"></ul>
-      <button id="indexBtn" class="w-full text-left text-xs text-cyan hover:underline">Index your repo</button>
+  <div class="flex">
+    <aside id="sidebar" class="hidden md:block w-[190px] p-4 space-y-6">
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-2">Domains</h2>
+        <ul id="domainList" class="space-y-1 text-sm"></ul>
+      </section>
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-2">Trending Tags</h2>
+        <ul id="trendingList" class="space-y-1 text-sm"></ul>
+      </section>
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-2">History</h2>
+        <ul id="historyList" class="space-y-1 text-sm"></ul>
+      </section>
+      <a href="settings.html" class="inline-block text-xs text-cyan hover:underline">Index your repo →</a>
     </aside>
 
     <main class="flex-1 p-4">
-      <div id="filters" class="flex flex-wrap items-center gap-3 mb-4 text-sm">
-        <label class="flex items-center gap-2"><input type="radio" name="sort" value="stars" checked class="accent-cyan">Stars</label>
-        <label class="flex items-center gap-2"><input type="radio" name="sort" value="updated">Récents</label>
-        <label class="flex items-center gap-2"><input type="radio" name="sort" value="created">Anciens</label>
-        <select id="lang" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 focus:outline-none glow">
-          <option value="">All langs</option>
+      <div class="flex items-center gap-3 mb-4 overflow-x-auto scroll-none text-sm">
+        <label class="flex items-center gap-2 whitespace-nowrap"><input type="radio" name="sort" value="stars" checked class="accent-cyan">⭐ Stars</label>
+        <label class="flex items-center gap-2 whitespace-nowrap"><input type="radio" name="sort" value="updated" class="accent-cyan">🕐 Récents</label>
+        <label class="flex items-center gap-2 whitespace-nowrap"><input type="radio" name="sort" value="created" class="accent-cyan">🏛 Anciens</label>
+        <select id="langFilter" class="bg-card border border-gray-700 rounded px-2 py-1 text-sm">
+          <option value="">All Langs</option>
           <option>Python</option><option>JavaScript</option><option>TypeScript</option><option>Rust</option><option>Go</option><option>C</option><option>C++</option><option>Java</option><option>Ruby</option><option>Kotlin</option><option>Swift</option><option>PHP</option><option>Zig</option><option>Haskell</option>
         </select>
-        <select id="stars" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 focus:outline-none glow">
-          <option value="">Any stars</option><option value="10">10+</option><option value="100">100+</option><option value="1000">1k+</option><option value="10000">10k+</option>
+        <select id="starsFilter" class="bg-card border border-gray-700 rounded px-2 py-1 text-sm">
+          <option value="">All Stars</option>
+          <option value="10">10+</option><option value="100">100+</option><option value="1000">1k+</option><option value="10000">10k+</option>
         </select>
-        <span id="count" class="ml-auto text-sub"></span>
+        <span id="resultCount" class="ml-auto text-xs text-gray-400"></span>
       </div>
 
-      <div id="results" class="space-y-3"></div>
-      <div id="loading" class="hidden text-center py-8"><div class="scan w-32 mx-auto"></div></div>
+      <div id="results" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div>
+      <div id="loading" class="hidden text-center text-sm text-gray-400 py-8">Searching…</div>
+      <div id="empty" class="hidden text-center text-sm text-gray-400 py-8">No results.</div>
     </main>
   </div>
 
-  <div id="drawer" class="fixed inset-0 z-30 hidden">
-    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur" onclick="toggleDrawer()"></div>
-    <aside class="absolute left-0 top-0 h-full w-[280px] bg-gray-900 border-r border-gray-800 p-4 overflow-auto">
-      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Domains</h2>
-      <ul id="domainsM" class="space-y-1 text-sm mb-4"></ul>
-      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Trending tags</h2>
-      <ul id="trendingM" class="space-y-1 text-sm mb-4"></ul>
-      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">History</h2>
-      <ul id="historyM" class="space-y-1 text-sm mb-4"></ul>
-      <button id="indexBtnM" class="w-full text-left text-xs text-cyan hover:underline">Index your repo</button>
+  <div id="drawer" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur" id="drawerOverlay"></div>
+    <aside class="absolute right-0 top-0 h-full w-[280px] bg-card p-4 space-y-6 overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-mono">Menu</h2>
+        <button id="closeDrawer" class="text-cyan text-xl">✕</button>
+      </div>
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-2">Domains</h2>
+        <ul id="domainListMob" class="space-y-1 text-sm"></ul>
+      </section>
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-2">Trending Tags</h2>
+        <ul id="trendingListMob" class="space-y-1 text-sm"></ul>
+      </section>
+      <section>
+        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-2">History</h2>
+        <ul id="historyListMob" class="space-y-1 text-sm"></ul>
+      </section>
+      <a href="settings.html" class="inline-block text-xs text-cyan hover:underline">Index your repo →</a>
+      <nav class="flex gap-4 text-sm">
+        <a href="dashboard.html" class="hover:text-cyan">Dashboard</a>
+        <a href="settings.html" class="hover:text-cyan">Settings</a>
+      </nav>
     </aside>
   </div>
 
   <script>
-    const SEMANTIC={
-      "machine learning":["machine-learning","deep-learning","neural-network","ml"],
-      "llm":["llm","large-language-model","gpt","transformers"],
-      "nlp":["nlp","natural-language-processing","text-mining"],
-      "distributed":["distributed-systems","microservices","cluster"],
-      "crypto":["cryptography","encryption","blockchain","security"],
-      "embedded":["embedded","rtos","microcontroller","firmware","iot"],
-      "compiler":["compiler","parser","interpreter","llvm","jit"],
-      "async":["async","asynchronous","concurrency","tokio"],
-      "devops":["devops","docker","kubernetes","terraform"],
-      "wasm":["webassembly","wasm","emscripten"],
-      "security":["security","cryptography","vulnerability"],
-      "gamedev":["game-development","game-engine","opengl","vulkan"],
-      "ai":["ai","artificial-intelligence","neural","pytorch","tensorflow"],
-      "gui":["gui","ui","frontend","react","vue","svelte"],
-      "api":["api","rest","graphql","fastapi","express"],
-      "db":["database","sql","nosql","postgres","mongodb"],
-      "mobile":["mobile","android","ios","flutter","react-native"],
-      "finance":["finance","trading","bitcoin","ethereum","defi"],
-      "science":["science","research","simulation","physics","bio"]
-    };
-    const DOMAINS=[
-      {name:"AI/ML",q:"machine-learning OR deep-learning OR neural-network OR ai OR pytorch OR tensorflow"},
-      {name:"Systems",q:"operating-system OR kernel OR embedded OR rtos OR firmware"},
-      {name:"Distributed",q:"distributed-systems OR microservices OR cluster OR consensus OR raft OR paxos"},
-      {name:"Web Frontend",q:"react OR vue OR svelte OR angular OR frontend OR gui OR ui"},
-      {name:"Web Backend",q:"fastapi OR express OR django OR rails OR backend OR api OR graphql"},
-      {name:"Data/DB",q:"database OR postgres OR mongodb OR sql OR nosql OR bigdata OR analytics"},
-      {name:"Security",q:"cryptography OR encryption OR blockchain OR vulnerability OR security"},
-      {name:"DevTools",q:"compiler OR parser OR interpreter OR llvm OR jit OR devtools"},
-      {name:"Networking",q:"networking OR tcp OR udp OR http2 OR quic OR load-balancer"},
-      {name:"Languages",q:"programming-language OR compiler OR interpreter OR lexer OR parser"},
-      {name:"Mobile",q:"android OR ios OR flutter OR react-native OR mobile"},
-      {name:"Finance",q:"bitcoin OR ethereum OR defi OR trading OR finance OR blockchain"},
-      {name:"Sciences",q:"science OR research OR simulation OR physics OR biology OR chemistry"}
-    ];
-    const TRENDING=["rust","zig","wasm","llm","gpt","transformers","tokio","pytorch","react","vue","svelte","solidjs","deno","bun","turbopack"];
-    let db,token,username;
-    const qEl=document.getElementById('q');
-    const resEl=document.getElementById('results');
-    const loadEl=document.getElementById('loading');
-    const countEl=document.getElementById('count');
-    const userEl=document.getElementById('user');
+(function(){
+  const DB_NAME='gitsearch_v1', DB_VERSION=1;
+  const STORES={searches:'++id,query,ts',viewed:'full_name',config:'key'};
+  const DOMAINS=['AI/ML','Systems','Security','Web','Mobile','DevOps','Data','Embedded','Gamedev','Science','Finance','Crypto','Tools'];
+  const TRENDING=['python','javascript','rust','go','llm','gpt','transformers','async','wasm','security','nlp','compiler','distributed','embedded','gui','api','db','mobile','finance','science','devops','gamedev','crypto','systems'];
+  const EXPAND={
+    'machine learning':['ml','deep-learning','neural-network','pytorch','tensorflow'],
+    'llm':['gpt','transformers','huggingface','openai'],
+    'nlp':['natural-language','text-processing','bert'],
+    'distributed':['distributed-systems','consensus','raft','paxos'],
+    'crypto':['cryptography','encryption','zero-knowledge'],
+    'embedded':['embedded-systems','rust','cortex-m','arduino'],
+    'compiler':['compiler','llvm','wasm','bytecode'],
+    'async':['async','tokio','async-std','futures'],
+    'devops':['devops','kubernetes','docker','ci-cd'],
+    'wasm':['webassembly','wasm','rust'],
+    'security':['security','vulnerability','exploit','pentest'],
+    'gamedev':['gamedev','game-engine','bevy','sdl'],
+    'ai':['ai','artificial-intelligence','neural'],
+    'gui':['gui','ui','tkinter','egui'],
+    'api':['api','rest','graphql','openapi'],
+    'db':['database','sql','nosql','postgres'],
+    'mobile':['mobile','android','ios','flutter'],
+    'finance':['finance','trading','bitcoin','ethereum'],
+    'science':['science','research','jupyter','numpy']
+  };
+  let db, token, user, abortController;
 
-    async function openDB(){
-      return new Promise((resolve,reject)=>{
-        const req=indexedDB.open('gitsearch_v1',1);
-        req.onsuccess=()=>resolve(req.result);
-        req.onerror=()=>reject(req.error);
-        req.onupgradeneeded=()=>{
-          const db=req.result;
-          if(!db.objectStoreNames.contains('searches')) db.createObjectStore('searches');
-          if(!db.objectStoreNames.contains('viewed')) db.createObjectStore('viewed');
-          if(!db.objectStoreNames.contains('config')) db.createObjectStore('config');
-        };
-      });
-    }
-    async function getConfig(){return (await db.transaction('config').objectStore('config').getAll())[0]||{};}
-    async function setConfig(c){await db.transaction('config','readwrite').objectStore('config').put(c,0);}
-    async function addSearch(term){
-      const tx=db.transaction('searches','readwrite');
-      const store=tx.objectStore('searches');
-      const all=await store.getAll();
-      if(!all.includes(term)){
-        if(all.length>=8) await store.delete(all[0]);
-        await store.add(term,Date.now());
-      }
-    }
-    async function getSearches(){
-      const tx=db.transaction('searches');
-      const store=tx.objectStore('searches');
-      const all=await store.getAll();
-      return all.reverse();
-    }
-    async function markViewed(full_name){
-      await db.transaction('viewed','readwrite').objectStore('viewed').put(Date.now(),full_name);
-    }
-    async function isViewed(full_name){
-      return !!(await db.transaction('viewed').objectStore('viewed').get(full_name));
-    }
+  function el(id){return document.getElementById(id);}
+  function qs(sel){return document.querySelector(sel);}
+  function qsa(sel){return Array.from(document.querySelectorAll(sel));}
 
-    function expandSemantic(term){
-      const t=term.toLowerCase();
-      const out=[t];
-      for(const[k,v] of Object.entries(SEMANTIC)){
-        if(t.includes(k)) out.push(...v);
-      }
-      return [...new Set(out)];
-    }
-
-    async function search(term){
-      loadEl.classList.remove('hidden');
-      resEl.innerHTML='';
-      const expanded=expandSemantic(term).join(' OR ');
-      const headers=token?{Authorization:`token ${token}`}:{};
-      const lang=document.getElementById('lang').value;
-      const stars=document.getElementById('stars').value;
-      const sort=document.querySelector('input[name="sort"]:checked').value;
-      const baseParams=new URLSearchParams({per_page:30});
-      if(lang) baseParams.set('language',lang);
-      if(stars) baseParams.set('q',`${expanded} stars:>=${stars}`);
-      else baseParams.set('q',expanded);
-      if(sort!=='stars') baseParams.set('sort',sort==='updated'?'updated':'created');
-      const urlA=`https://api.github.com/search/repositories?${baseParams.toString()}`;
-      const urlB=`https://api.github.com/search/repositories?q=${encodeURIComponent(expanded)}+in:name&per_page=30`;
-      const urlC=`https://api.github.com/search/code?q=${encodeURIComponent(expanded)}+in:file+filename:README.md&per_page=30`;
-      const [a,b,c]=await Promise.allSettled([
-        fetch(urlA,{headers}).then(r=>r.json()),
-        fetch(urlB,{headers}).then(r=>r.json()),
-        fetch(urlC,{headers}).then(r=>r.json())
-      ]);
-      const seen=new Set();
-      const repos=[];
-      const push=r=>{
-        if(!r||!r.items) return;
-        r.items.forEach(item=>{
-          if(item.repository){
-            const repo=item.repository;
-            if(!seen.has(repo.full_name)){
-              seen.add(repo.full_name);
-              repos.push(repo);
-            }
-          }else{
-            if(!seen.has(item.full_name)){
-              seen.add(item.full_name);
-              repos.push(item);
-            }
+  async function openDB(){
+    return new Promise((resolve,reject)=>{
+      const req=indexedDB.open(DB_NAME,DB_VERSION);
+      req.onupgradeneeded=()=>{
+        const d=req.result;
+        for(const[name,opts] of Object.entries(STORES)){
+          if(!d.objectStoreNames.contains(name)){
+            const store=d.createObjectStore(name,opts.includes('++id')?{autoIncrement:true}:{keyPath:opts.split(',')[0]});
+            if(name==='searches') store.createIndex('ts','ts');
           }
-        });
+        }
       };
-      if(a.status==='fulfilled') push(a.value);
-      if(b.status==='fulfilled') push(b.value);
-      if(c.status==='fulfilled') push(c.value);
-      const sortMode=document.querySelector('input[name="sort"]:checked').value;
-      if(sortMode==='stars') repos.sort((x,y)=>(y.stargazers_count||0)-(x.stargazers_count||0));
-      else if(sortMode==='updated') repos.sort((x,y)=>new Date(y.updated_at||0)-new Date(x.updated_at||0));
-      else repos.sort((x,y)=>new Date(x.created_at||0)-new Date(y.created_at||0));
-      render(repos);
-      countEl.textContent=`${repos.length} repos`;
-      loadEl.classList.add('hidden');
-    }
+      req.onsuccess=()=>{db=req.result;resolve();};
+      req.onerror=()=>reject(req.error);
+    });
+  }
 
-    async function render(repos){
-      resEl.innerHTML='';
-      repos.forEach(async(r,i)=>{
-        const card=document.createElement('div');
-        card.className='card rounded p-3 fadeIn cursor-pointer hover:border-violet-600';
-        card.style.animationDelay=`${i*40}ms`;
-        const viewed=await isViewed(r.full_name);
-        card.innerHTML=`
-          <div class="flex gap-3">
-            <img data-src="${r.owner.avatar_url}" alt="${r.owner.login}" class="lazy w-12 h-12 rounded-full">
-            <div class="flex-1">
-              <div class="flex items-center gap-2">
-                <a href="${r.html_url}" target="_blank" rel="noopener" class="hover:text-cyan">${r.full_name}</a>
-                ${r.topics&&r.topics.includes('gitsearch')?'<span class="text-xs bg-violet-700 px-2 rounded">✦ GITSEARCH</span>':''}
-              </div>
-              <p class="text-sm text-sub line-clamp-2">${r.description||''}</p>
-              <div class="flex flex-wrap gap-1 mt-2">
-                ${(r.topics||[]).slice(0,5).map(t=>`<button class="text-xs bg-gray-800 px-2 rounded hover:bg-gray-700" onclick="qEl.value='${t}';search('${t}')">${t}</button>`).join('')}
-              </div>
-              <div class="flex items-center gap-3 text-xs text-sub mt-2">
-                <span>✦ ${r.stargazers_count||0}</span>
-                <span>⑂ ${r.forks_count||0}</span>
-                <span>${r.language||''}</span>
-                <span>${r.license?.spdx_id||''}</span>
-                <span>${new Date(r.updated_at).getFullYear()}</span>
-                ${viewed?'<span class="text-cyan">viewed</span>':''}
-              </div>
+  async function getConfig(k){
+    const tx=db.transaction('config','readonly');
+    const store=tx.objectStore('config');
+    return new Promise(res=>{const r=store.get(k);r.onsuccess=()=>res(r.result?r.result.value:null);});
+  }
+  async function setConfig(k,v){
+    const tx=db.transaction('config','readwrite');
+    tx.objectStore('config').put({key:k,value:v});
+    return tx.complete;
+  }
+
+  async function loadUser(){
+    token=await getConfig('token');
+    user=await getConfig('user');
+    const s=el('userStatus');
+    if(token&&user){
+      s.innerHTML=` <span class="dot-pulse"></span> @${user.login}`;
+    }else{
+      s.textContent='';
+    }
+  }
+
+  function expandSemantic(q){
+    const parts=q.toLowerCase().split(/[\s,]+/).filter(Boolean);
+    const out=new Set();
+    for(const p of parts){
+      let found=false;
+      for(const[k,v] of Object.entries(EXPAND)){
+        if(k.includes(p)||v.some(t=>t.includes(p))){
+          v.forEach(t=>out.add(t));
+          found=true;
+        }
+      }
+      if(!found) out.add(p);
+    }
+    return Array.from(out);
+  }
+
+  async function search(q){
+    if(abortController) abortController.abort();
+    abortController=new AbortController();
+    const signal=abortController.signal;
+    const lang=el('langFilter').value;
+    const stars=el('starsFilter').value;
+    const sort=qs('input[name="sort"]:checked').value;
+    const order=sort==='created'?'asc':'desc';
+    const base='https://api.github.com';
+    const headers=token?{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}:{Accept:'application/vnd.github.v3+json'};
+    const build=(path,params)=>{
+      const u=new URL(path,base);
+      Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
+      return u.toString();
+    };
+    const queries=expandSemantic(q);
+    const kw=queries.join(' ');
+    const langQ=lang?`language:${lang}`:'';
+    const starsQ=stars?`stars:>=${stars}`:'';
+    const finalQ=[q,langQ,starsQ].filter(Boolean).join(' ');
+    const perPage=20;
+
+    const urls=[
+      build('/search/repositories',{q:finalQ,sort,order,per_page:perPage}),
+      build('/search/repositories',{q:`${q.replace(/\s+/g,'-')} in:name`,sort:'updated',order:'desc',per_page:perPage}),
+      token?build('/search/code',{q:`"${q}" in:file filename:README`,per_page:perPage}):''
+    ].filter(Boolean);
+
+    const reqs=urls.map(u=>fetch(u,{headers,signal}).then(r=>r.json()));
+    el('results').innerHTML='';
+    el('loading').classList.remove('hidden');
+    el('empty').classList.add('hidden');
+    el('resultCount').textContent='';
+
+    const raw=await Promise.allSettled(reqs);
+    const repos=new Map();
+    for(const[r,idx] of raw.map((r,i)=>[r,i])){
+      if(r.status!=='fulfilled') continue;
+      const data=r.value.items||[];
+      for(const item of data){
+        const repo=item.repository||item;
+        if(!repo.full_name) continue;
+        repos.set(repo.full_name,repo);
+      }
+    }
+    const list=Array.from(repos.values());
+    if(sort==='stars') list.sort((a,b)=>b.stargazers_count-a.stargazers_count);
+    else if(sort==='updated') list.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+    else if(sort==='created') list.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    el('loading').classList.add('hidden');
+    el('resultCount').textContent=`${list.length} result${list.length===1?'':'s'}`;
+    render(list);
+    saveSearch(q);
+  }
+
+  function render(list){
+    const r=el('results');
+    if(!list.length){el('empty').classList.remove('hidden');return;}
+    list.forEach((repo,i)=>{
+      const card=document.createElement('div');
+      card.className='bg-card rounded-md border border-gray-800 p-3 hover:border-accent transition cursor-pointer fadeIn';
+      card.style.animationDelay=`${i*40}ms`;
+      const topics=(repo.topics||[]).slice(0,5);
+      const isIndexed=topics.includes('gitsearch');
+      const year=new Date(repo.created_at).getFullYear();
+      card.innerHTML=`
+        <div class="flex items-start gap-3">
+          <img data-src="${repo.owner.avatar_url}" alt="" class="w-10 h-10 rounded-md flex-shrink-0" loading="lazy">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-cyan">${repo.owner.login}</span><span>/</span><span class="font-semibold">${repo.name}</span>
+              ${isIndexed?'<img src="assets/badges/badge-indexed.svg" alt="Indexed" class="h-5">':''}
+            </div>
+            <p class="text-xs text-gray-300 mt-1 line-clamp-2">${repo.description||''}</p>
+            <div class="flex flex-wrap gap-1 mt-2">
+              ${topics.map(t=>`<button class="text-xs bg-gray-800 px-2 py-0.5 rounded" onclick="search('${t}')">${t}</button>`).join('')}
+            </div>
+            <div class="flex items-center gap-3 text-xs text-gray-400 mt-2">
+              <span>⭐ ${repo.stargazers_count}</span>
+              <span>🍴 ${repo.forks_count}</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:${langColor(repo.language)}"></span>${repo.language||''}</span>
+              <span>${repo.license?.spdx_id||''}</span>
+              <span>${year}</span>
             </div>
           </div>
-        `;
-        card.querySelector('a').onclick=()=>markViewed(r.full_name);
-        resEl.appendChild(card);
-      });
-      lazyLoad();
-    }
-
-    function lazyLoad(){
-      const imgs=document.querySelectorAll('img.lazy');
-      const io=new IntersectionObserver(entries=>{
-        entries.forEach(e=>{
-          if(e.isIntersecting){
-            const img=e.target;
-            img.src=img.dataset.src;
-            img.classList.remove('lazy');
-            io.unobserve(img);
-          }
-        });
-      });
-      imgs.forEach(img=>io.observe(img));
-    }
-
-    function toggleDrawer(){
-      const d=document.getElementById('drawer');
-      d.classList.toggle('hidden');
-    }
-
-    function initSidebar(){
-      const d=document.getElementById('domains');
-      const t=document.getElementById('trending');
-      const h=document.getElementById('history');
-      const dM=document.getElementById('domainsM');
-      const tM=document.getElementById('trendingM');
-      const hM=document.getElementById('historyM');
-      DOMAINS.forEach(dom=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<button class="hover:text-cyan" onclick="qEl.value='${dom.q}';search('${dom.q}')">${dom.name}</button>`;
-        d.appendChild(li.cloneNode(true));
-        dM.appendChild(li.cloneNode(true));
-      });
-      TRENDING.forEach(tag=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<button class="hover:text-cyan" onclick="qEl.value='${tag}';search('${tag}')">${tag}</button>`;
-        t.appendChild(li.cloneNode(true));
-        tM.appendChild(li.cloneNode(true));
-      });
-      getSearches().then(list=>{
-        h.innerHTML='';
-        hM.innerHTML='';
-        list.forEach(term=>{
-          const li=document.createElement('li');
-          li.innerHTML=`<button class="hover:text-cyan" onclick="qEl.value='${term}';search('${term}')">${term}</button>`;
-          h.appendChild(li.cloneNode(true));
-          hM.appendChild(li.cloneNode(true));
-        });
-      });
-    }
-
-    qEl.addEventListener('keydown',e=>{
-      if(e.key==='Enter'&&qEl.value.trim()){
-        const term=qEl.value.trim();
-        addSearch(term);
-        search(term);
-      }
+        </div>
+      `;
+      card.onclick=e=>{if(e.target.tagName!=='BUTTON'){markViewed(repo.full_name);window.open(repo.html_url,'_blank');}};
+      r.appendChild(card);
     });
+    lazyImages();
+  }
 
-    document.getElementById('lang').onchange=()=>qEl.value&&search(qEl.value);
-    document.getElementById('stars').onchange=()=>qEl.value&&search(qEl.value);
-    document.querySelectorAll('input[name="sort"]').forEach(i=>i.onchange=()=>qEl.value&&search(qEl.value));
+  function langColor(lang){
+    const map={Python:'#3572A5',JavaScript:'#f1e05a',TypeScript:'#2b7489',Rust:'#dea584',Go:'#00ADD8',C:'#555555','C++':'#f34b7d',Java:'#b07219',Ruby:'#701516',Kotlin:'#F18E33',Swift:'#ffac45',PHP:'#4F5D95',Zig:'#f7a41d',Haskell:'#5e5086'};
+    return map[lang]||'#ccc';
+  }
 
-    (async()=>{
-      db=await openDB();
-      const cfg=await getConfig();
-      token=cfg.token;
-      username=cfg.username;
-      if(username){
-        userEl.textContent=`@${username}`;
-        userEl.classList.remove('hidden');
-        userEl.classList.add('flex');
-      }
-      initSidebar();
-    })();
-  </script>
+  function lazyImages(){
+    const imgs=qsa('img[data-src]');
+    if(!imgs.length)return;
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>{
+        if(e.isIntersecting){
+          const img=e.target;
+          img.src=img.dataset.src;
+          delete img.dataset.src;
+          io.unobserve(img);
+        }
+      });
+    },{rootMargin:'50px'});
+    imgs.forEach(img=>io.observe(img));
+  }
+
+  async function saveSearch(q){
+    const tx=db.transaction('searches','readwrite');
+    const store=tx.objectStore('searches');
+    store.add({query:q,ts:Date.now()});
+    const all=await store.index('ts').openCursor(null,'prev');
+    let cnt=0;
+    const toDelete=[];
+    await new Promise(res=>{
+      all.onsubmit=()=>res();
+      all.onsuccess=()=>{
+        const c=all.result;
+        if(!c){res();return;}
+        cnt++;
+        if(cnt>8) toDelete.push(c.primaryKey);
+        c.continue();
+      };
+      all.onerror=()=>res();
+    });
+    for(const id of toDelete) store.delete(id);
+    await tx.complete;
+    loadHistory();
+  }
+
+  async function loadHistory(){
+    const tx=db.transaction('searches','readonly');
+    const store=tx.objectStore('searches');
+    const idx=store.index('ts');
+    const req=idx.openCursor(null,'prev');
+    const items=[];
+    req.onsuccess=()=>{
+      const c=req.result;
+      if(!c||items.length>=8)return;
+      items.push(c.value);
+      c.continue();
+    };
+    await tx.complete;
+    const h=el('historyList');
+    const hm=el('historyListMob');
+    [h,hm].forEach(list=>list.innerHTML='');
+    items.forEach(it=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<button class="text-left text-xs hover:text-cyan" onclick="search('${it.query}')">${it.query}</button>`;
+      h.appendChild(li.cloneNode(true));
+      hm.appendChild(li.cloneNode(true));
+    });
+  }
+
+  async function markViewed(fullName){
+    const tx=db.transaction('viewed','readwrite');
+    tx.objectStore('viewed').put({fullName,ts:Date.now()});
+  }
+
+  function buildSidebar(){
+    const dl=el('domainList');
+    const dm=el('domainListMob');
+    DOMAINS.forEach(d=>{
+      const b=document.createElement('button');
+      b.className='block text-left text-xs hover:text-cyan';b.textContent=d;
+      b.onclick=()=>search(d.toLowerCase());
+      dl.appendChild(b.cloneNode(true));
+      dm.appendChild(b.cloneNode(true));
+    });
+    const tl=el('trendingList');
+    const tm=el('trendingListMob');
+    TRENDING.slice(0,15).forEach(t=>{
+      const b=document.createElement('button');
+      b.className='block text-left text-xs hover:text-cyan';b.textContent=t;
+      b.onclick=()=>search(t);
+      tl.appendChild(b.cloneNode(true));
+      tm.appendChild(b.cloneNode(true));
+    });
+  }
+
+  function toggleDrawer(){
+    const d=el('drawer');
+    d.classList.toggle('hidden');
+  }
+
+  window.search=function(q){
+    el('searchInput').value=q;
+    el('searchForm').dispatchEvent(new Event('submit'));
+  };
+
+  el('menuBtn').onclick=toggleDrawer;
+  el('closeDrawer').onclick=toggleDrawer;
+  el('drawerOverlay').onclick=toggleDrawer;
+
+  el('searchForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const q=el('searchInput').value.trim();
+    if(!q)return;
+    search(q);
+  });
+
+  ['langFilter','starsFilter'].forEach(id=>{
+    el(id).addEventListener('change',()=>{
+      const q=el('searchInput').value.trim();
+      if(q)search(q);
+    });
+  });
+  qsa('input[name="sort"]').forEach(r=>r.addEventListener('change',()=>{
+    const q=el('searchInput').value.trim();
+    if(q)search(q);
+  }));
+
+  (async()=>{
+    await openDB();
+    await loadUser();
+    buildSidebar();
+    await loadHistory();
+  })();
+})();
+</script>
 </body>
 </html>

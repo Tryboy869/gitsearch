@@ -1,13 +1,23 @@
-<svg viewBox="0 0 210 28" width="210" height="28" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="105" height="28" rx="4" fill="#1e293b"/>
-  <rect x="105" y="0" width="105" height="28" rx="4" fill="#7b2cbf"/>
-  <text x="10" y="18" font-family="monospace" font-size="14" fill="#00d4ff">🔍 gitsearch</text>
-  <text x="115" y="18" font-family="monospace" font-size="12" fill="white">indexed ✓</text>
-  <line x1="15" y1="10" x2="25" y2="20" stroke="#00d4ff" stroke-width="1.5">
-    <animateTransform attributeName="transform" type="translate" values="-10 0;10 0;-10 0" dur="2s" repeatCount="indefinite"/>
-  </line>
-  <g transform="translate(185,18)">
-    <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="1;0.6;1" dur="1.5s" repeatCount="indefinite"/>
+<svg viewBox="0 0 210 28" width="210" height="28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="gitsearch indexed">
+  <defs>
+    <style>
+      :root{--bg:#0a0e1a;--accent:#7b2cbf;--cyan:#00d4ff;--text:#f1f5f9;}
+      @media (prefers-reduced-motion:reduce){animate{animation:none!important}}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="140" height="28" rx="4" fill="var(--bg)"/>
+  <rect x="140" y="0" width="70" height="28" rx="4" fill="var(--accent)"/>
+  <g fill="var(--cyan)">
+    <path d="M10 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-2.5 4a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0z"/>
+    <path d="M15.5 15.5l-2.5-2.5" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round"/>
   </g>
+  <text x="22" y="18" font-family="Courier New,monospace" font-size="12" fill="var(--cyan)">gitsearch</text>
+  <text x="150" y="18" font-family="Courier New,monospace" font-size="12" fill="var(--text)">indexed</text>
+  <g fill="var(--text)">
+    <path d="M185 10l3 3 6-6" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite"/>
+  </g>
+  <rect x="0" y="13" width="140" height="2" fill="var(--cyan)">
+    <animate attributeName="x" values="-140;0" dur="2s" repeatCount="indefinite"/>
+  </rect>
 </svg>

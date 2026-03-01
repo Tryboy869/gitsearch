@@ -1,48 +1,57 @@
-<svg viewBox="0 0 340 28" width="340" height="28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tags: ml, nlp, python, oss">
-  <rect width="340" height="28" fill="#0d1220" rx="4"/>
-  
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      svg * { animation: none !important; }
-    }
-  </style>
-  
+<svg viewBox="0 0 340 28" width="340" height="28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="badge tags">
+  <title>badge tags</title>
   <defs>
-    <clipPath id="underline-clip">
-      <rect x="10" y="22" width="0" height="2" rx="1">
-        <animate attributeName="width" from="0" to="320" dur="1.2s" begin="0.9s" fill="freeze"/>
+    <clipPath id="typeClip">
+      <rect x="0" y="0" width="0" height="28">
+        <animate attributeName="width" values="0;340" dur="1.2s" fill="freeze"/>
       </rect>
     </clipPath>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  
-  <g font-family="ui-monospace, monospace" font-size="14" fill="#00d4ff">
-    <g opacity="0" transform="translate(0, -5)">
-      <text x="10" y="18">🏷 ml</text>
-      <animate attributeName="opacity" to="1" dur="0.2s" begin="0s" fill="freeze"/>
-      <animateTransform attributeName="transform" type="translate" to="0,0" dur="0.3s" begin="0s" fill="freeze"/>
-    </g>
-    
-    <g opacity="0" transform="translate(0, -5)">
-      <text x="78" y="18" fill="#7b2cbf">·</text>
-      <text x="88" y="18">nlp</text>
-      <animate attributeName="opacity" to="1" dur="0.2s" begin="0.3s" fill="freeze"/>
-      <animateTransform attributeName="transform" type="translate" to="0,0" dur="0.3s" begin="0.3s" fill="freeze"/>
-    </g>
-    
-    <g opacity="0" transform="translate(0, -5)">
-      <text x="133" y="18" fill="#7b2cbf">·</text>
-      <text x="143" y="18">python</text>
-      <animate attributeName="opacity" to="1" dur="0.2s" begin="0.6s" fill="freeze"/>
-      <animateTransform attributeName="transform" type="translate" to="0,0" dur="0.3s" begin="0.6s" fill="freeze"/>
-    </g>
-    
-    <g opacity="0" transform="translate(0, -5)">
-      <text x="228" y="18" fill="#7b2cbf">·</text>
-      <text x="238" y="18">oss</text>
-      <animate attributeName="opacity" to="1" dur="0.2s" begin="0.9s" fill="freeze"/>
-      <animateTransform attributeName="transform" type="translate" to="0,0" dur="0.3s" begin="0.9s" fill="freeze"/>
-    </g>
+  <rect x="0" y="0" width="340" height="28" rx="4" fill="#0d1220"/>
+  <g clip-path="url(#typeClip)">
+    <text x="10" y="18" fill="#00d4ff" font-family="Courier New, monospace" font-size="14">🏷</text>
+    <text x="30" y="18" fill="#00d4ff" font-family="Courier New, monospace" font-size="14">
+      ml
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.3s" fill="freeze"/>
+    </text>
+    <text x="52" y="18" fill="#7b2cbf" font-family="Courier New, monospace" font-size="14">
+      ·
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.5s" fill="freeze"/>
+    </text>
+    <text x="60" y="18" fill="#00d4ff" font-family="Courier New, monospace" font-size="14">
+      nlp
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.6s" fill="freeze"/>
+    </text>
+    <text x="88" y="18" fill="#7b2cbf" font-family="Courier New, monospace" font-size="14">
+      ·
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.8s" fill="freeze"/>
+    </text>
+    <text x="96" y="18" fill="#00d4ff" font-family="Courier New, monospace" font-size="14">
+      python
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.9s" fill="freeze"/>
+    </text>
+    <text x="138" y="18" fill="#7b2cbf" font-family="Courier New, monospace" font-size="14">
+      ·
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="1.1s" fill="freeze"/>
+    </text>
+    <text x="146" y="18" fill="#00d4ff" font-family="Courier New, monospace" font-size="14">
+      oss
+      <animate attributeName="opacity" values="0;1" dur="0.3s" begin="1.2s" fill="freeze"/>
+    </text>
+    <rect x="30" y="21" width="0" height="2" fill="#7b2cbf">
+      <animate attributeName="width" values="0;136" dur="0.8s" begin="1.5s" fill="freeze"/>
+    </rect>
   </g>
-  
-  <rect x="10" y="22" width="320" height="2" fill="#00d4ff" opacity="0.3" clip-path="url(#underline-clip)"/>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      animate { animation: none !important; }
+    }
+  </style>
 </svg>

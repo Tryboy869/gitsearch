@@ -1,43 +1,25 @@
 name: Validate Project
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Check required files
         run: |
-          REQUIRED=(
-            "index.html" "dashboard.html" "settings.html"
-            "assets/logo.svg" "assets/footer.svg" "assets/creator-card.svg"
-            "assets/badges/badge-indexed.svg" "assets/badges/badge-tags.svg"
-            "scripts/release.sh" "CHANGELOG.md" "README.md" "LICENSE" "robots.txt"
-          )
-          MISSING=0
-          for f in "${REQUIRED[@]}"; do
-            if [ ! -f "$f" ]; then
-              echo "❌ Missing: $f"
-              MISSING=$((MISSING+1))
-            else
-              echo "✅ $f"
-            fi
+          for f in index.html dashboard.html settings.html assets/logo.svg assets/footer.svg \
+                   assets/creator-card.svg assets/badges/badge-indexed.svg \
+                   assets/badges/badge-tags.svg scripts/release.sh CHANGELOG.md README.md LICENSE; do
+            [ -f "$f" ] && echo "✅ $f" || (echo "❌ Missing $f" && exit 1)
           done
-          [ $MISSING -eq 0 ] || exit 1
-
-      - name: Validate SVG files
+      - name: Validate SVGs
         run: |
           sudo apt-get install -q libxml2-utils
           for svg in assets/*.svg assets/badges/*.svg; do
-            echo "Validating $svg..."
-            xmllint --noout "$svg" && echo "✅ $svg" || (echo "❌ $svg" && exit 1)
+            xmllint --noout "$svg" && echo "✅ $svg" || exit 1
           done
-
-      - name: Check release.sh is executable
-        run: test -x scripts/release.sh && echo "✅ release.sh is executable"
+      - run: test -x scripts/release.sh

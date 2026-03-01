@@ -1,14 +1,11 @@
 name: Auto-Release from CHANGELOG
-
 on:
   push:
     branches: [main]
     paths: ["CHANGELOG.md"]
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -16,11 +13,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Make scripts executable
-        run: chmod +x scripts/release.sh
-
-      - name: Detect version and release
+      - run: chmod +x scripts/release.sh
+      - name: Detect and release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/release.sh

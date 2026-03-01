@@ -1,17 +1,13 @@
 # Changelog — GITSEARCH
 
-## [1.0.0] — 2026-03-01
+## [2.0.0] — 2026-03-01
 
-### ✦ Initial Release — Built with Dojutsu-for-AI
+### ✦ Rebuild — Dojutsu Context Engine v1.0
 
-- Triple stratégie de recherche parallèle (A: full-text, B: name/slug, C: README content)
-- Dictionnaire sémantique 30+ termes
-- 13 domaines technologiques en sidebar
-- IndexedDB pour historique, repos visités et config token
-- Dashboard métriques écosystème
-- Settings : auth GitHub, rate limit monitor, snippet generator
-- 5 SVG animés SMIL (logo, footer, creator-card, badge-indexed, badge-tags)
-- GitHub Actions : pages.yml, release.yml, validate.yml
-- prefers-reduced-motion sur toutes les animations
-- Mobile-first responsive (breakpoint 768px)
-- Zéro backend, Vanilla JS, Tailwind CDN uniquement
+- Rebuild complet avec ContextEngine (mémoire RAM partagée inter-fichiers)
+- Cohérence visuelle garantie entre index/dashboard/settings (dark theme #0a0e1a)
+- Injection segmentée selon context window Kimi (131k tokens)
+- Compression RAG décisionnelle (150 mots/fichier)
+- Validation cohérence automatique + autocorrection violations
+- Triple stratégie de recherche A/B/C inchangée
+- IndexedDB gitsearch_v1 partagée entre les 3 pages

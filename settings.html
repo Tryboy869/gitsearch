@@ -4,265 +4,315 @@
   <meta charset="UTF-8">
   <title>Settings – GITSEARCH</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="https://cdn.tailwindcss.com/3.4.0"></script>
-  <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
-  <link rel="icon" href="assets/logo.svg">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    .progress-bar{height:6px;border-radius:3px;overflow:hidden}
-    .progress-bar-inner{height:100%;transition:width .3s}
+    :root{
+      --bg:#0a0e1a;
+      --card:#0d1220;
+      --accent:#7b2cbf;
+      --cyan:#00d4ff;
+      --text:#f1f5f9;
+    }
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Courier New',monospace;
+    }
+    .font-mono{font-family:'Courier New',monospace;}
+    .bg-bg{background:var(--bg);}
+    .bg-card{background:var(--card);}
+    .border-accent{border-color:var(--accent);}
+    .text-cyan{color:var(--cyan);}
+    .text-accent{color:var(--accent);}
+    .fadeIn{animation:fadeIn .4s ease forwards;}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+    .scroll-none::-webkit-scrollbar{display:none;}
+    .scroll-none{-ms-overflow-style:none;scrollbar-width:none;}
+    .dot-pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 1.2s infinite;}
+    @keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+    .backdrop-blur{backdrop-filter:blur(4px);}
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <header class="bg-white shadow sticky top-0 z-10">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2 text-gray-800 font-semibold">
-        <img src="assets/logo.svg" alt="GitSearch" class="h-8">
-        <span>GitSearch</span>
-      </a>
-      <nav class="flex items-center gap-4 text-sm">
-        <a href="index.html" class="hover:text-indigo-600">Search</a>
-        <a href="dashboard.html" class="hover:text-indigo-600">Dashboard</a>
-        <a href="settings.html" class="text-indigo-600 font-medium">Settings</a>
-      </nav>
+<body class="font-mono">
+  <header class="sticky top-0 z-40 bg-card border-b border-gray-800 flex items-center justify-between px-4 py-3">
+    <a href="/" aria-label="Home">
+      <img src="assets/logo.svg" alt="GITSEARCH" class="h-10">
+    </a>
+    <div class="flex-1 max-w-xl mx-4">
+      <form id="searchForm" class="search-form relative">
+        <input id="search-input" type="text" placeholder="Search repos…" class="w-full px-3 py-2 bg-bg border border-gray-700 rounded-md text-text placeholder-gray-400 focus:outline-none focus:border-accent">
+      </form>
     </div>
+    <nav class="flex items-center gap-4 text-sm">
+      <a href="dashboard.html" class="hover:text-cyan">Dashboard</a>
+      <a href="settings.html" class="text-cyan">Settings</a>
+    </nav>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 py-8 space-y-10">
-    <!-- Auth -->
-    <section class="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 class="text-lg font-semibold">GitHub Authentication</h2>
-      <form id="authForm" class="space-y-3">
+  <main class="max-w-5xl mx-auto px-4 py-8 fadeIn">
+    <h1 class="text-2xl font-bold mb-6">Settings</h1>
+
+    <!-- GitHub Auth -->
+    <section class="bg-card rounded-lg border border-gray-800 p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">GitHub Auth</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Username</label>
-          <input id="username" type="text" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-sm mb-1">Username</label>
+          <input id="ghUser" type="text" placeholder="octocat" class="w-full px-3 py-2 bg-bg border border-gray-700 rounded-md text-text focus:outline-none focus:border-accent">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Personal Access Token</label>
+          <label class="block text-sm mb-1">Token</label>
           <div class="relative">
-            <input id="token" type="password" required class="w-full border rounded-lg px-3 py-2 pr-20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <button type="button" id="toggleToken" class="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-indigo-600">Show</button>
+            <input id="ghToken" type="password" placeholder="ghp_…" class="w-full pr-20 px-3 py-2 bg-bg border border-gray-700 rounded-md text-text focus:outline-none focus:border-accent">
+            <button id="toggleToken" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-cyan hover:underline">Show</button>
           </div>
-          <p class="text-xs text-gray-500 mt-1">Scopes required: <code class="bg-gray-100 px-1 rounded">public_repo read:user</code></p>
         </div>
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Save & Validate</button>
-        <p id="authStatus" class="text-sm"></p>
-      </form>
+      </div>
+      <div class="mt-3 text-xs text-gray-400">Scopes: public_repo read:user</div>
+      <div id="authStatus" class="mt-2 text-sm"></div>
+      <button id="saveAuth" class="mt-4 px-4 py-2 bg-accent text-bg rounded-md hover:opacity-90">Save & Validate</button>
     </section>
 
-    <!-- Rate Limit -->
-    <section class="bg-white rounded-xl shadow p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Rate Limit Monitor</h2>
-        <button id="refreshRate" class="text-sm text-indigo-600 hover:underline">Refresh</button>
-      </div>
-      <div class="space-y-3">
+    <!-- Rate Limit Monitor -->
+    <section class="bg-card rounded-lg border border-gray-800 p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Rate Limit Monitor</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <div class="flex justify-between text-sm mb-1">
-            <span>Core API</span>
-            <span id="coreText">0 / 0</span>
+          <div class="flex justify-between text-xs mb-1">
+            <span>Core (token)</span><span id="coreUsed">0</span>/<span id="coreLimit">5000</span>
           </div>
-          <div class="progress-bar bg-gray-200">
-            <div id="coreBar" class="progress-bar-inner bg-indigo-600" style="width:0%"></div>
+          <div class="w-full h-3 bg-bg rounded overflow-hidden">
+            <div id="coreBar" class="h-full bg-cyan" style="width:0%"></div>
           </div>
         </div>
         <div>
-          <div class="flex justify-between text-sm mb-1">
-            <span>Search API</span>
-            <span id="searchText">0 / 0</span>
+          <div class="flex justify-between text-xs mb-1">
+            <span>Search (token)</span><span id="searchUsed">0</span>/<span id="searchLimit">30</span>
           </div>
-          <div class="progress-bar bg-gray-200">
-            <div id="searchBar" class="progress-bar-inner bg-indigo-600" style="width:0%"></div>
+          <div class="w-full h-3 bg-bg rounded overflow-hidden">
+            <div id="searchBar" class="h-full bg-accent" style="width:0%"></div>
           </div>
         </div>
       </div>
+      <button id="refreshLimits" class="mt-4 px-4 py-2 bg-gray-800 text-text rounded-md hover:bg-gray-700">Refresh</button>
     </section>
 
     <!-- Snippet Generator -->
-    <section class="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 class="text-lg font-semibold">Snippet Generator</h2>
-      <form id="snippetForm" class="space-y-3">
+    <section class="bg-card rounded-lg border border-gray-800 p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Snippet Generator</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Repository URL</label>
-          <input id="repoUrl" type="url" placeholder="https://github.com/owner/repo" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-sm mb-1">Repo URL</label>
+          <input id="repoUrl" type="text" placeholder="https://github.com/user/repo" class="w-full px-3 py-2 bg-bg border border-gray-700 rounded-md text-text focus:outline-none focus:border-accent">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Semantic Tags (comma separated)</label>
-          <input id="repoTags" type="text" placeholder="ai, nlp, pytorch" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-sm mb-1">Tags (comma sep)</label>
+          <input id="repoTags" type="text" placeholder="rust,cli,tool" class="w-full px-3 py-2 bg-bg border border-gray-700 rounded-md text-text focus:outline-none focus:border-accent">
         </div>
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Generate</button>
-      </form>
-      <div id="snippetPreview" class="hidden">
-        <p class="text-sm font-medium mb-2">Preview</p>
-        <pre id="snippetCode" class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"></pre>
-        <button id="copySnippet" class="mt-2 text-sm text-indigo-600 hover:underline">Copy to clipboard</button>
       </div>
+      <div class="mt-4">
+        <label class="block text-sm mb-1">Preview</label>
+        <div class="bg-bg p-3 rounded-md border border-gray-700">
+          <img id="badgePreview" src="https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg" alt="badge" class="h-6">
+          <pre id="snippetCode" class="text-xs text-gray-300 mt-2 overflow-x-auto"></pre>
+        </div>
+      </div>
+      <button id="copySnippet" class="mt-4 px-4 py-2 bg-accent text-bg rounded-md hover:opacity-90">Copy snippet</button>
     </section>
 
     <!-- Preferences -->
-    <section class="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 class="text-lg font-semibold">Preferences</h2>
+    <section class="bg-card rounded-lg border border-gray-800 p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Preferences</h2>
       <div class="space-y-3">
-        <label class="flex items-center justify-between">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input id="saveHistory" type="checkbox" class="w-4 h-4 accent-accent">
           <span class="text-sm">Save search history</span>
-          <input id="prefHistory" type="checkbox" class="toggle">
         </label>
-        <label class="flex items-center justify-between">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input id="semanticExpand" type="checkbox" class="w-4 h-4 accent-accent">
           <span class="text-sm">Semantic expansion</span>
-          <input id="prefSemantic" type="checkbox" class="toggle">
         </label>
-        <label class="flex items-center justify-between">
-          <span class="text-sm">GITSEARCH exclusive mode</span>
-          <input id="prefExclusive" type="checkbox" class="toggle">
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input id="gitsearchOnly" type="checkbox" class="w-4 h-4 accent-accent">
+          <span class="text-sm">GitSearch-only mode (hide GitHub links)</span>
         </label>
       </div>
+      <button id="savePrefs" class="mt-4 px-4 py-2 bg-gray-800 text-text rounded-md hover:bg-gray-700">Save</button>
     </section>
 
     <!-- Danger Zone -->
-    <section class="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
-      <div class="flex gap-3">
-        <button id="clearHistory" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Clear History</button>
-        <button id="resetAll" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800">Reset All Data</button>
+    <section class="bg-red-900/20 border border-red-800 rounded-lg p-4">
+      <h2 class="text-lg font-semibold text-red-400 mb-3">Danger Zone</h2>
+      <div class="flex flex-wrap gap-3">
+        <button id="clearHistory" class="px-4 py-2 bg-red-800 text-white rounded-md hover:bg-red-700">Clear history</button>
+        <button id="resetAll" class="px-4 py-2 bg-red-800 text-white rounded-md hover:bg-red-700">Reset all data</button>
       </div>
     </section>
   </main>
 
-  <footer class="mt-16">
-    <img src="assets/footer.svg" alt="" class="w-full">
-  </footer>
+  <script>
+    (async function(){
+      const DB_NAME='gitsearch_v1';
+      const STORES={config:'key',searches:'++id,query,ts',viewed:'full_name'};
 
-  <script type="module">
-    import { openDB } from 'https://unpkg.com/idb@7.1.1/build/esm/index.js';
-    const DB_NAME = 'gitsearch';
-    const STORE_CONFIG = 'config';
-    const STORE_PREFS = 'prefs';
-    const STORE_HISTORY = 'history';
-    const db = await openDB(DB_NAME, 1, {
-      upgrade(db) {
-        db.createObjectStore(STORE_CONFIG);
-        db.createObjectStore(STORE_PREFS);
-        db.createObjectStore(STORE_HISTORY);
-      }
-    });
+      function el(id){return document.getElementById(id);}
+      function qs(sel){return document.querySelector(sel);}
 
-    // Auth
-    const authForm = document.getElementById('authForm');
-    const username = document.getElementById('username');
-    const token = document.getElementById('token');
-    const toggleToken = document.getElementById('toggleToken');
-    const authStatus = document.getElementById('authStatus');
-
-    const saved = await db.get(STORE_CONFIG, 'auth');
-    if (saved) {
-      username.value = saved.username || '';
-      token.value = saved.token || '';
-    }
-
-    toggleToken.onclick = () => {
-      const isPwd = token.type === 'password';
-      token.type = isPwd ? 'text' : 'password';
-      toggleToken.textContent = isPwd ? 'Hide' : 'Show';
-    };
-
-    authForm.onsubmit = async (e) => {
-      e.preventDefault();
-      authStatus.textContent = 'Validating...';
-      authStatus.className = 'text-sm text-gray-600';
-      try {
-        const res = await fetch('https://api.github.com/user', {
-          headers: {
-            'Authorization': `token ${token.value.trim()}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
+      let db;
+      async function openDB(){
+        return new Promise((resolve,reject)=>{
+          const req=indexedDB.open(DB_NAME,1);
+          req.onsuccess=()=>{db=req.result;resolve(db);};
+          req.onerror=()=>reject(req.error);
         });
-        if (!res.ok) throw new Error('Invalid token or network error');
-        const data = await res.json();
-        if (data.login !== username.value.trim()) throw new Error('Username mismatch');
-        await db.put(STORE_CONFIG, { username: username.value.trim(), token: token.value.trim() }, 'auth');
-        authStatus.textContent = '✓ Authenticated';
-        authStatus.className = 'text-sm text-green-600';
-      } catch (err) {
-        authStatus.textContent = '✗ ' + err.message;
-        authStatus.className = 'text-sm text-red-600';
       }
-    };
+      async function getConfig(key){
+        const tx=db.transaction('config','readonly');
+        const store=tx.objectStore('config');
+        return new Promise(res=>{
+          const r=store.get(key);
+          r.onsuccess=()=>res(r.result?r.result.value:null);
+        });
+      }
+      async function setConfig(key,value){
+        const tx=db.transaction('config','readwrite');
+        const store=tx.objectStore('config');
+        store.put({key,value});
+        return tx.complete;
+      }
 
-    // Rate Limit
-    async function loadRate() {
-      const auth = await db.get(STORE_CONFIG, 'auth');
-      const headers = auth?.token ? { 'Authorization': `token ${auth.token}` } : {};
-      const core = await fetch('https://api.github.com/rate_limit', { headers }).then(r => r.json()).catch(() => ({}));
-      const search = core.resources?.search || { used: 0, remaining: 0, limit: 0 };
-      const coreRes = core.resources?.core || { used: 0, remaining: 0, limit: 0 };
-      const coreUsed = coreRes.limit - coreRes.remaining;
-      const searchUsed = search.limit - search.remaining;
-      document.getElementById('coreText').textContent = `${coreUsed} / ${coreRes.limit}`;
-      document.getElementById('coreBar').style.width = `${coreRes.limit ? (coreUsed / coreRes.limit) * 100 : 0}%`;
-      document.getElementById('searchText').textContent = `${searchUsed} / ${search.limit}`;
-      document.getElementById('searchBar').style.width = `${search.limit ? (searchUsed / search.limit) * 100 : 0}%`;
-    }
-    document.getElementById('refreshRate').onclick = loadRate;
-    loadRate();
+      await openDB();
 
-    // Snippet
-    const snippetForm = document.getElementById('snippetForm');
-    const repoUrl = document.getElementById('repoUrl');
-    const repoTags = document.getElementById('repoTags');
-    const snippetPreview = document.getElementById('snippetPreview');
-    const snippetCode = document.getElementById('snippetCode');
-    const copySnippet = document.getElementById('copySnippet');
+      // Load saved auth
+      const savedUser=await getConfig('ghUser')||'';
+      const savedToken=await getConfig('ghToken')||'';
+      el('ghUser').value=savedUser;
+      el('ghToken').value=savedToken;
 
-    snippetForm.onsubmit = (e) => {
-      e.preventDefault();
-      const url = repoUrl.value.trim();
-      const tags = repoTags.value.split(',').map(t => t.trim()).filter(Boolean).join(', ');
-      const badge = `[![gitsearch](https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg)](https://tryboy869.github.io/gitsearch)`;
-      const comment = `<!-- gitsearch: ${tags} -->`;
-      const code = `${badge}\n${comment}`;
-      snippetCode.textContent = code;
-      snippetPreview.classList.remove('hidden');
-    };
+      // Toggle token visibility
+      el('toggleToken').onclick=()=>{
+        const i=el('ghToken');
+        const isP=i.type==='password';
+        i.type=isP?'text':'password';
+        el('toggleToken').textContent=isP?'Hide':'Show';
+      };
 
-    copySnippet.onclick = async () => {
-      await navigator.clipboard.writeText(snippetCode.textContent);
-      copySnippet.textContent = 'Copied!';
-      setTimeout(() => copySnippet.textContent = 'Copy to clipboard', 1500);
-    };
+      // Validate & save auth
+      el('saveAuth').onclick=async()=>{
+        const user=el('ghUser').value.trim();
+        const token=el('ghToken').value.trim();
+        const status=el('authStatus');
+        status.textContent='Validating…';
+        status.className='mt-2 text-sm text-cyan';
+        try{
+          const r=await fetch('https://api.github.com/user',{
+            headers:token?{Authorization:`token ${token}`}:{}
+          });
+          if(r.ok){
+            await setConfig('ghUser',user);
+            await setConfig('ghToken',token);
+            status.textContent='✓ Authenticated';
+            status.className='mt-2 text-sm text-green-400';
+          }else{
+            status.textContent='✗ Invalid token or network error';
+            status.className='mt-2 text-sm text-red-400';
+          }
+        }catch(e){
+          status.textContent='✗ Network error';
+          status.className='mt-2 text-sm text-red-400';
+        }
+      };
 
-    // Preferences
-    const prefHistory = document.getElementById('prefHistory');
-    const prefSemantic = document.getElementById('prefSemantic');
-    const prefExclusive = document.getElementById('prefExclusive');
+      // Rate limit UI update
+      function updateBars(core,search){
+        const cUsed=core.used, cLimit=core.limit;
+        const sUsed=search.used, sLimit=search.limit;
+        el('coreUsed').textContent=cUsed;
+        el('coreLimit').textContent=cLimit;
+        el('searchUsed').textContent=sUsed;
+        el('searchLimit').textContent=sLimit;
+        el('coreBar').style.width=(cLimit?Math.round((cUsed/cLimit)*100):0)+'%';
+        el('searchBar').style.width=(sLimit?Math.round((sUsed/sLimit)*100):0)+'%';
+      }
+      async function fetchLimits(){
+        const token=await getConfig('ghToken');
+        const headers=token?{Authorization:`token ${token}`}:{};
+        const r=await fetch('https://api.github.com/rate_limit',{headers});
+        if(r.ok){
+          const j=await r.json();
+          updateBars(j.resources.core,j.resources.search);
+        }
+      }
+      el('refreshLimits').onclick=fetchLimits;
+      await fetchLimits();
 
-    const prefs = (await db.get(STORE_PREFS, 'prefs')) || {};
-    prefHistory.checked = prefs.history !== false;
-    prefSemantic.checked = prefs.semantic !== false;
-    prefExclusive.checked = prefs.exclusive === true;
+      // Snippet generator
+      function buildSnippet(){
+        const url=el('repoUrl').value.trim();
+        const tags=el('repoTags').value.trim();
+        const badge='https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg';
+        const href=url?`https://gitsearch.example.com/search?q=${encodeURIComponent(tags)}`:'#';
+        const md=`[![GitSearch indexed](${badge})](${href})`;
+        const html=`&lt;a href="${href}"&gt;&lt;img src="${badge}" alt="GitSearch indexed"&gt;&lt;/a&gt;`;
+        el('badgePreview').src=badge;
+        el('snippetCode').textContent=md+'\n'+html;
+      }
+      el('repoUrl').oninput=buildSnippet;
+      el('repoTags').oninput=buildSnippet;
+      buildSnippet();
 
-    async function savePrefs() {
-      await db.put(STORE_PREFS, {
-        history: prefHistory.checked,
-        semantic: prefSemantic.checked,
-        exclusive: prefExclusive.checked
-      }, 'prefs');
-    }
-    prefHistory.onchange = savePrefs;
-    prefSemantic.onchange = savePrefs;
-    prefExclusive.onchange = savePrefs;
+      el('copySnippet').onclick=()=>{
+        const txt=el('snippetCode').textContent;
+        if(navigator.clipboard){
+          navigator.clipboard.writeText(txt);
+        }else{
+          const ta=document.createElement('textarea');
+          ta.value=txt;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        el('copySnippet').textContent='Copied!';
+        setTimeout(()=>el('copySnippet').textContent='Copy snippet',1500);
+      };
 
-    // Danger
-    document.getElementById('clearHistory').onclick = async () => {
-      if (!confirm('Delete all search history?')) return;
-      const tx = db.transaction(STORE_HISTORY, 'readwrite');
-      await tx.store.clear();
-      await tx.done;
-    };
-    document.getElementById('resetAll').onclick = async () => {
-      if (!confirm('Delete all data (auth, prefs, history)?')) return;
-      db.close();
-      await indexedDB.deleteDatabase(DB_NAME);
-      location.reload();
-    };
+      // Preferences
+      async function loadPrefs(){
+        el('saveHistory').checked=await getConfig('saveHistory')!==false;
+        el('semanticExpand').checked=await getConfig('semanticExpand')!==false;
+        el('gitsearchOnly').checked=await getConfig('gitsearchOnly')===true;
+      }
+      await loadPrefs();
+      el('savePrefs').onclick=async()=>{
+        await setConfig('saveHistory',el('saveHistory').checked);
+        await setConfig('semanticExpand',el('semanticExpand').checked);
+        await setConfig('gitsearchOnly',el('gitsearchOnly').checked);
+        el('savePrefs').textContent='Saved';
+        setTimeout(()=>el('savePrefs').textContent='Save',1500);
+      };
+
+      // Danger zone
+      el('clearHistory').onclick=async()=>{
+        if(!confirm('Clear all search history?'))return;
+        const tx=db.transaction('searches','readwrite');
+        tx.objectStore('searches').clear();
+        await tx.complete;
+        alert('History cleared');
+      };
+      el('resetAll').onclick=async()=>{
+        if(!confirm('Delete ALL data (history, config, viewed)?'))return;
+        const stores=['searches','viewed','config'];
+        for(const s of stores){
+          const tx=db.transaction(s,'readwrite');
+          tx.objectStore(s).clear();
+          await tx.complete;
+        }
+        alert('All data reset');
+        location.reload();
+      };
+    })();
   </script>
 </body>
 </html>
