@@ -453,36 +453,139 @@ function expand(raw){
   return{topic,extras:[...new Set(extras)].filter(Boolean).slice(0,5),label:[...new Set(label)].slice(0,8)};
 }
 
-// ─── GITHUB SEARCH ───────────────────────────────────────────
+// ─── GITHUB SEARCH — TRIPLE STRATEGY ────────────────────────
+//
+// HOW GITHUB SEARCH REALLY WORKS:
+//   - "weak hardware booster"  → matches name/desc/topics word by word
+//   - in:name "weak-hardware"  → exact slug match in repo name
+//   - in:name,description,topics,readme → broader scope
+//   - /search/code             → searches inside file content (README etc.)
+//
+// OUR 3-QUERY STRATEGY (parallel):
+//   A) Full-text: raw query → name + desc + topics + readme (GitHub default)
+//   B) Name-slug: convert spaces→dashes, search in:name → exact repo name hit
+//   C) Code: search phrase inside README files (token required, page 1 only)
+//
+// All 3 merged + deduplicated. A is primary for count/pagination.
+//
 async function ghSearch(raw,page=1){
   const token=await dGet('config','gh_token');
-  const lang=document.getElementById('LF').value;
+  const lang =document.getElementById('LF').value;
   const stars=document.getElementById('SF').value;
-  const{topic,extras,label}=expand(raw);
+  const{label}=expand(raw);
+  const headers=ghH(token);
+  const sP=sortMode==='stars'?'stars':'updated';
+  const oP=sortMode==='old'?'asc':'desc';
 
-  // Build query string — NO "OR" between topic: filters (causes 422)
-  // Correct: topic:X keyword1 keyword2 language:Y stars:>=N
-  let q='';
-  if(topic) q=`topic:${topic}`;
-  if(extras.length) q+=(q?' ':'')+extras.join(' ');
-  if(!q.trim()) q=raw.trim(); // raw fallback
-  if(lang)  q+=` language:${lang}`;
-  if(stars) q+=` stars:>=${stars}`;
+  // ── Query A: Full-text repository search (primary) ─────────
+  // GitHub searches: name, description, topics, README content
+  // This is the main search — handles semantic terms well
+  let qA=raw.trim();
+  if(lang)  qA+=` language:${lang}`;
+  if(stars) qA+=` stars:>=${stars}`;
 
-  const s=sortMode==='stars'?'stars':'updated';
-  const o=sortMode==='old'?'asc':'desc';
-  const url=`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=${s}&order=${o}&per_page=20&page=${page}`;
+  const fetchA=fetch(
+    `https://api.github.com/search/repositories?q=${encodeURIComponent(qA)}&sort=${sP}&order=${oP}&per_page=20&page=${page}`,
+    {headers}
+  );
 
-  const res=await fetch(url,{headers:ghH(token)});
-  if(!res.ok){
-    const b=await res.json().catch(()=>({}));
-    if(res.status===403)throw new Error('Rate limit atteint — connectez-vous dans Settings pour 5000 req/h.');
-    if(res.status===401)throw new Error('Token invalide — vérifiez vos credentials dans Settings.');
-    if(res.status===422)throw new Error(`Requête invalide (422) : ${b.message||'simplifiez votre recherche'}`);
-    throw new Error(`GitHub API ${res.status}: ${b.message||''}`);
+  // ── Query B: Name/slug search (finds exact repo names) ──────
+  // Converts "Weak Hardware Booster" → "weak-hardware-booster"
+  // Uses in:name to find repos whose slug matches closely
+  // Also searches description and topics with the same terms
+  let fetchB=Promise.resolve(null);
+  if(page===1){
+    const slug=raw.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const words=raw.trim().toLowerCase().split(/\s+/).join('+');
+    // Two sub-strategies for name matching:
+    // 1. Exact slug in name: "weak-hardware-booster" in:name
+    // 2. Individual words in name+desc: weak hardware booster in:name,description
+    let qB=`${slug} in:name`;
+    if(lang) qB+=` language:${lang}`;
+    fetchB=fetch(
+      `https://api.github.com/search/repositories?q=${encodeURIComponent(qB)}&sort=${sP}&order=${oP}&per_page=10`,
+      {headers}
+    ).catch(()=>null);
   }
-  const d=await res.json();
-  return{items:d.items||[],total:d.total_count||0,label};
+
+  // ── Query C: README content search (bonus, token required) ──
+  // Searches for the phrase literally inside README file content
+  // Most powerful for finding repos not indexed by name/topics
+  let fetchC=Promise.resolve(null);
+  if(token && page===1){
+    // GitHub code search: phrase must appear in README
+    const phrase=raw.trim();
+    let qC=`"${phrase}" in:file filename:README`;
+    // Don't add language here — code search language = file language not repo language
+    fetchC=fetch(
+      `https://api.github.com/search/code?q=${encodeURIComponent(qC)}&per_page=10`,
+      {headers}
+    ).catch(()=>null);
+  }
+
+  // ── Run all 3 in parallel ──────────────────────────────────
+  const [resA,resB,resC]=await Promise.allSettled([fetchA,fetchB,fetchC]);
+
+  // Primary must succeed
+  if(resA.status==='rejected') throw new Error('Erreur réseau — vérifiez votre connexion.');
+  const rA=resA.value;
+  if(!rA.ok){
+    const b=await rA.json().catch(()=>({}));
+    if(rA.status===403) throw new Error('Rate limit atteint. Ajoutez votre token GitHub dans Settings → 5000 req/h.');
+    if(rA.status===401) throw new Error('Token invalide — vérifiez vos credentials dans Settings.');
+    if(rA.status===422) throw new Error('Requête invalide — simplifiez vos termes.');
+    throw new Error(`GitHub API ${rA.status}: ${b.message||''}`);
+  }
+
+  const dataA=await rA.json();
+  let items=dataA.items||[];
+  const seen=new Set(items.map(r=>r.full_name));
+  let bonus=[];
+
+  // ── Merge B (name search) ──────────────────────────────────
+  if(resB.status==='fulfilled' && resB.value?.ok){
+    try{
+      const dB=await resB.value.json();
+      for(const r of(dB.items||[])){
+        if(!seen.has(r.full_name)){seen.add(r.full_name);bonus.push(r);}
+      }
+    }catch(e){}
+  }
+
+  // ── Merge C (code/README search) ──────────────────────────
+  if(resC.status==='fulfilled' && resC.value?.ok){
+    try{
+      const dC=await resC.value.json();
+      const detailFetches=[];
+      for(const ci of(dC.items||[])){
+        const repo=ci.repository;
+        if(repo&&!seen.has(repo.full_name)){
+          seen.add(repo.full_name);
+          // Need full repo details for stars, topics, etc.
+          detailFetches.push(
+            fetch(`https://api.github.com/repos/${repo.full_name}`,{headers})
+              .then(r=>r.ok?r.json():null).catch(()=>null)
+          );
+        }
+      }
+      // Fetch all detail pages in parallel
+      const details=await Promise.all(detailFetches);
+      bonus.push(...details.filter(Boolean));
+    }catch(e){}
+  }
+
+  // Combine: primary results first, then bonus
+  items=[...items,...bonus];
+
+  // ── Re-sort merged set ─────────────────────────────────────
+  if(sortMode==='stars')
+    items.sort((a,b)=>(b.stargazers_count||0)-(a.stargazers_count||0));
+  else if(sortMode==='old')
+    items.sort((a,b)=>new Date(a.pushed_at)-new Date(b.pushed_at));
+  else
+    items.sort((a,b)=>new Date(b.pushed_at)-new Date(a.pushed_at));
+
+  return{items,total:dataA.total_count||0,label};
 }
 
 // ─── RENDER ──────────────────────────────────────────────────
