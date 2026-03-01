@@ -1,0 +1,64 @@
+name: Validate Project
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Check HTML & Assets
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          echo "Vérification des fichiers requis..."
+          files=(
+            "index.html"
+            "dashboard.html"
+            "settings.html"
+            "assets/logo.svg"
+            "assets/badges/badge-indexed.svg"
+            "assets/badges/badge-tags.svg"
+            "assets/creator-card.svg"
+            "assets/footer.svg"
+            "CHANGELOG.md"
+            "README.md"
+            "LICENSE"
+            "robots.txt"
+            "sitemap.xml"
+          )
+          all_ok=true
+          for f in "${files[@]}"; do
+            if [ -f "$f" ]; then
+              echo "  ✅ $f"
+            else
+              echo "  ❌ MANQUANT: $f"
+              all_ok=false
+            fi
+          done
+          $all_ok || exit 1
+
+      - name: Check SVG files are valid XML
+        run: |
+          echo "Validation SVG..."
+          for svg in assets/*.svg assets/badges/*.svg; do
+            [ -f "$svg" ] || continue
+            if xmllint --noout "$svg" 2>/dev/null; then
+              echo "  ✅ $svg"
+            else
+              echo "  ⚠️  $svg (avertissement XML)"
+            fi
+          done
+
+      - name: Check release script is executable
+        run: |
+          [ -x scripts/release.sh ] && echo "✅ release.sh executable" || chmod +x scripts/release.sh
+
+      - name: Summary
+        run: echo "✅ Validation terminée."
