@@ -1,57 +1,44 @@
-<svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Creator card">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7b2cbf"/>
-      <stop offset="100%" stop-color="#00d4ff"/>
-    </linearGradient>
-    <style>
-      @media (prefers-reduced-motion:reduce){
-        *{animation:none!important}
-      }
-    </style>
-  </defs>
-  <rect width="700" height="240" fill="#0a0e1a"/>
-  <rect x="10" y="10" width="680" height="220" rx="12" fill="none" stroke="url(#g)" stroke-width="2">
-    <animate attributeName="stroke-dasharray" from="0 1380" to="1380 0" dur="1.2s" fill="freeze"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 240" width="700" height="240">
+  <rect x="0" y="0" width="700" height="240" fill="#0a0e1a"/>
+  <g transform="translate(50, 50)">
+    <circle cx="0" cy="0" r="50" fill="#0a0e1a"/>
+    <circle cx="0" cy="0" r="50" stroke="#7b2cbf" stroke-width="5" fill="none">
+      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="0" cy="0" r="10" fill="#00d4ff">
+      <animate attributeName="opacity" from="0" to="1" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="r" from="5" to="10" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <text x="120" y="60" font-family="Courier New" font-size="18" font-weight="bold" fill="#f1f5f9">
+    <tspan>Daouda Abdoul Anzize</tspan>
+    <set attributeName="opacity" to="1" begin="0s" dur="2s"/>
+  </text>
+  <text x="120" y="90" font-family="Courier New" font-size="14" fill="#7b2cbf">
+    <tspan>Computational Paradigm Designer</tspan>
+    <set attributeName="opacity" to="1" begin="2s" dur="2s"/>
+  </text>
+  <text x="120" y="120" font-family="Courier New" font-size="14" font-style="italic" fill="#f1f5f9">
+    <tspan>I don't build apps. I build the clay others use to build apps.</tspan>
+    <set attributeName="opacity" to="1" begin="4s" dur="2s"/>
+  </text>
+  <text x="120" y="150" font-family="Courier New" font-size="14" fill="#f1f5f9">
+    <tspan>24 ans · Cotonou Bénin → Global Remote</tspan>
+    <set attributeName="opacity" to="1" begin="6s" dur="2s"/>
+  </text>
+  <text x="120" y="180" font-family="Courier New" font-size="14" fill="#f1f5f9">
+    <tspan>Stack: Python · Rust · C++ · JavaScript · Go</tspan>
+    <set attributeName="opacity" to="1" begin="8s" dur="2s"/>
+  </text>
+  <text x="120" y="210" font-family="Courier New" font-size="14" fill="#f1f5f9">
+    <tspan>Research: NEXUS AXION · Nexus Backpressure Protocol · Weak Hardware Booster · API in Browser · GITSEARCH</tspan>
+    <set attributeName="opacity" to="1" begin="10s" dur="2s"/>
+  </text>
+  <text x="120" y="240" font-family="Courier New" font-size="14" fill="#f1f5f9">
+    <tspan>tryboy869.github.io/daa · @Nexusstudio100</tspan>
+    <set attributeName="opacity" to="1" begin="12s" dur="2s"/>
+  </text>
+  <rect x="0" y="0" width="700" height="240" fill="none" stroke="#7b2cbf" stroke-width="5" stroke-dasharray="0 1000">
+    <animate attributeName="stroke-dasharray" from="0 1000" to="1000 0" dur="10s" repeatCount="indefinite"/>
   </rect>
-  <g id="avatar">
-    <circle cx="90" cy="120" r="50" fill="#0d1220"/>
-    <circle cx="90" cy="120" r="52" fill="none" stroke="#7b2cbf" stroke-width="2">
-      <animateTransform attributeName="transform" type="rotate" from="0 90 120" to="360 90 120" dur="8s" repeatCount="indefinite"/>
-    </circle>
-    <text x="90" y="130" font-size="28" font-family="Courier New,monospace" font-weight="bold" text-anchor="middle" fill="#f1f5f9">DA</text>
-    <circle cx="120" cy="100" r="6" fill="#00d4ff">
-      <animate attributeName="r" values="6;8;6" dur="1.5s" repeatCount="indefinite"/>
-    </circle>
-  </g>
-  <g id="texts" font-family="Courier New,monospace" fill="#f1f5f9">
-    <text x="170" y="70" font-size="18" font-weight="bold" opacity="0">
-      Daouda Abdoul Anzize
-      <animate attributeName="opacity" from="0" to="1" begin="0.4s" dur="0.6s" fill="freeze"/>
-    </text>
-    <text x="170" y="90" font-size="14" fill="#7b2cbf" opacity="0">
-      Computational Paradigm Designer
-      <animate attributeName="opacity" from="0" to="1" begin="0.6s" dur="0.6s" fill="freeze"/>
-    </text>
-    <text x="170" y="110" font-size="13" font-style="italic" opacity="0">
-      "I don't build apps. I build the clay others use to build apps."
-      <animate attributeName="opacity" from="0" to="1" begin="0.8s" dur="0.6s" fill="freeze"/>
-    </text>
-    <text x="170" y="130" font-size="12" opacity="0">
-      24 ans · Cotonou Bénin → Global Remote
-      <animate attributeName="opacity" from="0" to="1" begin="1.0s" dur="0.6s" fill="freeze"/>
-    </text>
-    <text x="170" y="150" font-size="12" opacity="0">
-      Stack: Python · Rust · C++ · JavaScript · Go
-      <animate attributeName="opacity" from="0" to="1" begin="1.2s" dur="0.6s" fill="freeze"/>
-    </text>
-    <text x="170" y="170" font-size="12" opacity="0">
-      Research: NEXUS AXION · Nexus Backpressure Protocol · Weak Hardware Booster · API in Browser · GITSEARCH
-      <animate attributeName="opacity" from="0" to="1" begin="1.4s" dur="0.6s" fill="freeze"/>
-    </text>
-    <text x="170" y="190" font-size="12" opacity="0">
-      tryboy869.github.io/daa · @Nexusstudio100
-      <animate attributeName="opacity" from="0" to="1" begin="1.6s" dur="0.6s" fill="freeze"/>
-    </text>
-  </g>
 </svg>

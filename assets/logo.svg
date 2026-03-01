@@ -1,49 +1,48 @@
-<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GITSEARCH">
-  <defs>
-    <clipPath id="txtClip"><rect x="0" y="0" width="0" height="60"/></clipPath>
-    <style>
-      .bg{fill:#0a0e1a}.lens{fill:#7b2cbf}.dot{fill:#00d4ff}.txt{fill:#f1f5f9;font:700 28px Courier New,monospace}
-      @media (prefers-reduced-motion:reduce){animate,animateTransform{animation:none!important}}
-    </style>
-  </defs>
-  <rect class="bg" width="400" height="120"/>
-  <!-- Loupe -->
-  <g transform="translate(60,60)">
-    <circle class="lens" r="28"/>
-    <line x1="28" y1="28" x2="48" y2="48" stroke="#7b2cbf" stroke-width="6" stroke-linecap="round"/>
-    <line x1="0" y1="-28" x2="0" y2="28" stroke="#00d4ff" stroke-width="2">
-      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/>
-    </line>
-  </g>
-  <!-- 3 orbiting dots -->
-  <g>
-    <circle class="dot" r="4">
-      <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="cx" values="60;88;60" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="60;60;60" dur="3s" repeatCount="indefinite"/>
-    </circle>
-    <circle class="dot" r="4">
-      <animateTransform attributeName="transform" type="rotate" from="120 60 60" to="480 60 60" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="cx" values="60;88;60" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="60;60;60" dur="3s" repeatCount="indefinite"/>
-    </circle>
-    <circle class="dot" r="4">
-      <animateTransform attributeName="transform" type="rotate" from="240 60 60" to="600 60 60" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="cx" values="60;88;60" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="60;60;60" dur="3s" repeatCount="indefinite"/>
-    </circle>
-  </g>
-  <!-- Texte -->
-  <g clip-path="url(#txtClip)">
-    <text class="txt" x="110" y="70">GITSEARCH</text>
-    <rect x="110" y="74" width="0" height="3" fill="#00d4ff">
-      <animate attributeName="width" from="0" to="160" begin="1.5s" dur="0.8s" fill="freeze"/>
-    </rect>
-    <rect x="270" y="50" width="3" height="28" fill="#f1f5f9">
-      <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
-    </rect>
-  </g>
-  <rect x="0" y="0" width="400" height="120" fill="#0a0e1a">
-    <animate attributeName="width" from="0" to="400" dur="1.5s" fill="freeze"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <style>
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    .blink {
+      animation: blink 1s infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .blink {
+        animation: none;
+      }
+    }
+  </style>
+  <rect x="0" y="0" width="400" height="120" fill="#0a0e1a" rx="10">
+    <animate attributeName="fill" values="#0a0e1a; #0d1220; #0a0e1a" dur="2s" repeatCount="indefinite" />
   </rect>
+  <g transform="translate(100, 60)">
+    <circle cx="0" cy="0" r="28" fill="#7b2cbf" />
+    <line x1="-28" y1="0" x2="28" y2="0" stroke="#fff" stroke-width="2" transform="rotate(0 0 0)" >
+      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="2s" repeatCount="indefinite" />
+    </line>
+    <circle cx="0" cy="0" r="2" fill="#00d4ff">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="40 0" dur="2s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="2" fill="#00d4ff" transform="translate(20 0)">
+      <animateTransform attributeName="transform" type="translate" from="20 0" to="60 0" dur="2.5s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="2" fill="#00d4ff" transform="translate(40 0)">
+      <animateTransform attributeName="transform" type="translate" from="40 0" to="80 0" dur="3s" repeatCount="indefinite" />
+    </circle>
+  </g>
+  <text x="150" y="90" font-family="Courier New, monospace" font-size="24" fill="#f1f5f9">
+    <tspan id="text">GITSEARCH</tspan>
+    <clipPath id="clip">
+      <rect x="150" y="60" width="0" height="30" fill="#fff" />
+    </clipPath>
+    <use xlink:href="#text" clip-path="url(#clip)" />
+    <animate xlink:href="#clip rect" attributeName="width" from="0" to="200" dur="2s" fill="freeze" />
+    <set xlink:href="#clip rect" attributeName="x" to="150" dur="2s" fill="freeze" />
+    <rect x="150" y="90" width="0" height="2" fill="#00d4ff" transform="translate(0, 10)">
+      <animate attributeName="width" from="0" to="200" dur="2s" fill="freeze" begin="2s" />
+    </rect>
+    <rect x="360" y="80" width="10" height="10" fill="#f1f5f9" class="blink" />
+  </text>
 </svg>

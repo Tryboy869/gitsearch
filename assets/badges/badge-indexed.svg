@@ -1,23 +1,27 @@
-<svg viewBox="0 0 210 28" width="210" height="28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="gitsearch indexed">
-  <defs>
-    <style>
-      :root{--bg:#0a0e1a;--accent:#7b2cbf;--cyan:#00d4ff;--text:#f1f5f9;}
-      @media (prefers-reduced-motion:reduce){animate{animation:none!important}}
-    </style>
-  </defs>
-  <rect x="0" y="0" width="140" height="28" rx="4" fill="var(--bg)"/>
-  <rect x="140" y="0" width="70" height="28" rx="4" fill="var(--accent)"/>
-  <g fill="var(--cyan)">
-    <path d="M10 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-2.5 4a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0z"/>
-    <path d="M15.5 15.5l-2.5-2.5" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 28" width="210" height="28">
+  <rect x="0" y="0" width="140" height="28" fill="#1e293b" rx="4"/>
+  <rect x="140" y="0" width="70" height="28" fill="#7b2cbf" rx="4"/>
+  <g transform="translate(10, 14)">
+    <circle cx="0" cy="0" r="8" fill="#00d4ff"/>
+    <path d="M 8 0 L 8 14 L 16 7 Z" fill="#00d4ff"/>
   </g>
-  <text x="22" y="18" font-family="Courier New,monospace" font-size="12" fill="var(--cyan)">gitsearch</text>
-  <text x="150" y="18" font-family="Courier New,monospace" font-size="12" fill="var(--text)">indexed</text>
-  <g fill="var(--text)">
-    <path d="M185 10l3 3 6-6" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite"/>
-  </g>
-  <rect x="0" y="13" width="140" height="2" fill="var(--cyan)">
-    <animate attributeName="x" values="-140;0" dur="2s" repeatCount="indefinite"/>
+  <text x="25" y="20" font-family="Courier New, monospace" font-size="14" fill="#00d4ff">gitsearch</text>
+  <text x="150" y="20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">indexed &#10003;</text>
+  <rect x="0" y="13" width="140" height="2" fill="#00d4ff">
+    <animate attributeName="x" from="0" to="140" dur="2s" repeatCount="indefinite"/>
   </rect>
+  <text x="150" y="20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">
+    <animate attributeName="opacity" from="0.5" to="1" dur="1s" repeatCount="indefinite"/>
+    indexed &#10003;
+  </text>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      rect {
+        animation: none;
+      }
+      text {
+        animation: none;
+      }
+    }
+  </style>
 </svg>
