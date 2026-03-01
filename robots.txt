@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /settings.html
+
+Sitemap: https://tryboy869.github.io/gitsearch/sitemap.xml
