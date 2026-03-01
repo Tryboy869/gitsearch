@@ -1,159 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 240" width="700" height="240" role="img" aria-labelledby="creator-title">
-  <title id="creator-title">Daouda Abdoul Anzize — Computational Paradigm Designer</title>
-  <style>@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }</style>
+<svg viewBox="0 0 700 240" width="700" height="240" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="ccBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0d0d1a">
-        <animate attributeName="stop-color" values="#0d0d1a;#0f0f2a;#0d0d1a" dur="6s" repeatCount="indefinite"/>
-      </stop>
-      <stop offset="100%" stop-color="#1a0a2e">
-        <animate attributeName="stop-color" values="#1a0a2e;#0d0d1a;#1a0a2e" dur="6s" repeatCount="indefinite"/>
-      </stop>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7b2cbf"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
     </linearGradient>
-    <linearGradient id="ccAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#00d4ff"/>
-      <stop offset="50%" stop-color="#7b2cbf"/>
-      <stop offset="100%" stop-color="#ff006e"/>
-    </linearGradient>
-    <linearGradient id="ccAvatar" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00d4ff"/>
-      <stop offset="100%" stop-color="#7b2cbf"/>
-    </linearGradient>
-    <filter id="ccGlow">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    <filter id="gl" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
-    <filter id="ccGlowSoft">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <clipPath id="ccClip">
-      <rect width="700" height="240" rx="12"/>
-    </clipPath>
+    <style>
+      .t{fill:#f1f5f9;font-family:'Segoe UI',sans-serif}
+      .ti{font-size:18px;font-weight:600}
+      .su{font-size:14px;opacity:.8}
+      .q{font-size:15px;font-style:italic;opacity:.9}
+      .st{font-size:13px;opacity:.7}
+      .r{font-size:13px;opacity:.85}
+      .c{font-size:12px;opacity:.75}
+      @media (prefers-reduced-motion:reduce){*,:root{animation:none!important}}
+    </style>
   </defs>
 
-  <!-- Background -->
-  <rect width="700" height="240" rx="12" fill="url(#ccBg)"/>
-
-  <!-- Animated grid -->
-  <g clip-path="url(#ccClip)" opacity="0.06">
-    <line x1="0" y1="60" x2="700" y2="60" stroke="#00d4ff" stroke-width="0.5"/>
-    <line x1="0" y1="120" x2="700" y2="120" stroke="#00d4ff" stroke-width="0.5"/>
-    <line x1="0" y1="180" x2="700" y2="180" stroke="#00d4ff" stroke-width="0.5"/>
-    <line x1="175" y1="0" x2="175" y2="240" stroke="#7b2cbf" stroke-width="0.5"/>
-    <line x1="350" y1="0" x2="350" y2="240" stroke="#7b2cbf" stroke-width="0.5"/>
-    <line x1="525" y1="0" x2="525" y2="240" stroke="#7b2cbf" stroke-width="0.5"/>
-  </g>
-
-  <!-- Accent border top -->
-  <rect width="700" height="3" rx="0" fill="url(#ccAccent)">
-    <animate attributeName="opacity" values="1;0.6;1" dur="3s" repeatCount="indefinite"/>
+  <rect x="10" y="10" width="680" height="220" rx="12" fill="none" stroke="url(#g)" stroke-width="2">
+    <animate attributeName="stroke-dasharray" values="0 1690;1690 0" dur="2s" fill="freeze"/>
   </rect>
 
-  <!-- Floating particles -->
-  <circle cx="600" cy="40" r="2" fill="#00d4ff" opacity="0.4">
-    <animateMotion dur="8s" repeatCount="indefinite" path="M0,0 Q40,-20 80,0 Q40,20 0,0"/>
-    <animate attributeName="opacity" values="0.4;0.1;0.4" dur="4s" repeatCount="indefinite"/>
-  </circle>
-  <circle cx="650" cy="180" r="1.5" fill="#ff006e" opacity="0.3">
-    <animateMotion dur="10s" repeatCount="indefinite" path="M0,0 Q-30,30 -60,0 Q-30,-30 0,0"/>
-    <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite"/>
-  </circle>
-
-  <!-- === AVATAR === -->
-  <!-- Outer pulse ring -->
-  <circle cx="80" cy="100" r="52" fill="none" stroke="url(#ccAccent)" stroke-width="1" opacity="0.3">
-    <animate attributeName="r" values="52;58;52" dur="3s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="0.3;0.05;0.3" dur="3s" repeatCount="indefinite"/>
-  </circle>
-  <!-- Rotating ring -->
-  <circle cx="80" cy="100" r="44" fill="none" stroke="url(#ccAccent)" stroke-width="2" stroke-dasharray="12,8">
-    <animateTransform attributeName="transform" type="rotate" from="0 80 100" to="360 80 100" dur="12s" repeatCount="indefinite"/>
-  </circle>
-  <!-- Avatar circle -->
-  <circle cx="80" cy="100" r="36" fill="url(#ccAvatar)" filter="url(#ccGlowSoft)"/>
-  <!-- Initials -->
-  <text x="80" y="108" font-family="'Courier New', monospace" font-size="22" font-weight="900" fill="white" text-anchor="middle" filter="url(#ccGlowSoft)">DA</text>
-  <!-- Status online dot -->
-  <circle cx="110" cy="125" r="7" fill="#0d0d1a"/>
-  <circle cx="110" cy="125" r="5" fill="#10b981">
-    <animate attributeName="r" values="5;6.5;5" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
-  </circle>
-
-  <!-- === INFO SECTION === -->
-  <!-- Name -->
-  <text x="145" y="42" font-family="'Courier New', monospace" font-size="20" font-weight="900" fill="white" filter="url(#ccGlowSoft)" opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0.3s" fill="freeze"/>
-    Daouda Abdoul Anzize
-  </text>
-
-  <!-- Title -->
-  <text x="145" y="64" font-family="'Courier New', monospace" font-size="11" fill="#00d4ff" letter-spacing="1" opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0.6s" fill="freeze"/>
-    COMPUTATIONAL PARADIGM DESIGNER
-  </text>
-
-  <!-- Quote -->
-  <text x="145" y="84" font-family="Georgia, serif" font-size="10" fill="#6b7280" font-style="italic" opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0.9s" fill="freeze"/>
-    "I don't build apps. I build the clay others use to build apps."
-  </text>
-
-  <!-- Meta: age + location -->
-  <text x="145" y="102" font-family="'Courier New', monospace" font-size="10" fill="#4b5563" opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.1s" fill="freeze"/>
-    24 ans  •  Cotonou, Bénin  →  Global Remote
-  </text>
-
-  <!-- Divider -->
-  <line x1="145" y1="112" x2="680" y2="112" stroke="url(#ccAccent)" stroke-width="0.5" opacity="0">
-    <animate attributeName="opacity" from="0" to="0.4" dur="0.5s" begin="1.2s" fill="freeze"/>
-  </line>
-
-  <!-- Stack tags -->
-  <g opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="1.3s" fill="freeze"/>
-    <!-- Python -->
-    <rect x="145" y="120" width="44" height="16" rx="3" fill="#00d4ff" fill-opacity="0.12" stroke="#00d4ff" stroke-width="0.5" stroke-opacity="0.5"/>
-    <text x="167" y="132" font-family="monospace" font-size="9" fill="#00d4ff" text-anchor="middle">Python</text>
-    <!-- Rust -->
-    <rect x="195" y="120" width="33" height="16" rx="3" fill="#ff006e" fill-opacity="0.12" stroke="#ff006e" stroke-width="0.5" stroke-opacity="0.5"/>
-    <text x="211" y="132" font-family="monospace" font-size="9" fill="#ff6ea6" text-anchor="middle">Rust</text>
-    <!-- C++ -->
-    <rect x="234" y="120" width="29" height="16" rx="3" fill="#7b2cbf" fill-opacity="0.12" stroke="#7b2cbf" stroke-width="0.5" stroke-opacity="0.5"/>
-    <text x="248" y="132" font-family="monospace" font-size="9" fill="#a78bfa" text-anchor="middle">C++</text>
-    <!-- Go -->
-    <rect x="269" y="120" width="25" height="16" rx="3" fill="#00d4ff" fill-opacity="0.12" stroke="#00d4ff" stroke-width="0.5" stroke-opacity="0.5"/>
-    <text x="281" y="132" font-family="monospace" font-size="9" fill="#00d4ff" text-anchor="middle">Go</text>
-    <!-- JS -->
-    <rect x="300" y="120" width="25" height="16" rx="3" fill="#fbbf24" fill-opacity="0.12" stroke="#fbbf24" stroke-width="0.5" stroke-opacity="0.5"/>
-    <text x="312" y="132" font-family="monospace" font-size="9" fill="#fbbf24" text-anchor="middle">JS</text>
+  <g transform="translate(80 120)">
+    <circle r="50" fill="none" stroke="#7b2cbf" stroke-width="3" stroke-dasharray="314" stroke-dashoffset="314">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="314;0" dur="1.2s" fill="freeze"/>
+    </circle>
+    <circle r="46" fill="#0a0e1a"/>
+    <text x="0" y="8" text-anchor="middle" class="t" font-size="24" font-weight="600">DA</text>
+    <circle cx="35" cy="-35" r="6" fill="#00d4ff" filter="url(#gl)">
+      <animate attributeName="r" values="6;9;6" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
   </g>
 
-  <!-- Research items -->
-  <g opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.5s" fill="freeze"/>
-    <text x="145" y="162" font-family="'Courier New', monospace" font-size="9" fill="#4b5563" letter-spacing="1">FEATURED RESEARCH</text>
-    <!-- Items -->
-    <circle cx="150" cy="176" r="2" fill="#00d4ff"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/></circle>
-    <text x="158" y="179" font-family="monospace" font-size="9" fill="#9ca3af">NEXUS AXION — Universal computational framework</text>
-    <circle cx="150" cy="191" r="2" fill="#7b2cbf"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></circle>
-    <text x="158" y="194" font-family="monospace" font-size="9" fill="#9ca3af">Nexus Backpressure Protocol — 60%+ latency reduction</text>
-    <circle cx="150" cy="206" r="2" fill="#ff006e"><animate attributeName="opacity" values="1;0.3;1" dur="2s" begin="0.5s" repeatCount="indefinite"/></circle>
-    <text x="158" y="209" font-family="monospace" font-size="9" fill="#9ca3af">Weak Hardware Booster — CPU load −95%</text>
-  </g>
+  <g class="t">
+    <text x="150" y="50" class="ti" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="0.3s" fill="freeze"/>
+      Daouda Abdoul Anzize
+    </text>
+    <text x="150" y="70" class="su" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="0.5s" fill="freeze"/>
+      Computational Paradigm Designer
+    </text>
+    <text x="150" y="86" class="su" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="0.7s" fill="freeze"/>
+      Nexus Studio | Cotonou, Bénin → Global Remote
+    </text>
 
-  <!-- Contact links -->
-  <g opacity="0">
-    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.8s" fill="freeze"/>
-    <text x="145" y="232" font-family="monospace" font-size="9" fill="#374151">✉ anzize contact@proton.me</text>
-    <text x="320" y="232" font-family="monospace" font-size="9" fill="#374151">𝕏 @Nexusstudio100</text>
-    <text x="455" y="232" font-family="monospace" font-size="9" fill="#374151">🌐 tryboy869.github.io/daa</text>
-  </g>
+    <text x="150" y="110" class="q" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="0.9s" fill="freeze"/>
+      "I don't build apps. I build the clay others use to build apps."
+    </text>
 
-  <!-- Accent border bottom -->
-  <rect y="237" width="700" height="3" rx="0" fill="url(#ccAccent)">
-    <animate attributeName="opacity" values="1;0.6;1" dur="3s" begin="0.5s" repeatCount="indefinite"/>
-  </rect>
+    <text x="150" y="130" class="st" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="1.1s" fill="freeze"/>
+      Python · Rust · C++ · JavaScript · Go
+    </text>
+
+    <text x="150" y="150" class="r" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="1.3s" fill="freeze"/>
+      Featured research: NEXUS AXION · Nexus Backpressure Protocol · Weak Hardware Booster · API in Browser · GITSEARCH
+    </text>
+
+    <text x="150" y="170" class="c" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="1.5s" fill="freeze"/>
+      tryboy869.github.io/daa · @Nexusstudio100
+    </text>
+  </g>
 </svg>

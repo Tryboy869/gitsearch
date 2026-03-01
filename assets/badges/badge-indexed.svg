@@ -1,53 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 28" width="210" height="28" role="img" aria-labelledby="badge-indexed-title">
-  <title id="badge-indexed-title">Indexed by GITSEARCH</title>
-  <style>@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }</style>
-  <defs>
-    <linearGradient id="biLeft" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0d0d1a"/>
-      <stop offset="100%" stop-color="#1a0a2e"/>
-    </linearGradient>
-    <linearGradient id="biRight" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#00d4ff"/>
-      <stop offset="50%" stop-color="#7b2cbf"/>
-      <stop offset="100%" stop-color="#ff006e">
-        <animate attributeName="stop-color" values="#ff006e;#00d4ff;#ff006e" dur="4s" repeatCount="indefinite"/>
-      </stop>
-    </linearGradient>
-    <filter id="biGlow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <!-- Left section -->
-  <rect width="108" height="28" rx="6" fill="url(#biLeft)"/>
-  <!-- Lens icon -->
-  <circle cx="14" cy="14" r="7" fill="none" stroke="#7b2cbf" stroke-width="1.5">
-    <animate attributeName="stroke" values="#7b2cbf;#00d4ff;#7b2cbf" dur="3s" repeatCount="indefinite"/>
-  </circle>
-  <line x1="19" y1="19" x2="23" y2="23" stroke="#7b2cbf" stroke-width="1.5" stroke-linecap="round">
-    <animate attributeName="stroke" values="#7b2cbf;#00d4ff;#7b2cbf" dur="3s" repeatCount="indefinite"/>
+<svg viewBox="0 0 210 28" width="210" height="28" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="105" height="28" rx="4" fill="#1e293b"/>
+  <rect x="105" y="0" width="105" height="28" rx="4" fill="#7b2cbf"/>
+  <text x="10" y="18" font-family="monospace" font-size="14" fill="#00d4ff">🔍 gitsearch</text>
+  <text x="115" y="18" font-family="monospace" font-size="12" fill="white">indexed ✓</text>
+  <line x1="15" y1="10" x2="25" y2="20" stroke="#00d4ff" stroke-width="1.5">
+    <animateTransform attributeName="transform" type="translate" values="-10 0;10 0;-10 0" dur="2s" repeatCount="indefinite"/>
   </line>
-  <!-- Scan line inside lens -->
-  <line x1="9" y1="14" x2="19" y2="14" stroke="#00d4ff" stroke-width="0.8" opacity="0.7" stroke-dasharray="2,1">
-    <animate attributeName="y1" values="10;18;10" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="y2" values="10;18;10" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/>
-  </line>
-  <text x="28" y="18" font-family="monospace" font-size="11" font-weight="700" fill="white" letter-spacing="0.5">gitsearch</text>
-  <!-- Right section -->
-  <rect x="108" width="102" height="28" rx="0" fill="url(#biRight)">
-    <animate attributeName="opacity" values="1;0.85;1" dur="2.5s" repeatCount="indefinite"/>
-  </rect>
-  <rect x="200" width="10" height="28" rx="0 6 6 0" fill="url(#biRight)"/>
-  <!-- Check icon -->
-  <circle cx="120" cy="14" r="6" fill="rgba(255,255,255,0.2)">
-    <animate attributeName="r" values="6;7;6" dur="2s" repeatCount="indefinite"/>
-  </circle>
-  <path d="M117,14 L119,16 L123,11" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <text x="131" y="18" font-family="monospace" font-size="11" font-weight="700" fill="white" letter-spacing="0.5">indexed ✓</text>
-  <!-- Pulse dot right -->
-  <circle cx="203" cy="14" r="3" fill="white">
-    <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite"/>
-    <animate attributeName="r" values="3;4.5;3" dur="1.2s" repeatCount="indefinite"/>
-  </circle>
+  <g transform="translate(185,18)">
+    <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.6;1" dur="1.5s" repeatCount="indefinite"/>
+  </g>
 </svg>

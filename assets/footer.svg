@@ -1,61 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 70" width="900" height="70" role="img" aria-labelledby="footer-title">
-  <title id="footer-title">GITSEARCH Footer</title>
-  <style>@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }</style>
+<svg viewBox="0 0 900 70" width="900" height="70" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="ftBg" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0d0d1a"/>
-      <stop offset="50%" stop-color="#0f0a1e">
-        <animate attributeName="stop-color" values="#0f0a1e;#1a0a2e;#0f0a1e" dur="5s" repeatCount="indefinite"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="0">
+      <stop offset="0%" stop-color="#0a0e1a">
+        <animate attributeName="stop-color" values="#0a0e1a;#0d1220;#0a0e1a" dur="8s" repeatCount="indefinite"/>
       </stop>
-      <stop offset="100%" stop-color="#0d0d1a"/>
+      <stop offset="100%" stop-color="#0d1220">
+        <animate attributeName="stop-color" values="#0d1220;#0a0e1a;#0d1220" dur="8s" repeatCount="indefinite"/>
+      </stop>
     </linearGradient>
-    <linearGradient id="ftAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#00d4ff"/>
-      <stop offset="50%" stop-color="#7b2cbf"/>
-      <stop offset="100%" stop-color="#ff006e"/>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="scan" x1="0" y1="0" x2="0" y2="70">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#00d4ff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect width="900" height="70" fill="url(#ftBg)" rx="8"/>
-  <!-- Top border wave -->
-  <rect width="900" height="2" fill="url(#ftAccent)" rx="1">
-    <animate attributeName="opacity" values="1;0.5;1" dur="3s" repeatCount="indefinite"/>
+  <rect width="900" height="70" fill="url(#bg)"/>
+  <rect width="900" height="2" fill="url(#scan)" opacity="0.4">
+    <animateTransform attributeName="transform" type="translate" from="0 -70" to="0 70" dur="4s" repeatCount="indefinite"/>
   </rect>
-  <!-- Floating code particles -->
-  <text x="50" y="30" font-family="monospace" font-size="9" fill="#1a1a3e" opacity="0">
-    <animate attributeName="opacity" values="0;0.5;0" dur="4s" begin="0s" repeatCount="indefinite"/>
-    <animateMotion dur="4s" begin="0s" repeatCount="indefinite" path="M0,0 L0,-15"/>
-    &lt;search/&gt;
-  </text>
-  <text x="800" y="50" font-family="monospace" font-size="9" fill="#1a1a3e" opacity="0">
-    <animate attributeName="opacity" values="0;0.5;0" dur="5s" begin="1s" repeatCount="indefinite"/>
-    <animateMotion dur="5s" begin="1s" repeatCount="indefinite" path="M0,0 L0,-15"/>
-    semantic()
-  </text>
-  <text x="400" y="55" font-family="monospace" font-size="8" fill="#1a1a3e" opacity="0">
-    <animate attributeName="opacity" values="0;0.4;0" dur="3.5s" begin="2s" repeatCount="indefinite"/>
-    <animateMotion dur="3.5s" begin="2s" repeatCount="indefinite" path="M0,0 L0,-12"/>
-    index[]
-  </text>
-  <!-- Center content -->
-  <text x="450" y="32" font-family="'Courier New', monospace" font-size="11" font-weight="700" fill="white" text-anchor="middle" letter-spacing="3">GITSEARCH</text>
-  <text x="450" y="47" font-family="monospace" font-size="9" fill="#374151" text-anchor="middle">Semantic GitHub Search Engine — Built by Nexus Studio</text>
-  <!-- Center dot -->
-  <circle cx="450" cy="60" r="2.5" fill="#7b2cbf">
-    <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
-    <animate attributeName="r" values="2.5;4;2.5" dur="2s" repeatCount="indefinite"/>
+  <g font-family="monospace" font-size="12" fill="#9ca3af">
+    <text x="450" y="40" text-anchor="middle">🔍 GITSEARCH  ·  Built by Nexus Studio  ·  Cotonou, Bénin  ·  2026</text>
+  </g>
+  <g font-family="monospace" font-size="10" fill="#00d4ff" opacity="0.6">
+    <text x="100" y="25">
+      <animate attributeName="y" values="25;5;25" dur="6s" repeatCount="indefinite"/>
+      &lt;search/&gt;
+    </text>
+    <text x="200" y="45">
+      <animate attributeName="y" values="45;25;45" dur="7s" repeatCount="indefinite"/>
+      semantic()
+    </text>
+    <text x="700" y="30">
+      <animate attributeName="y" values="30;10;30" dur="5s" repeatCount="indefinite"/>
+      index[]
+    </text>
+    <text x="800" y="50">
+      <animate attributeName="y" values="50;30;50" dur="8s" repeatCount="indefinite"/>
+      query{}
+    </text>
+  </g>
+  <circle cx="50" cy="35" r="4" fill="#7b2cbf" filter="url(#glow)">
+    <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
   </circle>
-  <!-- Left dots -->
-  <circle cx="60" cy="35" r="1.5" fill="#00d4ff" opacity="0.4">
-    <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite"/>
-  </circle>
-  <circle cx="80" cy="35" r="1.5" fill="#7b2cbf" opacity="0.4">
-    <animate attributeName="opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite"/>
-  </circle>
-  <!-- Right dots -->
-  <circle cx="820" cy="35" r="1.5" fill="#7b2cbf" opacity="0.4">
-    <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite"/>
-  </circle>
-  <circle cx="840" cy="35" r="1.5" fill="#ff006e" opacity="0.4">
-    <animate attributeName="opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite"/>
+  <circle cx="850" cy="35" r="4" fill="#7b2cbf" filter="url(#glow)">
+    <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
   </circle>
 </svg>

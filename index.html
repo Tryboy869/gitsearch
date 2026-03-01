@@ -1,781 +1,347 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GITSEARCH — Semantic GitHub Search Engine</title>
-  <meta name="description" content="Moteur de recherche sémantique pour GitHub. Trouvez des repos open-source par domaine, tags et sémantique."/>
-  <meta name="keywords" content="github search, semantic search, open source, repositories, topics, tags, developer tools"/>
-  <meta name="author" content="Daouda Abdoul Anzize — Nexus Studio"/>
-  <meta property="og:title" content="GITSEARCH — Semantic GitHub Search Engine"/>
-  <meta property="og:description" content="Trouve des repos GitHub que le moteur natif ne trouve pas."/>
-  <meta property="og:type" content="website"/>
-  <meta name="theme-color" content="#0a0e1a"/>
-  <link rel="canonical" href="https://tryboy869.github.io/gitsearch/"/>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>GitSearch – Semantic GitHub Search</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    :root {
-      --bg:    #0a0e1a;
-      --card:  #0d1220;
-      --bord:  #111827;
-      --acc:   #7b2cbf;
-      --cyan:  #00d4ff;
-      --pink:  #ff006e;
+    :root{
+      --bg:#0a0e1a;
+      --card:#0d1220;
+      --accent:#7b2cbf;
+      --cyan:#00d4ff;
+      --pink:#ff006e;
+      --text:#f1f5f9;
+      --sub:#9ca3af;
+      --line:#1e293b;
+      font-family:Courier New,monospace;
     }
-    * { font-family:'Courier New',monospace; box-sizing:border-box; margin:0; padding:0; }
-    html,body { background:var(--bg); color:#9ca3af; min-height:100vh; }
-    ::-webkit-scrollbar { width:3px; }
-    ::-webkit-scrollbar-thumb { background:var(--acc); border-radius:2px; }
-
-    @keyframes spin    { to{transform:rotate(360deg)} }
-    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.25} }
-    @keyframes fadeIn  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes scan    { 0%{left:-80px} 100%{left:100vw} }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-    .scan-bar {
-      position:fixed;top:0;left:-80px;width:80px;height:2px;z-index:999;
-      background:linear-gradient(90deg,transparent,var(--acc),var(--cyan),transparent);
-      animation:scan 4s linear infinite;opacity:.6;
-    }
-    .fade-in   { animation:fadeIn .35s ease both; }
-    .spinner   { animation:spin .8s linear infinite;display:inline-block; }
-    .pulse-dot { animation:pulse 1.4s ease-in-out infinite; }
-    .skeleton  { background:linear-gradient(90deg,#0d1220,#111827,#0d1220);
-                 background-size:200%;animation:shimmer 1.8s linear infinite;border-radius:8px; }
-
-    /* ── LAYOUT ── */
-    .wrap    { max-width:1100px;margin:0 auto;padding:0 16px; }
-    .card    { background:var(--card);border:1px solid var(--bord);border-radius:10px; }
-    .card-hv { transition:border-color .2s,box-shadow .2s; }
-    .card-hv:hover { border-color:var(--acc);box-shadow:0 0 18px rgba(123,44,191,.1); }
-
-    /* ── HEADER ── */
-    header { background:#060a14;border-bottom:1px solid #0f172a;position:sticky;top:0;z-index:100; }
-    .hbar  { display:flex;align-items:center;gap:10px;padding:10px 16px; }
-
-    /* ── SEARCH ── */
-    .sw { flex:1;position:relative;background:var(--card);border:1px solid #1e293b;
-          border-radius:10px;transition:border-color .2s,box-shadow .2s; }
-    .sw:focus-within { border-color:var(--acc);box-shadow:0 0 0 1px rgba(123,44,191,.35),0 0 22px rgba(123,44,191,.12); }
-    .si { background:transparent;border:none;outline:none;color:#f1f5f9;font-size:15px;
-          width:100%;padding:13px 46px 13px 42px;font-family:'Courier New',monospace; }
-    .si::placeholder { color:#1e293b; }
-
-    /* ── FILTER BAR ── */
-    .fbar { display:flex;align-items:center;gap:7px;padding:6px 16px 8px;overflow-x:auto;scrollbar-width:none; }
-    .fbar::-webkit-scrollbar { display:none; }
-
-    /* ── BUTTONS ── */
-    .fb { border:1px solid #1e293b;border-radius:6px;padding:5px 11px;font-size:11px;
-          cursor:pointer;background:transparent;color:#4b5563;transition:all .15s;
-          white-space:nowrap;font-family:'Courier New',monospace; }
-    .fb:hover,.fb.on { border-color:var(--acc);color:#a78bfa;background:rgba(123,44,191,.1); }
-    .inp { background:#060a14;border:1px solid #1e293b;border-radius:5px;padding:5px 9px;
-           font-size:10px;color:#9ca3af;outline:none;font-family:'Courier New',monospace; }
-    .inp:focus { border-color:var(--acc); }
-
-    /* ── TAGS ── */
-    .tag { background:rgba(123,44,191,.08);border:1px solid rgba(123,44,191,.2);
-           border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;
-           color:#a78bfa;transition:all .15s;white-space:nowrap; }
-    .tag:hover { background:rgba(123,44,191,.2);border-color:var(--acc); }
-
-    /* ── DOMAIN BTN ── */
-    .dbtn { width:100%;text-align:left;font-size:11px;padding:6px 8px;border-radius:5px;
-            cursor:pointer;background:transparent;border:none;color:#374151;
-            transition:all .15s;font-family:'Courier New',monospace; }
-    .dbtn:hover,.dbtn.on { color:#a78bfa;background:rgba(123,44,191,.1); }
-
-    /* ── MOBILE SIDEBAR ── */
-    .mob-overlay { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);
-                   backdrop-filter:blur(4px);display:none; }
-    .mob-overlay.open { display:flex; }
-    .mob-panel { background:#060a14;width:260px;height:100vh;
-                 border-right:1px solid #1e293b;overflow-y:auto;padding:20px; }
-
-    /* ── REPO CARD ── */
-    .rc { background:var(--card);border:1px solid var(--bord);border-radius:10px;
-          padding:14px 16px;transition:border-color .2s,box-shadow .2s;cursor:pointer;
-          margin-bottom:10px; }
-    .rc:hover { border-color:var(--acc);box-shadow:0 0 16px rgba(123,44,191,.1); }
-    .rname { font-size:13px;font-weight:700;color:#f1f5f9; }
-    .rdesc { font-size:11px;color:#4b5563;line-height:1.5;
-             display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
-    .lang-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
-
-    /* ── GRAD TEXT ── */
-    .gt { background:linear-gradient(90deg,var(--cyan),var(--acc),var(--pink));
-          -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
-
-    @media(max-width:768px) {
-      .si { font-size:14px;padding:12px 44px 12px 40px; }
-      #deskSidebar { display:none!important; }
-      #mobBtn { display:flex!important; }
-    }
-    @media(min-width:769px) {
-      #mobBtn { display:none!important; }
-    }
+    body{background:var(--bg);color:var(--text);}
+    .card{background:var(--card);border:1px solid var(--line);}
+    .glow:focus{box-shadow:0 0 8px var(--accent);}
+    .scan{height:2px;background:var(--accent);opacity:.6;animation:scan 1.2s infinite;}
+    @keyframes scan{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+    .fadeIn{animation:fadeIn .4s forwards;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block;margin-left:6px;animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;}}
+    .ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   </style>
 </head>
-<body>
-<div class="scan-bar"></div>
-
-<!-- MOBILE DRAWER -->
-<div class="mob-overlay" id="mobOverlay" onclick="mobClose(event)">
-  <div class="mob-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <span style="font-size:9px;color:#374151;letter-spacing:2px">MENU</span>
-      <button onclick="mobClose()" style="background:none;border:none;cursor:pointer;color:#4b5563;font-size:20px">✕</button>
+<body class="min-h-screen flex flex-col">
+  <header class="sticky top-0 z-20 bg-opacity-90 bg-gray-900 backdrop-blur flex items-center justify-between px-4 py-3 border-b border-gray-800">
+    <img src="assets/logo.svg" alt="GitSearch" class="h-10">
+    <div class="flex-1 max-w-xl mx-4">
+      <input id="q" type="search" placeholder="Search repos semantically…" class="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none glow">
     </div>
-    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">DOMAINES</div>
-    <div id="mobDomains" style="margin-bottom:16px"></div>
-    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">HISTORIQUE</div>
-    <div id="mobHistory"></div>
-  </div>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="hbar">
-    <button id="mobBtn" onclick="mobOpen()"
-      style="background:none;border:1px solid #1e293b;border-radius:6px;padding:6px 9px;
-             cursor:pointer;color:#4b5563;font-size:14px;flex-shrink:0">☰</button>
-
-    <a href="index.html" style="flex-shrink:0">
-      <img src="assets/logo.svg" alt="GITSEARCH" style="height:30px;width:auto"/>
-    </a>
-
-    <div class="sw">
-      <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#1e293b;pointer-events:none">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-      </span>
-      <input type="search" id="SI" class="si"
-        placeholder="machine learning, rust async, distributed systems..."
-        oninput="onInput(this.value)"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();go()}"/>
-      <button id="CB" onclick="cls()"
-        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
-               background:none;border:none;cursor:pointer;color:#374151;font-size:18px;display:none">✕</button>
-    </div>
-
-    <nav style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-      <a href="dashboard.html" style="font-size:11px;color:#374151;text-decoration:none">Dashboard</a>
-      <a href="settings.html"  style="font-size:11px;color:#374151;text-decoration:none">Settings</a>
-      <div style="display:flex;align-items:center;gap:4px">
-        <div class="pulse-dot" id="AD" style="width:6px;height:6px;border-radius:50%;background:#1e293b"></div>
-        <span id="AL" style="font-size:9px;color:#1e293b">—</span>
-      </div>
+    <nav class="flex items-center gap-4">
+      <a href="dashboard.html" class="hover:text-cyan">Dashboard</a>
+      <a href="settings.html" class="hover:text-cyan">Settings</a>
+      <span id="user" class="hidden items-center text-sm text-cyan"></span>
     </nav>
+  </header>
+
+  <div class="flex flex-1">
+    <aside id="sidebar" class="hidden md:block w-[190px] flex-shrink-0 p-4 border-r border-gray-800">
+      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Domains</h2>
+      <ul id="domains" class="space-y-1 text-sm mb-4"></ul>
+      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Trending tags</h2>
+      <ul id="trending" class="space-y-1 text-sm mb-4"></ul>
+      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">History</h2>
+      <ul id="history" class="space-y-1 text-sm mb-4"></ul>
+      <button id="indexBtn" class="w-full text-left text-xs text-cyan hover:underline">Index your repo</button>
+    </aside>
+
+    <main class="flex-1 p-4">
+      <div id="filters" class="flex flex-wrap items-center gap-3 mb-4 text-sm">
+        <label class="flex items-center gap-2"><input type="radio" name="sort" value="stars" checked class="accent-cyan">Stars</label>
+        <label class="flex items-center gap-2"><input type="radio" name="sort" value="updated">Récents</label>
+        <label class="flex items-center gap-2"><input type="radio" name="sort" value="created">Anciens</label>
+        <select id="lang" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 focus:outline-none glow">
+          <option value="">All langs</option>
+          <option>Python</option><option>JavaScript</option><option>TypeScript</option><option>Rust</option><option>Go</option><option>C</option><option>C++</option><option>Java</option><option>Ruby</option><option>Kotlin</option><option>Swift</option><option>PHP</option><option>Zig</option><option>Haskell</option>
+        </select>
+        <select id="stars" class="bg-gray-900 border border-gray-700 rounded px-2 py-1 focus:outline-none glow">
+          <option value="">Any stars</option><option value="10">10+</option><option value="100">100+</option><option value="1000">1k+</option><option value="10000">10k+</option>
+        </select>
+        <span id="count" class="ml-auto text-sub"></span>
+      </div>
+
+      <div id="results" class="space-y-3"></div>
+      <div id="loading" class="hidden text-center py-8"><div class="scan w-32 mx-auto"></div></div>
+    </main>
   </div>
 
-  <!-- FILTER BAR -->
-  <div class="fbar">
-    <span style="font-size:9px;color:#1e293b;letter-spacing:2px;flex-shrink:0">TRIER:</span>
-    <button class="fb on" id="sort-stars"   onclick="setSort('stars')">⭐ Stars</button>
-    <button class="fb"    id="sort-updated" onclick="setSort('updated')">🕐 Récents</button>
-    <button class="fb"    id="sort-old"     onclick="setSort('old')">🏛 Anciens</button>
-    <div style="width:1px;height:14px;background:#111827;flex-shrink:0"></div>
-    <select id="LF" onchange="go()" class="inp">
-      <option value="">Langue</option>
-      <option>Python</option><option>JavaScript</option><option>TypeScript</option>
-      <option>Rust</option><option>Go</option><option>C</option><option>C++</option>
-      <option>Java</option><option>Ruby</option><option>Kotlin</option><option>Swift</option>
-      <option>PHP</option><option>Zig</option><option>Haskell</option>
-    </select>
-    <select id="SF" onchange="go()" class="inp">
-      <option value="">Stars</option>
-      <option value="10">10+</option><option value="100">100+</option>
-      <option value="1000">1k+</option><option value="10000">10k+</option>
-    </select>
-    <span id="RC" style="font-size:9px;color:#1e293b;margin-left:auto;flex-shrink:0;white-space:nowrap"></span>
+  <div id="drawer" class="fixed inset-0 z-30 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur" onclick="toggleDrawer()"></div>
+    <aside class="absolute left-0 top-0 h-full w-[280px] bg-gray-900 border-r border-gray-800 p-4 overflow-auto">
+      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Domains</h2>
+      <ul id="domainsM" class="space-y-1 text-sm mb-4"></ul>
+      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">Trending tags</h2>
+      <ul id="trendingM" class="space-y-1 text-sm mb-4"></ul>
+      <h2 class="text-xs uppercase tracking-widest text-sub mb-2">History</h2>
+      <ul id="historyM" class="space-y-1 text-sm mb-4"></ul>
+      <button id="indexBtnM" class="w-full text-left text-xs text-cyan hover:underline">Index your repo</button>
+    </aside>
   </div>
-</header>
 
-<!-- BODY -->
-<div class="wrap" style="display:flex;gap:20px;padding-top:20px;padding-bottom:40px">
-
-  <!-- DESKTOP SIDEBAR -->
-  <aside id="deskSidebar" style="width:190px;flex-shrink:0">
-    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">DOMAINES</div>
-    <div id="DL" style="margin-bottom:18px"></div>
-
-    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">POPULAIRES</div>
-    <div id="TT" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px"></div>
-
-    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px;
-                display:flex;justify-content:space-between;align-items:center">
-      <span>HISTORIQUE</span>
-      <button onclick="clrH()" style="font-size:9px;color:#1e293b;background:none;border:none;cursor:pointer">clear</button>
-    </div>
-    <div id="HL"></div>
-
-    <div class="card" style="padding:12px;margin-top:16px">
-      <div style="font-size:9px;color:#7b2cbf;font-weight:bold;margin-bottom:5px">✦ INDEXEZ VOTRE REPO</div>
-      <p style="font-size:9px;color:#374151;line-height:1.6;margin-bottom:7px">
-        Ajoutez le badge GITSEARCH dans votre README pour apparaître ici.
-      </p>
-      <a href="settings.html#how-to-index" style="display:block;text-align:center;font-size:9px;padding:5px;
-         border:1px solid #2d1b4e;border-radius:4px;color:#7b2cbf;text-decoration:none;
-         background:rgba(123,44,191,.08)">→ Comment faire</a>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main style="flex:1;min-width:0">
-
-    <!-- HERO -->
-    <div id="HZ">
-      <div style="text-align:center;padding:36px 0">
-        <div style="font-size:9px;color:#1e293b;letter-spacing:3px;margin-bottom:14px">SEMANTIC GITHUB SEARCH ENGINE</div>
-        <p style="color:#374151;font-size:13px;max-width:460px;margin:0 auto 26px;line-height:1.7">
-          Trouve des repos GitHub que le moteur natif ne trouve jamais.<br/>
-          Expansion sémantique, filtres par domaine, historique local.
-        </p>
-        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-bottom:28px">
-          <button onclick="ex('distributed systems golang')" class="tag">distributed systems golang</button>
-          <button onclick="ex('machine learning rust')"     class="tag">machine learning rust</button>
-          <button onclick="ex('semantic search nlp')"       class="tag">semantic search nlp</button>
-          <button onclick="ex('zero knowledge proof')"      class="tag">zero knowledge proof</button>
-          <button onclick="ex('embedded systems rtos')"     class="tag">embedded systems rtos</button>
-          <button onclick="ex('compiler llvm')"             class="tag">compiler llvm</button>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;max-width:520px;margin:0 auto;text-align:left">
-          <div class="card" style="padding:14px"><div style="font-size:20px;margin-bottom:7px">🔍</div>
-            <div style="font-size:11px;color:#e2e8f0;font-weight:bold;margin-bottom:3px">Sémantique</div>
-            <div style="font-size:10px;color:#374151;line-height:1.5">Normalise tes mots-clés vers les topics GitHub officiels.</div>
-          </div>
-          <div class="card" style="padding:14px"><div style="font-size:20px;margin-bottom:7px">🏷</div>
-            <div style="font-size:11px;color:#e2e8f0;font-weight:bold;margin-bottom:3px">Tags enrichis</div>
-            <div style="font-size:10px;color:#374151;line-height:1.5">Cherche dans les tags GITSEARCH des READMEs.</div>
-          </div>
-          <div class="card" style="padding:14px"><div style="font-size:20px;margin-bottom:7px">⚡</div>
-            <div style="font-size:11px;color:#e2e8f0;font-weight:bold;margin-bottom:3px">Zéro backend</div>
-            <div style="font-size:10px;color:#374151;line-height:1.5">GitHub API directe. Aucun serveur. 100% local.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEMANTIC NOTICE -->
-    <div id="SN" style="display:none;margin-bottom:12px;padding:10px 14px;
-         border:1px solid rgba(123,44,191,.25);border-radius:8px;background:var(--card);
-         font-size:10px;color:#4b5563">
-      <span style="color:#a78bfa">✦ Expansion sémantique :</span>
-      <span id="ST"></span>
-    </div>
-
-    <!-- LOADING -->
-    <div id="LS" style="display:none;text-align:center;padding:48px 0">
-      <div style="display:inline-flex;align-items:center;gap:10px;color:#374151;font-size:13px">
-        <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b2cbf" stroke-width="2.5">
-          <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
-        </svg>
-        Recherche en cours...
-      </div>
-      <div style="margin-top:20px">
-        <div class="skeleton" style="height:76px;margin-bottom:8px"></div>
-        <div class="skeleton" style="height:76px;margin-bottom:8px"></div>
-        <div class="skeleton" style="height:76px"></div>
-      </div>
-    </div>
-
-    <!-- RESULTS -->
-    <div id="RS" style="display:none">
-      <div id="RG"></div>
-      <div style="text-align:center;margin-top:18px">
-        <button id="LMB" onclick="more()" class="fb" style="padding:8px 24px;display:none">Charger plus →</button>
-      </div>
-    </div>
-
-    <!-- EMPTY -->
-    <div id="ES" style="display:none;text-align:center;padding:60px 0">
-      <div style="font-size:38px;opacity:.12;margin-bottom:10px">🔍</div>
-      <div style="color:#374151;font-size:13px;margin-bottom:5px">Aucun résultat.</div>
-      <div style="color:#1e293b;font-size:11px">Essaie des termes différents ou retire des filtres.</div>
-    </div>
-
-    <!-- ERROR -->
-    <div id="ER" style="display:none">
-      <div class="card" style="padding:20px;text-align:center;border-color:rgba(239,68,68,.15)">
-        <div style="color:#ef4444;font-size:13px;margin-bottom:6px">Erreur</div>
-        <div id="EM" style="color:#4b5563;font-size:11px;margin-bottom:12px"></div>
-        <a href="settings.html" style="color:#7b2cbf;font-size:11px;text-decoration:none">→ Configurer votre token GitHub</a>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<!-- FOOTER -->
-<footer style="border-top:1px solid #0f172a;padding:24px 16px;text-align:center">
-  <img src="assets/footer.svg" alt="GITSEARCH" style="max-width:500px;width:100%;margin:0 auto 12px"/>
-  <div style="font-size:10px;color:#111827">
-    <a href="index.html"    style="color:inherit;text-decoration:none;margin:0 8px">Search</a>
-    <a href="dashboard.html"style="color:inherit;text-decoration:none;margin:0 8px">Dashboard</a>
-    <a href="settings.html" style="color:inherit;text-decoration:none;margin:0 8px">Settings</a>
-    <a href="https://github.com/Tryboy869/gitsearch" style="color:inherit;text-decoration:none;margin:0 8px">GitHub</a>
-  </div>
-</footer>
-
-<script>
-'use strict';
-
-// ─── DATA ────────────────────────────────────────────────────
-const DOMAINS=[
-  {label:'AI & Machine Learning', kw:['machine-learning','deep-learning','neural-network','nlp','llm','pytorch','tensorflow']},
-  {label:'Systems & OS',          kw:['operating-system','kernel','embedded','rtos','systems-programming','firmware']},
-  {label:'Distributed Systems',   kw:['distributed-systems','consensus','microservices','raft','message-queue']},
-  {label:'Web & Frontend',        kw:['frontend','react','vue','svelte','webassembly','css','angular']},
-  {label:'Web & Backend',         kw:['backend','api','rest','graphql','nodejs','django','fastapi']},
-  {label:'Data & Databases',      kw:['database','sql','nosql','postgresql','redis','mongodb','data-engineering']},
-  {label:'Security & Crypto',     kw:['security','cryptography','zero-knowledge','tls','blockchain']},
-  {label:'DevTools & CLI',        kw:['cli','terminal','linter','formatter','debugger','build-tool']},
-  {label:'Networking',            kw:['networking','protocol','tcp','http','proxy','vpn','websocket']},
-  {label:'Languages & Compilers', kw:['compiler','interpreter','parser','programming-language','llvm','jit']},
-  {label:'Mobile',                kw:['android','ios','react-native','flutter','mobile','kotlin','swift']},
-  {label:'Finance & Blockchain',  kw:['blockchain','defi','ethereum','bitcoin','smart-contracts','web3']},
-  {label:'Sciences & Research',   kw:['bioinformatics','physics','mathematics','simulation','scientific-computing']},
-];
-
-// KEY FIX: synonym → ONE primary keyword + plain text extras
-// GitHub /search/repositories does NOT support "topic:A OR topic:B" → 422
-// Correct strategy: use 1 topic: filter max, rest as plain keywords
-const SYN={
-  'machine learning':['machine-learning','deep-learning','neural','ml'],
-  'ml':['machine-learning','deep-learning','neural'],
-  'ia':['artificial-intelligence','machine-learning'],
-  'ai':['artificial-intelligence','machine-learning','llm'],
-  'llm':['llm','large-language-model','gpt','transformers'],
-  'nlp':['nlp','natural-language-processing','text-mining'],
-  'distributed':['distributed-systems','microservices','cluster'],
-  'real-time':['real-time','rtos','low-latency'],
-  'web3':['blockchain','ethereum','defi','smart-contracts'],
-  'crypto':['cryptography','encryption','security'],
-  'database':['database','sql','nosql','storage'],
-  'compiler':['compiler','parser','interpreter','llvm'],
-  'embedded':['embedded','rtos','microcontroller','firmware','iot'],
-  'systems':['systems-programming','kernel','operating-system'],
-  'async':['async','asynchronous','concurrency','tokio'],
-  'protocol':['protocol','networking','rpc','grpc'],
-  'cli':['cli','command-line','terminal','shell'],
-  'security':['security','cryptography','vulnerability'],
-  'data science':['data-science','machine-learning','jupyter'],
-  'devops':['devops','docker','kubernetes','terraform'],
-  'framework':['framework','library','sdk'],
-  'api':['api','rest','graphql','openapi'],
-  'wasm':['webassembly','wasm'],
-  'gamedev':['game-development','game-engine','opengl'],
-  'iot':['iot','embedded','mqtt','firmware'],
-  'monitoring':['monitoring','observability','prometheus'],
-  'testing':['testing','unit-test','tdd'],
-  'container':['docker','kubernetes','container'],
-};
-
-const TRENDING=['rust','python','go','typescript','llm','cli','wasm','security','distributed','database','ml','embedded','compiler','async'];
-
-const LC={python:'#3572A5',javascript:'#f1e05a',typescript:'#2b7489',rust:'#dea584',
-  go:'#00ADD8','c++':'#f34b7d',c:'#555555',java:'#b07219',ruby:'#701516',
-  kotlin:'#F18E33',swift:'#ffac45',zig:'#ec915c',shell:'#89e051',default:'#7b2cbf'};
-
-// ─── STATE ───────────────────────────────────────────────────
-let sortMode='stars', curQ='', curPage=1, curItems=[], pending=false, activeD=null;
-
-// ─── DB ──────────────────────────────────────────────────────
-function oDB(){
-  return new Promise((res,rej)=>{
-    const r=indexedDB.open('gitsearch_v1',2);
-    r.onupgradeneeded=e=>{
-      const db=e.target.result;
-      if(!db.objectStoreNames.contains('searches'))db.createObjectStore('searches',{autoIncrement:true});
-      if(!db.objectStoreNames.contains('viewed'))db.createObjectStore('viewed',{keyPath:'url'});
-      if(!db.objectStoreNames.contains('config'))db.createObjectStore('config',{keyPath:'key'});
+  <script>
+    const SEMANTIC={
+      "machine learning":["machine-learning","deep-learning","neural-network","ml"],
+      "llm":["llm","large-language-model","gpt","transformers"],
+      "nlp":["nlp","natural-language-processing","text-mining"],
+      "distributed":["distributed-systems","microservices","cluster"],
+      "crypto":["cryptography","encryption","blockchain","security"],
+      "embedded":["embedded","rtos","microcontroller","firmware","iot"],
+      "compiler":["compiler","parser","interpreter","llvm","jit"],
+      "async":["async","asynchronous","concurrency","tokio"],
+      "devops":["devops","docker","kubernetes","terraform"],
+      "wasm":["webassembly","wasm","emscripten"],
+      "security":["security","cryptography","vulnerability"],
+      "gamedev":["game-development","game-engine","opengl","vulkan"],
+      "ai":["ai","artificial-intelligence","neural","pytorch","tensorflow"],
+      "gui":["gui","ui","frontend","react","vue","svelte"],
+      "api":["api","rest","graphql","fastapi","express"],
+      "db":["database","sql","nosql","postgres","mongodb"],
+      "mobile":["mobile","android","ios","flutter","react-native"],
+      "finance":["finance","trading","bitcoin","ethereum","defi"],
+      "science":["science","research","simulation","physics","bio"]
     };
-    r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e);
-  });
-}
-async function dGet(s,k){const db=await oDB();return new Promise(res=>{const r=db.transaction(s,'readonly').objectStore(s).get(k);r.onsuccess=e=>res(e.target.result?.value??null);r.onerror=()=>res(null);});}
-async function dSet(s,k,v){const db=await oDB();return new Promise(res=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).put({key:k,value:v});tx.oncomplete=()=>res();});}
-async function dAdd(s,v){const db=await oDB();return new Promise(res=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).add(v);tx.oncomplete=()=>res();});}
-async function dAll(s){const db=await oDB();return new Promise(res=>{const r=db.transaction(s,'readonly').objectStore(s).getAll();r.onsuccess=e=>res(e.target.result??[]);r.onerror=()=>res([]);});}
-async function dClr(s){const db=await oDB();return new Promise(res=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).clear();tx.oncomplete=()=>res();});}
+    const DOMAINS=[
+      {name:"AI/ML",q:"machine-learning OR deep-learning OR neural-network OR ai OR pytorch OR tensorflow"},
+      {name:"Systems",q:"operating-system OR kernel OR embedded OR rtos OR firmware"},
+      {name:"Distributed",q:"distributed-systems OR microservices OR cluster OR consensus OR raft OR paxos"},
+      {name:"Web Frontend",q:"react OR vue OR svelte OR angular OR frontend OR gui OR ui"},
+      {name:"Web Backend",q:"fastapi OR express OR django OR rails OR backend OR api OR graphql"},
+      {name:"Data/DB",q:"database OR postgres OR mongodb OR sql OR nosql OR bigdata OR analytics"},
+      {name:"Security",q:"cryptography OR encryption OR blockchain OR vulnerability OR security"},
+      {name:"DevTools",q:"compiler OR parser OR interpreter OR llvm OR jit OR devtools"},
+      {name:"Networking",q:"networking OR tcp OR udp OR http2 OR quic OR load-balancer"},
+      {name:"Languages",q:"programming-language OR compiler OR interpreter OR lexer OR parser"},
+      {name:"Mobile",q:"android OR ios OR flutter OR react-native OR mobile"},
+      {name:"Finance",q:"bitcoin OR ethereum OR defi OR trading OR finance OR blockchain"},
+      {name:"Sciences",q:"science OR research OR simulation OR physics OR biology OR chemistry"}
+    ];
+    const TRENDING=["rust","zig","wasm","llm","gpt","transformers","tokio","pytorch","react","vue","svelte","solidjs","deno","bun","turbopack"];
+    let db,token,username;
+    const qEl=document.getElementById('q');
+    const resEl=document.getElementById('results');
+    const loadEl=document.getElementById('loading');
+    const countEl=document.getElementById('count');
+    const userEl=document.getElementById('user');
 
-// ─── AUTH ────────────────────────────────────────────────────
-async function checkAuth(){
-  const t=await dGet('config','gh_token'),u=await dGet('config','gh_username');
-  const dot=document.getElementById('AD'),lbl=document.getElementById('AL');
-  if(t&&u){dot.style.background='#10b981';lbl.textContent='@'+u;lbl.style.color='#10b981';}
-  else{dot.style.background='#1e293b';lbl.textContent='non connecté';lbl.style.color='#1e293b';}
-}
-
-function ghH(token){
-  const h={Accept:'application/vnd.github.v3+json'};
-  if(token)h['Authorization']=`token ${token}`;
-  return h;
-}
-
-// ─── SEMANTIC EXPANSION ───────────────────────────────────────
-// Returns: { topic, extras, label }
-// topic  → used as "topic:X" (only 1, avoids 422)
-// extras → plain text keywords added to query
-// label  → what we display in semantic notice
-function expand(raw){
-  const words=raw.toLowerCase().trim().split(/[\s,+]+/).filter(Boolean);
-  let topic=null;
-  const extras=[];
-  const label=[];
-
-  for(const w of words){
-    let hit=false;
-    for(const[key,vals] of Object.entries(SYN)){
-      if(w===key||key.startsWith(w)||w.startsWith(key)){
-        if(!topic){topic=vals[0];label.push(vals[0]);}
-        extras.push(...vals.slice(1,3));
-        label.push(...vals.slice(1,3));
-        hit=true;break;
+    async function openDB(){
+      return new Promise((resolve,reject)=>{
+        const req=indexedDB.open('gitsearch_v1',1);
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error);
+        req.onupgradeneeded=()=>{
+          const db=req.result;
+          if(!db.objectStoreNames.contains('searches')) db.createObjectStore('searches');
+          if(!db.objectStoreNames.contains('viewed')) db.createObjectStore('viewed');
+          if(!db.objectStoreNames.contains('config')) db.createObjectStore('config');
+        };
+      });
+    }
+    async function getConfig(){return (await db.transaction('config').objectStore('config').getAll())[0]||{};}
+    async function setConfig(c){await db.transaction('config','readwrite').objectStore('config').put(c,0);}
+    async function addSearch(term){
+      const tx=db.transaction('searches','readwrite');
+      const store=tx.objectStore('searches');
+      const all=await store.getAll();
+      if(!all.includes(term)){
+        if(all.length>=8) await store.delete(all[0]);
+        await store.add(term,Date.now());
       }
     }
-    if(!hit){
-      // Check domain
-      for(const d of DOMAINS){
-        if(d.label.toLowerCase().includes(w)){
-          if(!topic){topic=d.kw[0];label.push(d.kw[0]);}
-          extras.push(d.kw[1]||'');
-          hit=true;break;
-        }
-      }
+    async function getSearches(){
+      const tx=db.transaction('searches');
+      const store=tx.objectStore('searches');
+      const all=await store.getAll();
+      return all.reverse();
     }
-    if(!hit){extras.push(w);label.push(w);}
-  }
+    async function markViewed(full_name){
+      await db.transaction('viewed','readwrite').objectStore('viewed').put(Date.now(),full_name);
+    }
+    async function isViewed(full_name){
+      return !!(await db.transaction('viewed').objectStore('viewed').get(full_name));
+    }
 
-  return{topic,extras:[...new Set(extras)].filter(Boolean).slice(0,5),label:[...new Set(label)].slice(0,8)};
-}
-
-// ─── GITHUB SEARCH — TRIPLE STRATEGY ────────────────────────
-//
-// HOW GITHUB SEARCH REALLY WORKS:
-//   - "weak hardware booster"  → matches name/desc/topics word by word
-//   - in:name "weak-hardware"  → exact slug match in repo name
-//   - in:name,description,topics,readme → broader scope
-//   - /search/code             → searches inside file content (README etc.)
-//
-// OUR 3-QUERY STRATEGY (parallel):
-//   A) Full-text: raw query → name + desc + topics + readme (GitHub default)
-//   B) Name-slug: convert spaces→dashes, search in:name → exact repo name hit
-//   C) Code: search phrase inside README files (token required, page 1 only)
-//
-// All 3 merged + deduplicated. A is primary for count/pagination.
-//
-async function ghSearch(raw,page=1){
-  const token=await dGet('config','gh_token');
-  const lang =document.getElementById('LF').value;
-  const stars=document.getElementById('SF').value;
-  const{label}=expand(raw);
-  const headers=ghH(token);
-  const sP=sortMode==='stars'?'stars':'updated';
-  const oP=sortMode==='old'?'asc':'desc';
-
-  // ── Query A: Full-text repository search (primary) ─────────
-  // GitHub searches: name, description, topics, README content
-  // This is the main search — handles semantic terms well
-  let qA=raw.trim();
-  if(lang)  qA+=` language:${lang}`;
-  if(stars) qA+=` stars:>=${stars}`;
-
-  const fetchA=fetch(
-    `https://api.github.com/search/repositories?q=${encodeURIComponent(qA)}&sort=${sP}&order=${oP}&per_page=20&page=${page}`,
-    {headers}
-  );
-
-  // ── Query B: Name/slug search (finds exact repo names) ──────
-  // Converts "Weak Hardware Booster" → "weak-hardware-booster"
-  // Uses in:name to find repos whose slug matches closely
-  // Also searches description and topics with the same terms
-  let fetchB=Promise.resolve(null);
-  if(page===1){
-    const slug=raw.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-    const words=raw.trim().toLowerCase().split(/\s+/).join('+');
-    // Two sub-strategies for name matching:
-    // 1. Exact slug in name: "weak-hardware-booster" in:name
-    // 2. Individual words in name+desc: weak hardware booster in:name,description
-    let qB=`${slug} in:name`;
-    if(lang) qB+=` language:${lang}`;
-    fetchB=fetch(
-      `https://api.github.com/search/repositories?q=${encodeURIComponent(qB)}&sort=${sP}&order=${oP}&per_page=10`,
-      {headers}
-    ).catch(()=>null);
-  }
-
-  // ── Query C: README content search (bonus, token required) ──
-  // Searches for the phrase literally inside README file content
-  // Most powerful for finding repos not indexed by name/topics
-  let fetchC=Promise.resolve(null);
-  if(token && page===1){
-    // GitHub code search: phrase must appear in README
-    const phrase=raw.trim();
-    let qC=`"${phrase}" in:file filename:README`;
-    // Don't add language here — code search language = file language not repo language
-    fetchC=fetch(
-      `https://api.github.com/search/code?q=${encodeURIComponent(qC)}&per_page=10`,
-      {headers}
-    ).catch(()=>null);
-  }
-
-  // ── Run all 3 in parallel ──────────────────────────────────
-  const [resA,resB,resC]=await Promise.allSettled([fetchA,fetchB,fetchC]);
-
-  // Primary must succeed
-  if(resA.status==='rejected') throw new Error('Erreur réseau — vérifiez votre connexion.');
-  const rA=resA.value;
-  if(!rA.ok){
-    const b=await rA.json().catch(()=>({}));
-    if(rA.status===403) throw new Error('Rate limit atteint. Ajoutez votre token GitHub dans Settings → 5000 req/h.');
-    if(rA.status===401) throw new Error('Token invalide — vérifiez vos credentials dans Settings.');
-    if(rA.status===422) throw new Error('Requête invalide — simplifiez vos termes.');
-    throw new Error(`GitHub API ${rA.status}: ${b.message||''}`);
-  }
-
-  const dataA=await rA.json();
-  let items=dataA.items||[];
-  const seen=new Set(items.map(r=>r.full_name));
-  let bonus=[];
-
-  // ── Merge B (name search) ──────────────────────────────────
-  if(resB.status==='fulfilled' && resB.value?.ok){
-    try{
-      const dB=await resB.value.json();
-      for(const r of(dB.items||[])){
-        if(!seen.has(r.full_name)){seen.add(r.full_name);bonus.push(r);}
+    function expandSemantic(term){
+      const t=term.toLowerCase();
+      const out=[t];
+      for(const[k,v] of Object.entries(SEMANTIC)){
+        if(t.includes(k)) out.push(...v);
       }
-    }catch(e){}
-  }
+      return [...new Set(out)];
+    }
 
-  // ── Merge C (code/README search) ──────────────────────────
-  if(resC.status==='fulfilled' && resC.value?.ok){
-    try{
-      const dC=await resC.value.json();
-      const detailFetches=[];
-      for(const ci of(dC.items||[])){
-        const repo=ci.repository;
-        if(repo&&!seen.has(repo.full_name)){
-          seen.add(repo.full_name);
-          // Need full repo details for stars, topics, etc.
-          detailFetches.push(
-            fetch(`https://api.github.com/repos/${repo.full_name}`,{headers})
-              .then(r=>r.ok?r.json():null).catch(()=>null)
-          );
-        }
+    async function search(term){
+      loadEl.classList.remove('hidden');
+      resEl.innerHTML='';
+      const expanded=expandSemantic(term).join(' OR ');
+      const headers=token?{Authorization:`token ${token}`}:{};
+      const lang=document.getElementById('lang').value;
+      const stars=document.getElementById('stars').value;
+      const sort=document.querySelector('input[name="sort"]:checked').value;
+      const baseParams=new URLSearchParams({per_page:30});
+      if(lang) baseParams.set('language',lang);
+      if(stars) baseParams.set('q',`${expanded} stars:>=${stars}`);
+      else baseParams.set('q',expanded);
+      if(sort!=='stars') baseParams.set('sort',sort==='updated'?'updated':'created');
+      const urlA=`https://api.github.com/search/repositories?${baseParams.toString()}`;
+      const urlB=`https://api.github.com/search/repositories?q=${encodeURIComponent(expanded)}+in:name&per_page=30`;
+      const urlC=`https://api.github.com/search/code?q=${encodeURIComponent(expanded)}+in:file+filename:README.md&per_page=30`;
+      const [a,b,c]=await Promise.allSettled([
+        fetch(urlA,{headers}).then(r=>r.json()),
+        fetch(urlB,{headers}).then(r=>r.json()),
+        fetch(urlC,{headers}).then(r=>r.json())
+      ]);
+      const seen=new Set();
+      const repos=[];
+      const push=r=>{
+        if(!r||!r.items) return;
+        r.items.forEach(item=>{
+          if(item.repository){
+            const repo=item.repository;
+            if(!seen.has(repo.full_name)){
+              seen.add(repo.full_name);
+              repos.push(repo);
+            }
+          }else{
+            if(!seen.has(item.full_name)){
+              seen.add(item.full_name);
+              repos.push(item);
+            }
+          }
+        });
+      };
+      if(a.status==='fulfilled') push(a.value);
+      if(b.status==='fulfilled') push(b.value);
+      if(c.status==='fulfilled') push(c.value);
+      const sortMode=document.querySelector('input[name="sort"]:checked').value;
+      if(sortMode==='stars') repos.sort((x,y)=>(y.stargazers_count||0)-(x.stargazers_count||0));
+      else if(sortMode==='updated') repos.sort((x,y)=>new Date(y.updated_at||0)-new Date(x.updated_at||0));
+      else repos.sort((x,y)=>new Date(x.created_at||0)-new Date(y.created_at||0));
+      render(repos);
+      countEl.textContent=`${repos.length} repos`;
+      loadEl.classList.add('hidden');
+    }
+
+    async function render(repos){
+      resEl.innerHTML='';
+      repos.forEach(async(r,i)=>{
+        const card=document.createElement('div');
+        card.className='card rounded p-3 fadeIn cursor-pointer hover:border-violet-600';
+        card.style.animationDelay=`${i*40}ms`;
+        const viewed=await isViewed(r.full_name);
+        card.innerHTML=`
+          <div class="flex gap-3">
+            <img data-src="${r.owner.avatar_url}" alt="${r.owner.login}" class="lazy w-12 h-12 rounded-full">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <a href="${r.html_url}" target="_blank" rel="noopener" class="hover:text-cyan">${r.full_name}</a>
+                ${r.topics&&r.topics.includes('gitsearch')?'<span class="text-xs bg-violet-700 px-2 rounded">✦ GITSEARCH</span>':''}
+              </div>
+              <p class="text-sm text-sub line-clamp-2">${r.description||''}</p>
+              <div class="flex flex-wrap gap-1 mt-2">
+                ${(r.topics||[]).slice(0,5).map(t=>`<button class="text-xs bg-gray-800 px-2 rounded hover:bg-gray-700" onclick="qEl.value='${t}';search('${t}')">${t}</button>`).join('')}
+              </div>
+              <div class="flex items-center gap-3 text-xs text-sub mt-2">
+                <span>✦ ${r.stargazers_count||0}</span>
+                <span>⑂ ${r.forks_count||0}</span>
+                <span>${r.language||''}</span>
+                <span>${r.license?.spdx_id||''}</span>
+                <span>${new Date(r.updated_at).getFullYear()}</span>
+                ${viewed?'<span class="text-cyan">viewed</span>':''}
+              </div>
+            </div>
+          </div>
+        `;
+        card.querySelector('a').onclick=()=>markViewed(r.full_name);
+        resEl.appendChild(card);
+      });
+      lazyLoad();
+    }
+
+    function lazyLoad(){
+      const imgs=document.querySelectorAll('img.lazy');
+      const io=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            const img=e.target;
+            img.src=img.dataset.src;
+            img.classList.remove('lazy');
+            io.unobserve(img);
+          }
+        });
+      });
+      imgs.forEach(img=>io.observe(img));
+    }
+
+    function toggleDrawer(){
+      const d=document.getElementById('drawer');
+      d.classList.toggle('hidden');
+    }
+
+    function initSidebar(){
+      const d=document.getElementById('domains');
+      const t=document.getElementById('trending');
+      const h=document.getElementById('history');
+      const dM=document.getElementById('domainsM');
+      const tM=document.getElementById('trendingM');
+      const hM=document.getElementById('historyM');
+      DOMAINS.forEach(dom=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<button class="hover:text-cyan" onclick="qEl.value='${dom.q}';search('${dom.q}')">${dom.name}</button>`;
+        d.appendChild(li.cloneNode(true));
+        dM.appendChild(li.cloneNode(true));
+      });
+      TRENDING.forEach(tag=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<button class="hover:text-cyan" onclick="qEl.value='${tag}';search('${tag}')">${tag}</button>`;
+        t.appendChild(li.cloneNode(true));
+        tM.appendChild(li.cloneNode(true));
+      });
+      getSearches().then(list=>{
+        h.innerHTML='';
+        hM.innerHTML='';
+        list.forEach(term=>{
+          const li=document.createElement('li');
+          li.innerHTML=`<button class="hover:text-cyan" onclick="qEl.value='${term}';search('${term}')">${term}</button>`;
+          h.appendChild(li.cloneNode(true));
+          hM.appendChild(li.cloneNode(true));
+        });
+      });
+    }
+
+    qEl.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&qEl.value.trim()){
+        const term=qEl.value.trim();
+        addSearch(term);
+        search(term);
       }
-      // Fetch all detail pages in parallel
-      const details=await Promise.all(detailFetches);
-      bonus.push(...details.filter(Boolean));
-    }catch(e){}
-  }
-
-  // Combine: primary results first, then bonus
-  items=[...items,...bonus];
-
-  // ── Re-sort merged set ─────────────────────────────────────
-  if(sortMode==='stars')
-    items.sort((a,b)=>(b.stargazers_count||0)-(a.stargazers_count||0));
-  else if(sortMode==='old')
-    items.sort((a,b)=>new Date(a.pushed_at)-new Date(b.pushed_at));
-  else
-    items.sort((a,b)=>new Date(b.pushed_at)-new Date(a.pushed_at));
-
-  return{items,total:dataA.total_count||0,label};
-}
-
-// ─── RENDER ──────────────────────────────────────────────────
-function fN(n){if(!n)return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'k';return n.toString();}
-function fD(d){if(!d)return'';return new Date(d).toLocaleDateString('fr-FR',{year:'numeric',month:'short'});}
-function lc(l){return LC[(l||'').toLowerCase()]||LC.default;}
-
-function mkCard(r,i){
-  const tp=(r.topics||[]).slice(0,5);
-  const isGS=tp.includes('gitsearch');
-  return`<div class="rc fade-in" style="animation-delay:${(i%20)*.04}s"
-    onclick="openR('${r.html_url}','${r.full_name}')">
-    <div style="display:flex;gap:12px;align-items:flex-start">
-      <img src="${r.owner?.avatar_url||''}" alt="" width="26" height="26"
-        style="border-radius:50%;border:1px solid #1e293b;flex-shrink:0;margin-top:2px"
-        onerror="this.style.display='none'" loading="lazy"/>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">
-          <span style="font-size:10px;color:#1e293b">${r.owner?.login||''}/</span>
-          <span class="rname">${r.name}</span>
-          ${isGS?'<span style="font-size:9px;background:rgba(123,44,191,.12);border:1px solid rgba(123,44,191,.25);border-radius:3px;padding:1px 5px;color:#a78bfa">✦ GITSEARCH</span>':''}
-        </div>
-        <p class="rdesc" style="margin-bottom:8px">${r.description||'<em style="color:#1e293b">Pas de description</em>'}</p>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
-          ${tp.map(t=>`<span class="tag" style="font-size:9px" onclick="event.stopPropagation();ex('${t}')">#${t}</span>`).join('')}
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span style="color:#fbbf24;font-size:11px;font-weight:700">⭐ ${fN(r.stargazers_count)}</span>
-          <span style="color:#1e293b;font-size:10px">🍴 ${fN(r.forks_count)}</span>
-          ${r.language?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#374151">
-            <span class="lang-dot" style="background:${lc(r.language)}"></span>${r.language}</span>`:''}
-          ${r.license?.spdx_id?`<span style="font-size:9px;color:#1e293b;border:1px solid #111827;border-radius:3px;padding:1px 4px">${r.license.spdx_id}</span>`:''}
-          <span style="font-size:10px;color:#111827;margin-left:auto">${fD(r.pushed_at)}</span>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ─── SECTIONS ────────────────────────────────────────────────
-function sec(name){
-  const map={hero:'HZ',loading:'LS',results:'RS',empty:'ES',error:'ER'};
-  Object.values(map).forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
-  const el=document.getElementById(map[name]);
-  if(el)el.style.display='';
-  if(name!=='results'){
-    document.getElementById('SN').style.display='none';
-    document.getElementById('RC').textContent='';
-  }
-}
-
-// ─── SEARCH ──────────────────────────────────────────────────
-let dt;
-function onInput(v){
-  document.getElementById('CB').style.display=v?'':'none';
-  clearTimeout(dt);
-  if(v.trim().length>=3){dt=setTimeout(go,450);}
-  else if(!v.trim()){activeD=null;updDomUI();sec('hero');}
-}
-
-async function go(q){
-  const raw=q!==undefined?q:document.getElementById('SI').value.trim();
-  if(!raw){sec('hero');return;}
-  if(pending)return;
-  curQ=raw;curPage=1;curItems=[];
-  pending=true;
-  sec('loading');
-  await svH(raw);
-
-  try{
-    const{items,total,label}=await ghSearch(raw,1);
-    curItems=items;pending=false;
-
-    const sn=document.getElementById('SN'),st=document.getElementById('ST');
-    if(label.length>0){st.textContent=' '+label.map(l=>`#${l}`).join('  ');sn.style.display='';}
-    else sn.style.display='none';
-
-    document.getElementById('RC').textContent=total>0?total.toLocaleString()+' résultats':'';
-
-    if(items.length===0){sec('empty');return;}
-    document.getElementById('RG').innerHTML=items.map((r,i)=>mkCard(r,i)).join('');
-    document.getElementById('LMB').style.display=items.length>=20?'':'none';
-    sec('results');
-  }catch(e){
-    pending=false;
-    document.getElementById('EM').textContent=e.message;
-    sec('error');
-  }
-}
-
-async function more(){
-  curPage++;
-  const b=document.getElementById('LMB');
-  b.textContent='⏳ Chargement...';b.disabled=true;
-  try{
-    const{items}=await ghSearch(curQ,curPage);
-    items.forEach((r,i)=>{document.getElementById('RG').innerHTML+=mkCard(r,curItems.length+i);});
-    curItems=[...curItems,...items];
-    b.textContent='Charger plus →';b.disabled=false;
-    b.style.display=items.length>=20?'':'none';
-  }catch(e){b.textContent='Erreur — réessayer';b.disabled=false;}
-}
-
-function ex(q){document.getElementById('SI').value=q;document.getElementById('CB').style.display='';go(q);}
-function cls(){document.getElementById('SI').value='';document.getElementById('CB').style.display='none';activeD=null;updDomUI();sec('hero');}
-
-function setSort(s){
-  sortMode=s;
-  ['stars','updated','old'].forEach(id=>document.getElementById('sort-'+id).classList.toggle('on',id===s));
-  if(curQ)go(curQ);
-}
-
-async function openR(url,name){
-  const db=await oDB();
-  db.transaction('viewed','readwrite').objectStore('viewed').put({url,name,viewedAt:new Date().toISOString()});
-  window.open(url,'_blank');
-}
-
-// ─── SIDEBAR ─────────────────────────────────────────────────
-function buildDomains(cid){
-  const el=document.getElementById(cid);if(!el)return;
-  el.innerHTML=DOMAINS.map(d=>`<button class="dbtn" id="${cid}_${d.label.replace(/\W/g,'_')}"
-    onclick="selD('${d.label}','${cid}')">${d.label}</button>`).join('');
-}
-
-function selD(label,cid){
-  activeD=activeD===label?null:label;
-  updDomUI();
-  if(activeD){
-    const d=DOMAINS.find(x=>x.label===label);
-    const q=d.kw.slice(0,3).join(' ');
-    document.getElementById('SI').value=q;
-    document.getElementById('CB').style.display='';
-    go(q);
-    if(window.innerWidth<769)mobClose();
-  }else cls();
-}
-
-function updDomUI(){
-  ['DL','mobDomains'].forEach(cid=>{
-    DOMAINS.forEach(d=>{
-      const el=document.getElementById(cid+'_'+d.label.replace(/\W/g,'_'));
-      if(el)el.classList.toggle('on',d.label===activeD);
     });
-  });
-}
 
-function buildTrending(){
-  const el=document.getElementById('TT');if(!el)return;
-  el.innerHTML=TRENDING.map(t=>`<button class="tag" onclick="ex('${t}')">#${t}</button>`).join('');
-}
+    document.getElementById('lang').onchange=()=>qEl.value&&search(qEl.value);
+    document.getElementById('stars').onchange=()=>qEl.value&&search(qEl.value);
+    document.querySelectorAll('input[name="sort"]').forEach(i=>i.onchange=()=>qEl.value&&search(qEl.value));
 
-// ─── HISTORY ─────────────────────────────────────────────────
-async function svH(q){
-  const p=await dGet('config','prefs')||{};
-  if(p.saveHistory===false)return;
-  await dAdd('searches',{q,at:new Date().toISOString()});
-  rH();
-}
-
-async function rH(){
-  const all=await dAll('searches');
-  const u=[...new Map(all.filter(s=>s.q).map(s=>[s.q,s])).values()].reverse().slice(0,8);
-  ['HL','mobHistory'].forEach(id=>{
-    const el=document.getElementById(id);if(!el)return;
-    if(u.length===0){el.innerHTML='<div style="font-size:9px;color:#111827">Aucune.</div>';return;}
-    el.innerHTML=u.map(s=>`<button onclick="ex('${s.q}')"
-      style="display:block;width:100%;text-align:left;font-size:10px;padding:4px 6px;
-             color:#1e293b;background:none;border:none;cursor:pointer;border-radius:4px;
-             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Courier New',monospace"
-      title="${s.q}">🔍 ${s.q}</button>`).join('');
-  });
-}
-async function clrH(){await dClr('searches');rH();}
-
-// ─── MOBILE SIDEBAR ──────────────────────────────────────────
-function mobOpen(){document.getElementById('mobOverlay').classList.add('open');buildDomains('mobDomains');updDomUI();rH();}
-function mobClose(e){if(!e||e.target===document.getElementById('mobOverlay'))document.getElementById('mobOverlay').classList.remove('open');}
-
-// ─── INIT ────────────────────────────────────────────────────
-async function init(){
-  buildDomains('DL');
-  buildTrending();
-  await checkAuth();
-  await rH();
-  sec('hero');
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('q')){document.getElementById('SI').value=p.get('q');document.getElementById('CB').style.display='';go(p.get('q'));}
-}
-init();
-</script>
+    (async()=>{
+      db=await openDB();
+      const cfg=await getConfig();
+      token=cfg.token;
+      username=cfg.username;
+      if(username){
+        userEl.textContent=`@${username}`;
+        userEl.classList.remove('hidden');
+        userEl.classList.add('flex');
+      }
+      initSidebar();
+    })();
+  </script>
 </body>
 </html>

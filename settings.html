@@ -1,420 +1,268 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Settings — GITSEARCH</title>
-  <meta name="robots" content="noindex"/>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Settings – GITSEARCH</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdn.tailwindcss.com/3.4.0"></script>
+  <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
+  <link rel="icon" href="assets/logo.svg">
   <style>
-    * { font-family: 'Courier New', monospace; }
-    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #7b2cbf; }
-    @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.3} }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes scanX  { 0%{transform:translateX(-100%)} 100%{transform:translateX(100vw)} }
-    .pulse-dot { animation: pulse 1.5s ease-in-out infinite; }
-    .fade-in   { animation: fadeIn 0.5s ease both; }
-    .scan-bar  { animation: scanX 3s linear infinite; position:fixed;top:0;left:0;width:60px;height:2px;background:linear-gradient(90deg,transparent,#7b2cbf,transparent);z-index:100;opacity:0.5; }
-    .inp { width:100%;background:#000;border:1px solid #0d1117;border-radius:6px;padding:.6rem .85rem;font-size:.75rem;color:#9ca3af;outline:none;transition:border-color .2s; }
-    .inp:focus { border-color:#7b2cbf;color:#e5e7eb; }
-    .btn-v { background:#7b2cbf;color:white;border-radius:6px;padding:.5rem 1.25rem;font-size:.75rem;font-weight:700;cursor:pointer;transition:background .15s;border:none; }
-    .btn-v:hover { background:#6d28d9; }
-    .btn-o { border:1px solid #1f2937;color:#6b7280;border-radius:6px;padding:.5rem 1.25rem;font-size:.75rem;cursor:pointer;transition:all .15s;background:transparent; }
-    .btn-o:hover { border-color:#7b2cbf;color:#a78bfa; }
-    .card { background:#0f0f1e;border:1px solid #0d1117;border-radius:10px;padding:1.5rem; }
-    .label { display:block;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4b5563;margin-bottom:.4rem; }
-    .scope-tag { background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10b981;border-radius:4px;padding:1px 8px;font-size:10px; }
-    .scope-tag.warn { background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444; }
-    .rate-bar { background:#0d1117;border-radius:4px;height:6px;overflow:hidden; }
-    .rate-fill { height:100%;border-radius:4px;transition:width .5s ease; }
-    .copy-btn { font-size:9px;border:1px solid #1f2937;border-radius:4px;padding:2px 6px;cursor:pointer;color:#4b5563;background:transparent;transition:all .15s; }
-    .copy-btn:hover { border-color:#7b2cbf;color:#a78bfa; }
+    .progress-bar{height:6px;border-radius:3px;overflow:hidden}
+    .progress-bar-inner{height:100%;transition:width .3s}
   </style>
 </head>
-<body class="bg-black text-gray-400 min-h-screen">
-<div class="scan-bar"></div>
-
-<!-- HEADER -->
-<header class="border-b border-gray-900 bg-black sticky top-0 z-50">
-  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-6">
-    <a href="index.html">
-      <img src="assets/logo.svg" alt="GITSEARCH" height="36" style="height:36px;width:auto"/>
-    </a>
-    <nav class="flex items-center gap-4 text-xs ml-auto">
-      <a href="index.html" class="text-gray-600 hover:text-violet-400">Search</a>
-      <a href="dashboard.html" class="text-gray-600 hover:text-violet-400">Dashboard</a>
-      <a href="settings.html" class="text-violet-400 border-b border-violet-700 pb-0.5">Settings</a>
-    </nav>
-  </div>
-</header>
-
-<div class="max-w-4xl mx-auto px-4 py-8 space-y-6">
-
-  <div class="mb-6">
-    <h1 class="text-lg font-bold text-white">Settings</h1>
-    <p class="text-[10px] text-gray-700 mt-0.5">Configurez votre accès GitHub pour des limites de quota étendues.</p>
-  </div>
-
-  <!-- ══ CONNEXION GITHUB ══ -->
-  <div class="card fade-in">
-    <div class="text-[9px] text-gray-700 tracking-widest mb-4">[01] CONNEXION GITHUB</div>
-
-    <!-- Why connect -->
-    <div class="bg-black rounded-lg p-3 mb-4 border border-gray-900 text-[10px] leading-relaxed">
-      <div class="text-amber-600 font-bold mb-1">⚠ Pourquoi connecter votre compte ?</div>
-      <div class="grid grid-cols-2 gap-2 text-gray-600">
-        <div>
-          <div class="text-gray-500 font-bold mb-0.5">Sans connexion</div>
-          <div>60 requêtes / heure</div>
-          <div>Recherche limitée</div>
-        </div>
-        <div>
-          <div class="text-emerald-600 font-bold mb-0.5">Avec token</div>
-          <div>5 000 requêtes / heure</div>
-          <div>Accès complet</div>
-        </div>
-      </div>
-      <div class="mt-2 text-gray-700">
-        Vos données restent <strong class="text-gray-500">100% locales</strong> (IndexedDB). Aucun serveur ne les reçoit.
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <div>
-        <label class="label">Username GitHub</label>
-        <input type="text" id="username" class="inp" placeholder="Tryboy869"/>
-      </div>
-      <div>
-        <label class="label">Personal Access Token (PAT)</label>
-        <div class="relative">
-          <input type="password" id="ghToken" class="inp pr-8" placeholder="ghp_xxxxxxxxxxxxx"/>
-          <button onclick="toggleVis('ghToken')"
-            class="absolute right-2 top-2 text-gray-600 hover:text-gray-400 text-xs bg-transparent border-none cursor-pointer">👁</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scopes requis -->
-    <div class="mb-4">
-      <div class="text-[9px] text-gray-700 mb-1.5">SCOPES REQUIS</div>
-      <div class="flex flex-wrap gap-1.5">
-        <span class="scope-tag">public_repo</span>
-        <span class="scope-tag">read:user</span>
-        <span class="scope-tag warn">repo ← uniquement si repos privés</span>
-      </div>
-    </div>
-
-    <!-- Generate token link -->
-    <div class="mb-4 p-2.5 bg-black rounded border border-gray-900 text-[10px]">
-      <div class="text-gray-600 mb-1">Générer un token GitHub :</div>
-      <a href="https://github.com/settings/tokens/new?scopes=public_repo,read:user&description=GITSEARCH"
-        target="_blank" class="text-violet-500 hover:text-violet-400 break-all">
-        → github.com/settings/tokens/new
+<body class="bg-gray-50 text-gray-900">
+  <header class="bg-white shadow sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 text-gray-800 font-semibold">
+        <img src="assets/logo.svg" alt="GitSearch" class="h-8">
+        <span>GitSearch</span>
       </a>
+      <nav class="flex items-center gap-4 text-sm">
+        <a href="index.html" class="hover:text-indigo-600">Search</a>
+        <a href="dashboard.html" class="hover:text-indigo-600">Dashboard</a>
+        <a href="settings.html" class="text-indigo-600 font-medium">Settings</a>
+      </nav>
     </div>
+  </header>
 
-    <div class="flex gap-3 flex-wrap">
-      <button class="btn-v" onclick="saveCredentials()">Sauvegarder</button>
-      <button class="btn-o" onclick="verifyToken()">Vérifier le token</button>
-      <button class="btn-o" onclick="disconnect()" style="border-color:#7f1d1d;color:#7f1d1d">Déconnecter</button>
-    </div>
-    <div id="authFeedback" class="mt-2 text-[10px] min-h-4"></div>
-
-    <!-- Profile preview -->
-    <div id="profilePreview" class="hidden mt-4 p-3 bg-black rounded-lg border border-gray-900">
-      <div class="flex items-center gap-3">
-        <img id="profileAvatar" src="" alt="" width="40" height="40" class="rounded-full border border-gray-800"/>
+  <main class="max-w-3xl mx-auto px-4 py-8 space-y-10">
+    <!-- Auth -->
+    <section class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold">GitHub Authentication</h2>
+      <form id="authForm" class="space-y-3">
         <div>
-          <div class="text-sm text-white font-bold" id="profileName"></div>
-          <div class="text-[10px] text-gray-600" id="profileLogin"></div>
-          <div class="text-[10px] text-gray-700" id="profileBio"></div>
+          <label class="block text-sm font-medium mb-1">Username</label>
+          <input id="username" type="text" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-        <div class="ml-auto text-right">
-          <div class="flex items-center gap-1.5 justify-end">
-            <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></div>
-            <span class="text-[10px] text-emerald-600">Connecté</span>
+        <div>
+          <label class="block text-sm font-medium mb-1">Personal Access Token</label>
+          <div class="relative">
+            <input id="token" type="password" required class="w-full border rounded-lg px-3 py-2 pr-20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button type="button" id="toggleToken" class="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-indigo-600">Show</button>
           </div>
-          <div class="text-[10px] text-gray-700" id="profileRepos"></div>
+          <p class="text-xs text-gray-500 mt-1">Scopes required: <code class="bg-gray-100 px-1 rounded">public_repo read:user</code></p>
         </div>
-      </div>
-    </div>
-  </div>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Save & Validate</button>
+        <p id="authStatus" class="text-sm"></p>
+      </form>
+    </section>
 
-  <!-- ══ RATE LIMIT ══ -->
-  <div class="card fade-in" style="animation-delay:.1s">
-    <div class="text-[9px] text-gray-700 tracking-widest mb-4">[02] QUOTA API GITHUB</div>
-    <div id="rateLimitDisplay">
-      <div class="text-gray-800 text-xs">Connectez-vous pour voir votre quota.</div>
-    </div>
-    <button onclick="checkRateLimit()" class="mt-3 btn-o text-xs py-1.5">Vérifier le quota actuel</button>
-  </div>
-
-  <!-- ══ HOW TO INDEX ══ -->
-  <div class="card fade-in" id="how-to-index" style="animation-delay:.2s">
-    <div class="text-[9px] text-gray-700 tracking-widest mb-4">[03] INDEXER VOTRE REPO</div>
-    <p class="text-[10px] text-gray-600 leading-relaxed mb-4">
-      Pour que votre repo apparaisse dans GITSEARCH, ajoutez ces éléments dans votre <code class="text-violet-500">README.md</code> :
-    </p>
-
-    <!-- Step 1 -->
-    <div class="mb-4">
-      <div class="text-xs text-white font-bold mb-2">Étape 1 — Badge d'appartenance (requis)</div>
-      <div class="bg-black rounded-lg p-3 border border-gray-900 relative">
-        <pre class="text-[10px] text-violet-400 leading-relaxed overflow-x-auto" id="badgeCode">[![gitsearch](https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg)](https://tryboy869.github.io/gitsearch)</pre>
-        <button class="copy-btn absolute top-2 right-2" onclick="copyCode('badgeCode')">copier</button>
-      </div>
-      <div class="mt-2">
-        <img src="assets/badges/badge-indexed.svg" alt="gitsearch indexed" loading="lazy"/>
-      </div>
-    </div>
-
-    <!-- Step 2 -->
-    <div class="mb-4">
-      <div class="text-xs text-white font-bold mb-2">Étape 2 — Tags sémantiques (recommandé)</div>
-      <div class="bg-black rounded-lg p-3 border border-gray-900 relative">
-        <pre class="text-[10px] text-violet-400 leading-relaxed overflow-x-auto" id="tagsCode">&lt;!-- gitsearch: machine-learning, python, nlp, transformer, benchmark --&gt;</pre>
-        <button class="copy-btn absolute top-2 right-2" onclick="copyCode('tagsCode')">copier</button>
-      </div>
-      <div class="text-[9px] text-gray-700 mt-1">Ce commentaire est invisible dans le README rendu mais lu par le moteur. Jusqu'à 10 tags séparés par des virgules.</div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="mb-4">
-      <div class="text-xs text-white font-bold mb-2">Étape 3 — Ajouter le topic "gitsearch" sur GitHub</div>
-      <div class="text-[10px] text-gray-600 leading-relaxed">
-        Dans votre repo GitHub → <strong class="text-gray-400">Settings → Topics</strong> → ajoutez <code class="text-violet-500">gitsearch</code><br/>
-        Cela permet au moteur de vous trouver via la GitHub Topics API.
-      </div>
-    </div>
-
-    <!-- Preview generator -->
-    <div class="mt-4 border-t border-gray-900 pt-4">
-      <div class="text-xs text-gray-500 font-bold mb-3">Générateur de snippet personnalisé</div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-        <div>
-          <label class="label">URL de votre repo</label>
-          <input type="text" id="genRepoUrl" class="inp" placeholder="https://github.com/user/myrepo" oninput="updateSnippet()"/>
-        </div>
-        <div>
-          <label class="label">Tags (séparés par des virgules)</label>
-          <input type="text" id="genTags" class="inp" placeholder="python, ml, cli, async" oninput="updateSnippet()"/>
-        </div>
-      </div>
-      <div class="bg-black rounded-lg p-3 border border-gray-900 relative" id="snippetPreviewBox">
-        <pre class="text-[10px] text-violet-400 leading-relaxed overflow-x-auto" id="snippetPreview">← Remplissez les champs ci-dessus</pre>
-        <button class="copy-btn absolute top-2 right-2" onclick="copyCode('snippetPreview')">copier</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ PRÉFÉRENCES ══ -->
-  <div class="card fade-in" style="animation-delay:.3s">
-    <div class="text-[9px] text-gray-700 tracking-widest mb-4">[04] PRÉFÉRENCES</div>
-    <div class="space-y-4">
+    <!-- Rate Limit -->
+    <section class="bg-white rounded-xl shadow p-6 space-y-4">
       <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Rate Limit Monitor</h2>
+        <button id="refreshRate" class="text-sm text-indigo-600 hover:underline">Refresh</button>
+      </div>
+      <div class="space-y-3">
         <div>
-          <div class="text-xs text-gray-300">Sauvegarde de l'historique de recherche</div>
-          <div class="text-[10px] text-gray-700">Conserver les recherches dans IndexedDB</div>
+          <div class="flex justify-between text-sm mb-1">
+            <span>Core API</span>
+            <span id="coreText">0 / 0</span>
+          </div>
+          <div class="progress-bar bg-gray-200">
+            <div id="coreBar" class="progress-bar-inner bg-indigo-600" style="width:0%"></div>
+          </div>
         </div>
-        <div class="toggle-track" id="histToggle" onclick="togglePref('saveHistory')">
-          <div class="toggle-knob"></div>
-        </div>
-      </div>
-      <div class="flex items-center justify-between">
         <div>
-          <div class="text-xs text-gray-300">Expansion sémantique automatique</div>
-          <div class="text-[10px] text-gray-700">Élargit les mots-clés vers les topics GitHub liés</div>
-        </div>
-        <div class="toggle-track on" id="semanticToggle" onclick="togglePref('semanticExpand')">
-          <div class="toggle-knob"></div>
+          <div class="flex justify-between text-sm mb-1">
+            <span>Search API</span>
+            <span id="searchText">0 / 0</span>
+          </div>
+          <div class="progress-bar bg-gray-200">
+            <div id="searchBar" class="progress-bar-inner bg-indigo-600" style="width:0%"></div>
+          </div>
         </div>
       </div>
-      <div class="flex items-center justify-between">
+    </section>
+
+    <!-- Snippet Generator -->
+    <section class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold">Snippet Generator</h2>
+      <form id="snippetForm" class="space-y-3">
         <div>
-          <div class="text-xs text-gray-300">Afficher uniquement les repos GITSEARCH</div>
-          <div class="text-[10px] text-gray-700">Filtre exclusif à l'écosystème</div>
+          <label class="block text-sm font-medium mb-1">Repository URL</label>
+          <input id="repoUrl" type="url" placeholder="https://github.com/owner/repo" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-        <div class="toggle-track" id="exclusiveToggle" onclick="togglePref('exclusiveMode')">
-          <div class="toggle-knob"></div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Semantic Tags (comma separated)</label>
+          <input id="repoTags" type="text" placeholder="ai, nlp, pytorch" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Generate</button>
+      </form>
+      <div id="snippetPreview" class="hidden">
+        <p class="text-sm font-medium mb-2">Preview</p>
+        <pre id="snippetCode" class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"></pre>
+        <button id="copySnippet" class="mt-2 text-sm text-indigo-600 hover:underline">Copy to clipboard</button>
       </div>
-    </div>
-    <button onclick="savePrefs()" class="mt-4 btn-v">Sauvegarder les préférences</button>
-    <div id="prefFeedback" class="mt-2 text-[10px] min-h-4"></div>
-  </div>
+    </section>
 
-  <!-- ══ DANGER ZONE ══ -->
-  <div class="card border-red-900 border-opacity-30 fade-in" style="animation-delay:.4s">
-    <div class="text-[9px] text-red-900 tracking-widest mb-4">[05] DANGER ZONE</div>
-    <div class="flex flex-wrap gap-3">
-      <button onclick="clearSearchHistory()" class="btn-o text-red-900 border-red-900 border-opacity-50 text-xs">
-        Effacer l'historique de recherche
-      </button>
-      <button onclick="clearViewHistory()" class="btn-o text-red-900 border-red-900 border-opacity-50 text-xs">
-        Effacer l'historique de vues
-      </button>
-      <button onclick="resetAll()" class="btn-o text-red-900 border-red-900 border-opacity-50 text-xs">
-        Tout réinitialiser
-      </button>
-    </div>
-    <div id="dangerFeedback" class="mt-2 text-[10px] min-h-4"></div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="border-t border-gray-900 mt-12 py-6 text-center">
-  <img src="assets/footer.svg" alt="GITSEARCH" class="mx-auto mb-4" style="max-width:600px;width:100%"/>
-</footer>
-
-<style>
-  .toggle-track { width:36px;height:20px;background:#1f2937;border-radius:10px;position:relative;cursor:pointer;transition:background .2s; }
-  .toggle-track.on { background:#7b2cbf; }
-  .toggle-knob { position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:transform .2s; }
-  .toggle-track.on .toggle-knob { transform:translateX(16px); }
-</style>
-
-<script>
-'use strict';
-function openDB(){
-  return new Promise((res,rej)=>{
-    const req=indexedDB.open('gitsearch_v1',1);
-    req.onupgradeneeded=e=>{const db=e.target.result;['searches','viewed','config'].forEach(s=>{if(!db.objectStoreNames.contains(s))db.createObjectStore(s,s==='viewed'?{keyPath:'url'}:{autoIncrement:s!=='config',keyPath:s==='config'?'key':undefined});});};
-    req.onsuccess=e=>res(e.target.result);req.onerror=e=>rej(e);
-  });
-}
-async function dbGet(store,key){const db=await openDB();return new Promise(res=>{const r=db.transaction(store,'readonly').objectStore(store).get(key);r.onsuccess=e=>res(e.target.result?.value??null);r.onerror=()=>res(null);});}
-async function dbSet(store,key,value){const db=await openDB();return new Promise(res=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).put({key,value});tx.oncomplete=()=>res();});}
-async function dbClear(store){const db=await openDB();return new Promise(res=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).clear();tx.oncomplete=()=>res();});}
-
-function setFB(id,msg,color='#10b981'){const el=document.getElementById(id);el.style.color=color;el.textContent=msg;}
-function toggleVis(id){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';}
-
-// ── CREDENTIALS ──
-async function loadCredentials(){
-  const user=await dbGet('config','gh_username');
-  const token=await dbGet('config','gh_token');
-  if(user)document.getElementById('username').value=user;
-  if(token)document.getElementById('ghToken').value=token;
-  if(user&&token)verifyToken(true);
-}
-
-async function saveCredentials(){
-  const user=document.getElementById('username').value.trim();
-  const token=document.getElementById('ghToken').value.trim();
-  if(!user||!token){setFB('authFeedback','Username et token requis.','#ef4444');return;}
-  await dbSet('config','gh_username',user);
-  await dbSet('config','gh_token',token);
-  setFB('authFeedback','✓ Sauvegardé. Vérification...');
-  verifyToken(false);
-}
-
-async function verifyToken(silent=false){
-  if(!silent)setFB('authFeedback','⏳ Vérification...','#fbbf24');
-  const token=document.getElementById('ghToken').value.trim()||await dbGet('config','gh_token');
-  if(!token){setFB('authFeedback','Aucun token configuré.','#ef4444');return;}
-  try{
-    const res=await fetch('https://api.github.com/user',{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const d=await res.json();
-    document.getElementById('profileAvatar').src=d.avatar_url;
-    document.getElementById('profileName').textContent=d.name||d.login;
-    document.getElementById('profileLogin').textContent='@'+d.login;
-    document.getElementById('profileBio').textContent=d.bio||'';
-    document.getElementById('profileRepos').textContent=d.public_repos+' repos publics';
-    document.getElementById('profilePreview').classList.remove('hidden');
-    setFB('authFeedback','✓ Connecté en tant que @'+d.login);
-    await dbSet('config','gh_username',d.login);
-    checkRateLimit();
-  }catch(e){
-    setFB('authFeedback','✗ Token invalide : '+e.message,'#ef4444');
-    document.getElementById('profilePreview').classList.add('hidden');
-  }
-}
-
-async function disconnect(){
-  if(!confirm('Déconnecter et effacer les credentials ?'))return;
-  await dbSet('config','gh_token',null);await dbSet('config','gh_username',null);
-  document.getElementById('ghToken').value='';document.getElementById('username').value='';
-  document.getElementById('profilePreview').classList.add('hidden');
-  setFB('authFeedback','Déconnecté.','#fbbf24');
-}
-
-// ── RATE LIMIT ──
-async function checkRateLimit(){
-  const token=await dbGet('config','gh_token');
-  const hdrs={Accept:'application/vnd.github.v3+json'};
-  if(token)hdrs['Authorization']=`token ${token}`;
-  try{
-    const res=await fetch('https://api.github.com/rate_limit',{headers:hdrs});
-    const d=await res.json();
-    const core=d.resources?.core;
-    const search=d.resources?.search;
-    if(!core)return;
-    const pct=Math.round((core.used/core.limit)*100);
-    const spct=Math.round(((search.limit-search.remaining)/search.limit)*100);
-    const reset=new Date(core.reset*1000).toLocaleTimeString();
-    document.getElementById('rateLimitDisplay').innerHTML=`
-    <div class="space-y-3">
-      <div>
-        <div class="flex justify-between text-[10px] mb-1">
-          <span class="text-gray-600">Core API</span>
-          <span class="text-gray-500">${core.remaining.toLocaleString()} / ${core.limit.toLocaleString()} restants • reset ${reset}</span>
-        </div>
-        <div class="rate-bar"><div class="rate-fill bg-violet-600" style="width:${pct}%"></div></div>
+    <!-- Preferences -->
+    <section class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold">Preferences</h2>
+      <div class="space-y-3">
+        <label class="flex items-center justify-between">
+          <span class="text-sm">Save search history</span>
+          <input id="prefHistory" type="checkbox" class="toggle">
+        </label>
+        <label class="flex items-center justify-between">
+          <span class="text-sm">Semantic expansion</span>
+          <input id="prefSemantic" type="checkbox" class="toggle">
+        </label>
+        <label class="flex items-center justify-between">
+          <span class="text-sm">GITSEARCH exclusive mode</span>
+          <input id="prefExclusive" type="checkbox" class="toggle">
+        </label>
       </div>
-      <div>
-        <div class="flex justify-between text-[10px] mb-1">
-          <span class="text-gray-600">Search API</span>
-          <span class="text-gray-500">${search.remaining} / ${search.limit} restants</span>
-        </div>
-        <div class="rate-bar"><div class="rate-fill bg-emerald-600" style="width:${spct}%"></div></div>
+    </section>
+
+    <!-- Danger Zone -->
+    <section class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+      <div class="flex gap-3">
+        <button id="clearHistory" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Clear History</button>
+        <button id="resetAll" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800">Reset All Data</button>
       </div>
-      <div class="text-[9px] text-gray-800">${token?'✓ Token actif — quota étendu':'⚠ Sans token — quota limité (60/h)'}</div>
-    </div>`;
-  }catch(e){
-    document.getElementById('rateLimitDisplay').innerHTML=`<div class="text-xs text-red-900">${e.message}</div>`;
-  }
-}
+    </section>
+  </main>
 
-// ── PREFS ──
-const prefs = { saveHistory: false, semanticExpand: true, exclusiveMode: false };
-async function loadPrefs(){
-  const saved=await dbGet('config','prefs');
-  if(saved)Object.assign(prefs,saved);
-  updatePrefUI();
-}
-function updatePrefUI(){
-  document.getElementById('histToggle').classList.toggle('on',prefs.saveHistory);
-  document.getElementById('semanticToggle').classList.toggle('on',prefs.semanticExpand);
-  document.getElementById('exclusiveToggle').classList.toggle('on',prefs.exclusiveMode);
-}
-async function togglePref(key){prefs[key]=!prefs[key];updatePrefUI();}
-async function savePrefs(){await dbSet('config','prefs',{...prefs});setFB('prefFeedback','✓ Préférences sauvegardées');}
+  <footer class="mt-16">
+    <img src="assets/footer.svg" alt="" class="w-full">
+  </footer>
 
-// ── SNIPPET GENERATOR ──
-function updateSnippet(){
-  const url=document.getElementById('genRepoUrl').value.trim();
-  const tags=document.getElementById('genTags').value.trim();
-  const snippet=`[![gitsearch](https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg)](https://tryboy869.github.io/gitsearch)\n<!-- gitsearch: ${tags||'tag1, tag2, tag3'} -->`;
-  document.getElementById('snippetPreview').textContent=snippet;
-}
+  <script type="module">
+    import { openDB } from 'https://unpkg.com/idb@7.1.1/build/esm/index.js';
+    const DB_NAME = 'gitsearch';
+    const STORE_CONFIG = 'config';
+    const STORE_PREFS = 'prefs';
+    const STORE_HISTORY = 'history';
+    const db = await openDB(DB_NAME, 1, {
+      upgrade(db) {
+        db.createObjectStore(STORE_CONFIG);
+        db.createObjectStore(STORE_PREFS);
+        db.createObjectStore(STORE_HISTORY);
+      }
+    });
 
-// ── COPY ──
-function copyCode(elId){
-  const text=document.getElementById(elId).textContent;
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn=event.target;btn.textContent='✓ copié';setTimeout(()=>btn.textContent='copier',1500);
-  });
-}
+    // Auth
+    const authForm = document.getElementById('authForm');
+    const username = document.getElementById('username');
+    const token = document.getElementById('token');
+    const toggleToken = document.getElementById('toggleToken');
+    const authStatus = document.getElementById('authStatus');
 
-// ── DANGER ──
-async function clearSearchHistory(){if(!confirm('Effacer l\'historique de recherche ?'))return;await dbClear('searches');setFB('dangerFeedback','✓ Historique effacé','#fbbf24');}
-async function clearViewHistory(){if(!confirm('Effacer l\'historique de vues ?'))return;await dbClear('viewed');setFB('dangerFeedback','✓ Historique vues effacé','#fbbf24');}
-async function resetAll(){if(!confirm('⚠️ Tout réinitialiser ? Credentials inclus.'))return;await Promise.all(['searches','viewed','config'].map(s=>dbClear(s)));setFB('dangerFeedback','✓ Tout réinitialisé','#ef4444');setTimeout(()=>location.reload(),1000);}
+    const saved = await db.get(STORE_CONFIG, 'auth');
+    if (saved) {
+      username.value = saved.username || '';
+      token.value = saved.token || '';
+    }
 
-// ── INIT ──
-async function init(){await loadCredentials();await loadPrefs();}
-init();
-</script>
+    toggleToken.onclick = () => {
+      const isPwd = token.type === 'password';
+      token.type = isPwd ? 'text' : 'password';
+      toggleToken.textContent = isPwd ? 'Hide' : 'Show';
+    };
+
+    authForm.onsubmit = async (e) => {
+      e.preventDefault();
+      authStatus.textContent = 'Validating...';
+      authStatus.className = 'text-sm text-gray-600';
+      try {
+        const res = await fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': `token ${token.value.trim()}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!res.ok) throw new Error('Invalid token or network error');
+        const data = await res.json();
+        if (data.login !== username.value.trim()) throw new Error('Username mismatch');
+        await db.put(STORE_CONFIG, { username: username.value.trim(), token: token.value.trim() }, 'auth');
+        authStatus.textContent = '✓ Authenticated';
+        authStatus.className = 'text-sm text-green-600';
+      } catch (err) {
+        authStatus.textContent = '✗ ' + err.message;
+        authStatus.className = 'text-sm text-red-600';
+      }
+    };
+
+    // Rate Limit
+    async function loadRate() {
+      const auth = await db.get(STORE_CONFIG, 'auth');
+      const headers = auth?.token ? { 'Authorization': `token ${auth.token}` } : {};
+      const core = await fetch('https://api.github.com/rate_limit', { headers }).then(r => r.json()).catch(() => ({}));
+      const search = core.resources?.search || { used: 0, remaining: 0, limit: 0 };
+      const coreRes = core.resources?.core || { used: 0, remaining: 0, limit: 0 };
+      const coreUsed = coreRes.limit - coreRes.remaining;
+      const searchUsed = search.limit - search.remaining;
+      document.getElementById('coreText').textContent = `${coreUsed} / ${coreRes.limit}`;
+      document.getElementById('coreBar').style.width = `${coreRes.limit ? (coreUsed / coreRes.limit) * 100 : 0}%`;
+      document.getElementById('searchText').textContent = `${searchUsed} / ${search.limit}`;
+      document.getElementById('searchBar').style.width = `${search.limit ? (searchUsed / search.limit) * 100 : 0}%`;
+    }
+    document.getElementById('refreshRate').onclick = loadRate;
+    loadRate();
+
+    // Snippet
+    const snippetForm = document.getElementById('snippetForm');
+    const repoUrl = document.getElementById('repoUrl');
+    const repoTags = document.getElementById('repoTags');
+    const snippetPreview = document.getElementById('snippetPreview');
+    const snippetCode = document.getElementById('snippetCode');
+    const copySnippet = document.getElementById('copySnippet');
+
+    snippetForm.onsubmit = (e) => {
+      e.preventDefault();
+      const url = repoUrl.value.trim();
+      const tags = repoTags.value.split(',').map(t => t.trim()).filter(Boolean).join(', ');
+      const badge = `[![gitsearch](https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg)](https://tryboy869.github.io/gitsearch)`;
+      const comment = `<!-- gitsearch: ${tags} -->`;
+      const code = `${badge}\n${comment}`;
+      snippetCode.textContent = code;
+      snippetPreview.classList.remove('hidden');
+    };
+
+    copySnippet.onclick = async () => {
+      await navigator.clipboard.writeText(snippetCode.textContent);
+      copySnippet.textContent = 'Copied!';
+      setTimeout(() => copySnippet.textContent = 'Copy to clipboard', 1500);
+    };
+
+    // Preferences
+    const prefHistory = document.getElementById('prefHistory');
+    const prefSemantic = document.getElementById('prefSemantic');
+    const prefExclusive = document.getElementById('prefExclusive');
+
+    const prefs = (await db.get(STORE_PREFS, 'prefs')) || {};
+    prefHistory.checked = prefs.history !== false;
+    prefSemantic.checked = prefs.semantic !== false;
+    prefExclusive.checked = prefs.exclusive === true;
+
+    async function savePrefs() {
+      await db.put(STORE_PREFS, {
+        history: prefHistory.checked,
+        semantic: prefSemantic.checked,
+        exclusive: prefExclusive.checked
+      }, 'prefs');
+    }
+    prefHistory.onchange = savePrefs;
+    prefSemantic.onchange = savePrefs;
+    prefExclusive.onchange = savePrefs;
+
+    // Danger
+    document.getElementById('clearHistory').onclick = async () => {
+      if (!confirm('Delete all search history?')) return;
+      const tx = db.transaction(STORE_HISTORY, 'readwrite');
+      await tx.store.clear();
+      await tx.done;
+    };
+    document.getElementById('resetAll').onclick = async () => {
+      if (!confirm('Delete all data (auth, prefs, history)?')) return;
+      db.close();
+      await indexedDB.deleteDatabase(DB_NAME);
+      location.reload();
+    };
+  </script>
 </body>
 </html>

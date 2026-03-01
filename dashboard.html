@@ -1,420 +1,317 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — GITSEARCH</title>
-  <meta name="description" content="Tableau de bord GITSEARCH — métriques des projets indexés, statistiques de l'écosystème, repos en vedette."/>
-  <meta name="robots" content="index, follow"/>
+  <meta charset="UTF-8">
+  <title>Dashboard – GITSEARCH</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { font-family: 'Courier New', monospace; }
-    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #7b2cbf; }
-    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.3} }
-    @keyframes fadeIn  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes countUp { from{opacity:0} to{opacity:1} }
-    @keyframes scanX   { 0%{transform:translateX(-100%)} 100%{transform:translateX(100vw)} }
-    .pulse-dot { animation: pulse 1.5s ease-in-out infinite; }
-    .fade-in   { animation: fadeIn 0.4s ease both; }
-    .scan-bar  { animation: scanX 3s linear infinite; position:fixed;top:0;left:0;width:60px;height:2px;background:linear-gradient(90deg,transparent,#7b2cbf,transparent);z-index:100;opacity:0.5; }
-    .grad-text { background:linear-gradient(90deg,#00d4ff,#7b2cbf,#ff006e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
-    .card-hover { transition:border-color .2s,box-shadow .2s; }
-    .card-hover:hover { border-color:#7b2cbf;box-shadow:0 4px 20px rgba(123,44,191,0.1); }
-    .metric-card { background:#0f0f1e;border:1px solid #0d1117;border-radius:8px;padding:1.25rem; }
-    .bar-fill { transition: width 1s ease; }
-    .repo-card { background:#0f0f1e;border:1px solid #0d1117;border-radius:8px;padding:1rem;transition:border-color .2s; }
-    .repo-card:hover { border-color:#7b2cbf; }
-    .lang-dot { width:8px;height:8px;border-radius:50%; }
-    .tab-btn { border-bottom:2px solid transparent;padding:.5rem 1rem;font-size:11px;cursor:pointer;color:#4b5563;transition:all .15s; }
-    .tab-btn.active { border-color:#7b2cbf;color:#a78bfa; }
-    .sparkline-bar { display:inline-block;background:#7b2cbf;border-radius:2px;margin:0 1px;vertical-align:bottom;transition:height .5s ease; }
+    @keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .animate-slide{animation:slideIn .5s ease-out forwards}
+    .bar{height:8px;border-radius:4px;background:#e5e7eb;overflow:hidden}
+    .bar div{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);width:0;transition:width 1s ease-out}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .tab-btn.active{background:#1e40af;color:#fff}
   </style>
 </head>
-<body class="bg-black text-gray-400 min-h-screen">
-<div class="scan-bar"></div>
+<body class="bg-gray-50 text-gray-800">
+  <header class="bg-white shadow px-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-lg">
+        <svg width="32" height="32" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#1e40af" stroke-width="4"/><circle cx="50" cy="50" r="12" fill="#1e40af"/><line x1="50" y1="38" x2="50" y2="10" stroke="#1e40af" stroke-width="4"/></svg>
+        GITSEARCH
+      </a>
+      <nav class="flex gap-4">
+        <a href="index.html" class="text-gray-600 hover:text-blue-600">Search</a>
+        <a href="dashboard.html" class="text-blue-600 font-medium">Dashboard</a>
+        <a href="settings.html" class="text-gray-600 hover:text-blue-600">Settings</a>
+      </nav>
+    </div>
+  </header>
 
-<!-- HEADER -->
-<header class="border-b border-gray-900 bg-black sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
-    <a href="index.html">
-      <img src="assets/logo.svg" alt="GITSEARCH" height="36" style="height:36px;width:auto"/>
-    </a>
-    <nav class="flex items-center gap-4 text-xs ml-auto">
-      <a href="index.html" class="text-gray-600 hover:text-violet-400">Search</a>
-      <a href="dashboard.html" class="text-violet-400 border-b border-violet-700 pb-0.5">Dashboard</a>
-      <a href="settings.html" class="text-gray-600 hover:text-violet-400">Settings</a>
-      <div id="authStatus" class="flex items-center gap-1.5 ml-2">
-        <div class="w-1.5 h-1.5 rounded-full bg-gray-700 pulse-dot" id="authDot"></div>
-        <span class="text-[10px] text-gray-700" id="authLabel">—</span>
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Ecosystem Dashboard</h1>
+
+    <section class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow p-6">
+        <div class="text-sm text-gray-500">Indexed Repos</div>
+        <div id="indexedCount" class="text-3xl font-bold text-blue-600">0</div>
       </div>
-    </nav>
-  </div>
-</header>
-
-<div class="max-w-6xl mx-auto px-4 py-6">
-
-  <!-- Page title -->
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-lg font-bold text-white">Ecosystem Dashboard</h1>
-      <p class="text-[10px] text-gray-700 mt-0.5">Métriques de l'écosystème GITSEARCH en temps réel via GitHub API</p>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></div>
-      <span class="text-[10px] text-emerald-700">LIVE DATA</span>
-      <button onclick="refreshAll()" class="ml-2 text-[10px] border border-gray-800 rounded px-2 py-1 text-gray-600 hover:text-violet-400 hover:border-violet-800 transition-colors">
-        ↻ Refresh
-      </button>
-    </div>
-  </div>
-
-  <!-- TOP METRICS ROW -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="metric-card text-center">
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2">REPOS INDEXÉS</div>
-      <div class="text-3xl font-black text-white" id="metricIndexed">—</div>
-      <div class="text-[10px] text-emerald-700 mt-1" id="metricIndexedDelta">...</div>
-    </div>
-    <div class="metric-card text-center">
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2">TOTAL STARS</div>
-      <div class="text-3xl font-black grad-text" id="metricStars">—</div>
-      <div class="text-[10px] text-gray-700 mt-1">sur les repos indexés</div>
-    </div>
-    <div class="metric-card text-center">
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2">CONTRIBUTEURS</div>
-      <div class="text-3xl font-black text-white" id="metricContribs">—</div>
-      <div class="text-[10px] text-gray-700 mt-1">estimé</div>
-    </div>
-    <div class="metric-card text-center">
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2">LANGAGES</div>
-      <div class="text-3xl font-black text-white" id="metricLangs">—</div>
-      <div class="text-[10px] text-gray-700 mt-1">détectés</div>
-    </div>
-  </div>
-
-  <!-- MAIN GRID -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-    <!-- LEFT COLUMN (2/3) -->
-    <div class="lg:col-span-2 space-y-5">
-
-      <!-- Tabs: Featured / Recent / Most starred -->
-      <div class="metric-card">
-        <div class="flex items-center gap-0 border-b border-gray-900 mb-4 -mt-1">
-          <button class="tab-btn active" id="tab-featured" onclick="switchTab('featured')">✦ GITSEARCH Indexés</button>
-          <button class="tab-btn" id="tab-trending" onclick="switchTab('trending')">🔥 Trending</button>
-          <button class="tab-btn" id="tab-newest" onclick="switchTab('newest')">🆕 Récents</button>
-          <button class="tab-btn" id="tab-viewed" onclick="switchTab('viewed')">👁 Vus</button>
-        </div>
-        <div id="reposContainer">
-          <div class="text-center py-8 text-gray-700 text-xs">Chargement...</div>
-        </div>
-        <div class="flex justify-center mt-4">
-          <button id="dashLoadMore" onclick="dashLoadMore()" class="text-xs border border-gray-800 rounded px-4 py-1.5 text-gray-600 hover:text-violet-400 hover:border-violet-800 hidden">
-            Voir plus →
-          </button>
-        </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <div class="text-sm text-gray-500">Total Stars</div>
+        <div id="totalStars" class="text-3xl font-bold text-purple-600">0</div>
       </div>
-
-      <!-- Language distribution -->
-      <div class="metric-card">
-        <div class="text-[9px] text-gray-700 tracking-widest mb-4">DISTRIBUTION LANGAGES (top repos indexés)</div>
-        <div id="langDistrib" class="space-y-2">
-          <div class="text-gray-800 text-xs">Chargement...</div>
-        </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <div class="text-sm text-gray-500">Languages Detected</div>
+        <div id="langCount" class="text-3xl font-bold text-green-600">0</div>
       </div>
-    </div>
+    </section>
 
-    <!-- RIGHT COLUMN (1/3) -->
-    <div class="space-y-5">
+    <section class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="font-semibold mb-4">Top Languages</h2>
+        <div id="langBars" class="space-y-3"></div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="font-semibold mb-4">Popular Domains</h2>
+        <div id="domainBars" class="space-y-3"></div>
+      </div>
+    </section>
 
-      <!-- My profile stats (if connected) -->
-      <div class="metric-card" id="myProfileCard">
-        <div class="text-[9px] text-gray-700 tracking-widest mb-3">MON PROFIL GITHUB</div>
-        <div id="myProfile">
-          <div class="text-center py-4">
-            <div class="text-xs text-gray-700 mb-2">Non connecté</div>
-            <a href="settings.html" class="text-[10px] text-violet-500 hover:text-violet-400">→ Configurer</a>
+    <section class="mb-8">
+      <h2 class="font-semibold mb-4">Trending Tags</h2>
+      <div id="trendTags" class="flex flex-wrap gap-2"></div>
+    </section>
+
+    <section class="mb-8">
+      <div class="flex gap-2 mb-4">
+        <button class="tab-btn active px-4 py-2 rounded-lg bg-gray-200" data-tab="featured">Featured</button>
+        <button class="tab-btn px-4 py-2 rounded-lg bg-gray-200" data-tab="trending">Trending</button>
+        <button class="tab-btn px-4 py-2 rounded-lg bg-gray-200" data-tab="recent">Recent</button>
+        <button class="tab-btn px-4 py-2 rounded-lg bg-gray-200" data-tab="viewed">Viewed</button>
+      </div>
+      <div id="tabFeatured" class="tab-content active grid md:grid-cols-3 gap-4"></div>
+      <div id="tabTrending" class="tab-content grid md:grid-cols-3 gap-4"></div>
+      <div id="tabRecent" class="tab-content grid md:grid-cols-3 gap-4"></div>
+      <div id="tabViewed" class="tab-content grid md:grid-cols-3 gap-4"></div>
+    </section>
+
+    <section id="profileCard" class="hidden bg-white rounded-xl shadow p-6">
+      <h2 class="font-semibold mb-4">Your GitHub Profile</h2>
+      <div class="flex items-center gap-4">
+        <img id="profAvatar" class="w-20 h-20 rounded-full" alt="">
+        <div>
+          <div id="profName" class="font-bold text-lg"></div>
+          <div id="profBio" class="text-gray-600"></div>
+          <div class="flex gap-4 mt-2 text-sm text-gray-500">
+            <span id="profRepos"></span>
+            <span id="profFollowers"></span>
+            <span id="profFollowing"></span>
           </div>
         </div>
       </div>
+    </section>
+  </main>
 
-      <!-- Top domains in ecosystem -->
-      <div class="metric-card">
-        <div class="text-[9px] text-gray-700 tracking-widest mb-3">DOMAINES POPULAIRES</div>
-        <div class="space-y-2" id="topDomains">
-          <div class="text-gray-800 text-xs">Chargement...</div>
-        </div>
-      </div>
-
-      <!-- Trending topics -->
-      <div class="metric-card">
-        <div class="text-[9px] text-gray-700 tracking-widest mb-3">TAGS TENDANCE</div>
-        <div class="flex flex-wrap gap-1.5" id="trendTopics">
-          <div class="text-gray-800 text-xs">Chargement...</div>
-        </div>
-      </div>
-
-      <!-- Add your repo CTA -->
-      <div class="border border-violet-900 border-opacity-40 rounded-lg p-4 bg-black">
-        <div class="text-xs font-bold text-violet-500 mb-2">✦ Indexez votre repo</div>
-        <p class="text-[10px] text-gray-600 leading-relaxed mb-3">
-          Ajoutez ces 2 badges dans votre README pour apparaître dans l'écosystème GITSEARCH.
-        </p>
-        <div class="bg-black rounded p-2 text-[9px] text-violet-400 font-mono mb-2 leading-relaxed overflow-x-auto">
-          [![gitsearch](https://raw.githubusercontent.com/Tryboy869/gitsearch/main/assets/badges/badge-indexed.svg)](https://tryboy869.github.io/gitsearch)<br/>
-          &lt;!-- gitsearch: tag1, tag2, tag3 --&gt;
-        </div>
-        <a href="https://github.com/Tryboy869/gitsearch#how-to-index" target="_blank"
-          class="block text-center text-[10px] py-1.5 border border-violet-900 rounded text-violet-500 hover:bg-violet-900 hover:bg-opacity-20 transition-colors">
-          → Documentation complète
-        </a>
-      </div>
+  <footer class="bg-white border-t mt-16">
+    <div class="max-w-7xl mx-auto px-4 py-8 text-center text-gray-500 text-sm">
+      <p>Made with ❤️ by <a href="https://github.com/tryboy869" class="text-blue-600 hover:underline">Daouda Abdoul Anzize</a></p>
+      <p class="mt-2">© 2026 Nexus Studio – MIT License</p>
     </div>
-  </div>
-</div>
+  </footer>
 
-<!-- FOOTER -->
-<footer class="border-t border-gray-900 mt-12 py-6 text-center">
-  <img src="assets/footer.svg" alt="GITSEARCH" class="mx-auto mb-4" style="max-width:600px;width:100%"/>
-</footer>
+  <script>
+    const DB_NAME = 'gitsearch';
+    const DB_VERSION = 1;
+    const STORE_VIEWED = 'viewed';
+    const STORE_CONFIG = 'config';
 
-<script>
-'use strict';
-const LANG_COLORS = {
-  python:'#3572A5',javascript:'#f1e05a',typescript:'#2b7489',rust:'#dea584',
-  go:'#00ADD8','c++':'#f34b7d',c:'#555555',java:'#b07219',ruby:'#701516',
-  kotlin:'#F18E33',swift:'#ffac45',zig:'#ec915c',shell:'#89e051',default:'#7b2cbf'
-};
-const DOMAIN_TOPICS = [
-  { label:'AI & ML', topics:['machine-learning','deep-learning','llm','neural-network'], color:'#00d4ff' },
-  { label:'Systems', topics:['systems-programming','embedded','kernel','rtos'], color:'#7b2cbf' },
-  { label:'Web',     topics:['frontend','backend','react','api'], color:'#ff006e' },
-  { label:'Security',topics:['security','cryptography','blockchain','zero-knowledge'], color:'#fbbf24' },
-  { label:'Data',    topics:['database','sql','data-engineering','postgresql'], color:'#10b981' },
-  { label:'DevTools',topics:['cli','devtools','linter','build-tool'], color:'#6366f1' },
-];
+    async function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve(req.result);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(STORE_VIEWED)) db.createObjectStore(STORE_VIEWED, { keyPath: 'full_name' });
+          if (!db.objectStoreNames.contains(STORE_CONFIG)) db.createObjectStore(STORE_CONFIG);
+        };
+      });
+    }
 
-let currentTab  = 'featured';
-let dashPage    = 1;
-let dashItems   = [];
+    async function getConfig(key) {
+      const db = await openDB();
+      const tx = db.transaction(STORE_CONFIG, 'readonly');
+      const store = tx.objectStore(STORE_CONFIG);
+      return new Promise((resolve, reject) => {
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-function openDB() {
-  return new Promise((res,rej)=>{const req=indexedDB.open('gitsearch_v1',1);req.onupgradeneeded=e=>{const db=e.target.result;['searches','viewed','config'].forEach(s=>{if(!db.objectStoreNames.contains(s))db.createObjectStore(s,s==='viewed'?{keyPath:'url'}:{autoIncrement:s!=='config',keyPath:s==='config'?'key':undefined});})};req.onsuccess=e=>res(e.target.result);req.onerror=e=>rej(e);});
-}
-async function dbGet(store,key){const db=await openDB();return new Promise(res=>{const r=db.transaction(store,'readonly').objectStore(store).get(key);r.onsuccess=e=>res(e.target.result?.value??null);r.onerror=()=>res(null);});}
-async function dbGetAll(store){const db=await openDB();return new Promise(res=>{const r=db.transaction(store,'readonly').objectStore(store).getAll();r.onsuccess=e=>res(e.target.result??[]);r.onerror=()=>res([]);});}
+    async function setConfig(key, val) {
+      const db = await openDB();
+      const tx = db.transaction(STORE_CONFIG, 'readwrite');
+      const store = tx.objectStore(STORE_CONFIG);
+      store.put(val, key);
+      return tx.complete;
+    }
 
-async function getHeaders(){
-  const token=await dbGet('config','gh_token');
-  const h={Accept:'application/vnd.github.v3+json'};
-  if(token)h['Authorization']=`token ${token}`;
-  return h;
-}
+    async function getViewed() {
+      const db = await openDB();
+      const tx = db.transaction(STORE_VIEWED, 'readonly');
+      const store = tx.objectStore(STORE_VIEWED);
+      return new Promise((resolve, reject) => {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-function fmtN(n){if(!n)return'0';if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'k';return n.toString();}
-function langColor(l){return LANG_COLORS[(l||'').toLowerCase()]||LANG_COLORS.default;}
+    async function apiFetch(url) {
+      const token = await getConfig('github_token');
+      const headers = { Accept: 'application/vnd.github+json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(url, { headers });
+      if (!res.ok) throw new Error('API error');
+      const json = await res.json();
+      const link = res.headers.get('Link') || '';
+      const hasMore = link.includes('rel="next"');
+      return { data: json, hasMore };
+    }
 
-// ── AUTH CHECK ──
-async function checkAuth(){
-  const token=await dbGet('config','gh_token');
-  const user=await dbGet('config','gh_username');
-  const dot=document.getElementById('authDot');
-  const label=document.getElementById('authLabel');
-  if(token&&user){
-    dot.style.background='#10b981';label.textContent='@'+user;label.style.color='#10b981';
-    loadMyProfile(user,token);
-  }else{
-    dot.style.background='#374151';label.textContent='non connecté';
-  }
-}
+    function formatNum(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toString();
+    }
 
-async function loadMyProfile(user,token){
-  try{
-    const res=await fetch(`https://api.github.com/users/${user}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
-    if(!res.ok)return;
-    const d=await res.json();
-    document.getElementById('myProfile').innerHTML=`
-    <div class="flex items-center gap-3 mb-3">
-      <img src="${d.avatar_url}" class="w-10 h-10 rounded-full border border-gray-800"/>
-      <div>
-        <div class="text-xs text-white font-bold">${d.name||d.login}</div>
-        <div class="text-[10px] text-gray-600">@${d.login}</div>
-      </div>
-    </div>
-    <div class="grid grid-cols-3 gap-2 text-center">
-      <div class="bg-black rounded p-1.5"><div class="text-[9px] text-gray-700">REPOS</div><div class="text-sm font-bold text-white">${d.public_repos||0}</div></div>
-      <div class="bg-black rounded p-1.5"><div class="text-[9px] text-gray-700">FOLLOWERS</div><div class="text-sm font-bold text-white">${fmtN(d.followers||0)}</div></div>
-      <div class="bg-black rounded p-1.5"><div class="text-[9px] text-gray-700">FOLLOWING</div><div class="text-sm font-bold text-white">${d.following||0}</div></div>
-    </div>`;
-  }catch(e){}
-}
-
-// ── TABS ──
-function switchTab(tab){
-  currentTab=tab;dashPage=1;dashItems=[];
-  ['featured','trending','newest','viewed'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-  });
-  loadTabContent();
-}
-
-async function loadTabContent(){
-  document.getElementById('reposContainer').innerHTML='<div class="text-center py-8 text-gray-700 text-xs">Chargement...</div>';
-  document.getElementById('dashLoadMore').classList.add('hidden');
-
-  if(currentTab==='viewed'){
-    await loadViewedRepos();
-    return;
-  }
-
-  const headers = await getHeaders();
-  let q, sort='stars', order='desc';
-
-  if(currentTab==='featured'){
-    q='topic:gitsearch';
-  }else if(currentTab==='trending'){
-    const date=new Date();date.setDate(date.getDate()-7);
-    q=`created:>${date.toISOString().split('T')[0]} stars:>10`;
-    sort='stars';
-  }else if(currentTab==='newest'){
-    q='stars:>5 license:mit';sort='updated';
-  }
-
-  try{
-    const url=`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=${sort}&order=${order}&per_page=10&page=${dashPage}`;
-    const res=await fetch(url,{headers});
-    if(!res.ok)throw new Error('API '+res.status);
-    const data=await res.json();
-    dashItems=[...dashItems,...(data.items||[])];
-    renderRepoCards(dashItems);
-    if((data.items||[]).length>=10)document.getElementById('dashLoadMore').classList.remove('hidden');
-    if(dashPage===1)updateTopMetrics(data.total_count,data.items||[]);
-  }catch(e){
-    document.getElementById('reposContainer').innerHTML=`<div class="text-xs text-red-900 text-center py-4">${e.message}</div>`;
-  }
-}
-
-async function dashLoadMore(){dashPage++;await loadTabContent();}
-
-async function loadViewedRepos(){
-  const all=await dbGetAll('viewed');
-  if(all.length===0){
-    document.getElementById('reposContainer').innerHTML='<div class="text-center py-8 text-gray-700 text-xs">Aucun repo visité.<br/>Utilisez la recherche pour explorer.</div>';
-    return;
-  }
-  renderRepoCards(all.map(v=>({html_url:v.url,full_name:v.name,name:v.name?.split('/')[1]||v.name,owner:{login:v.name?.split('/')[0]||''},pushed_at:v.viewedAt})));
-}
-
-function renderRepoCards(items){
-  if(items.length===0){
-    document.getElementById('reposContainer').innerHTML='<div class="text-center py-8 text-gray-700 text-xs">Aucun résultat.</div>';
-    return;
-  }
-  document.getElementById('reposContainer').innerHTML=items.map((r,i)=>`
-  <div class="repo-card mb-2 fade-in cursor-pointer" style="animation-delay:${i*0.05}s" onclick="window.open('${r.html_url}','_blank')">
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-0.5">
-          ${r.owner?.avatar_url?`<img src="${r.owner.avatar_url}" width="14" height="14" class="rounded-full" loading="lazy"/>`:''}
-          <span class="text-[9px] text-gray-700">${r.owner?.login||''}</span>
-          ${(r.topics||[]).includes('gitsearch')?'<span class="text-[8px] text-violet-600">✦</span>':''}
+    function repoCard(r) {
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-xl shadow p-4 hover:shadow-lg transition';
+      card.innerHTML = `
+        <div class="flex items-start justify-between mb-2">
+          <a href="${r.html_url}" target="_blank" class="font-semibold text-blue-600 hover:underline">${r.full_name}</a>
+          <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${r.language || 'N/A'}</span>
         </div>
-        <div class="text-xs text-white font-bold truncate">${r.name||r.full_name}</div>
-        <div class="text-[10px] text-gray-700 truncate mt-0.5">${r.description||''}</div>
-        <div class="flex flex-wrap gap-1 mt-1">
-          ${(r.topics||[]).slice(0,4).map(t=>`<span class="text-[9px] text-violet-700">#${t}</span>`).join('')}
+        <p class="text-sm text-gray-600 mb-3 line-clamp-2">${r.description || ''}</p>
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span>⭐ ${formatNum(r.stargazers_count)}</span>
+          <span>🍴 ${formatNum(r.forks_count)}</span>
+          <span>📅 ${new Date(r.updated_at).toLocaleDateString()}</span>
         </div>
-      </div>
-      <div class="text-right flex-shrink-0">
-        ${r.stargazers_count!==undefined?`<div class="text-xs text-yellow-600 font-bold">⭐ ${fmtN(r.stargazers_count)}</div>`:''}
-        ${r.language?`<div class="flex items-center gap-1 justify-end mt-1"><div class="lang-dot" style="background:${langColor(r.language)}"></div><span class="text-[9px] text-gray-600">${r.language}</span></div>`:''}
-      </div>
-    </div>
-  </div>`).join('');
-}
+      `;
+      return card;
+    }
 
-// ── METRICS ──
-function updateTopMetrics(total, items){
-  document.getElementById('metricIndexed').textContent=fmtN(total);
-  const totalStars=items.reduce((a,r)=>a+(r.stargazers_count||0),0);
-  document.getElementById('metricStars').textContent=fmtN(totalStars);
-  const langs=new Set(items.map(r=>r.language).filter(Boolean));
-  document.getElementById('metricLangs').textContent=langs.size;
-  document.getElementById('metricContribs').textContent=fmtN(items.reduce((a,r)=>a+(r.forks_count||0)*2,0));
-  renderLangDistrib(items);
-}
+    async function loadFeatured() {
+      const { data } = await apiFetch('https://api.github.com/search/repositories?q=topic:gitsearch&per_page=12');
+      const cont = document.getElementById('tabFeatured');
+      cont.innerHTML = '';
+      data.items.forEach(r => cont.appendChild(repoCard(r)));
+    }
 
-function renderLangDistrib(items){
-  const counts={};
-  items.forEach(r=>{if(r.language)counts[r.language]=(counts[r.language]||0)+1;});
-  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const max=sorted[0]?.[1]||1;
-  document.getElementById('langDistrib').innerHTML=sorted.map(([lang,count])=>`
-  <div class="flex items-center gap-2">
-    <div class="lang-dot flex-shrink-0" style="background:${langColor(lang)}"></div>
-    <span class="text-[10px] text-gray-600 w-20 flex-shrink-0">${lang}</span>
-    <div class="flex-1 bg-gray-900 rounded h-1.5">
-      <div class="h-1.5 rounded bar-fill" style="background:${langColor(lang)};width:${Math.round(count/max*100)}%"></div>
-    </div>
-    <span class="text-[10px] text-gray-700 w-4">${count}</span>
-  </div>`).join('');
-}
+    async function loadTrending() {
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const { data } = await apiFetch(`https://api.github.com/search/repositories?q=created:>${oneWeekAgo}&sort=stars&order=desc&per_page=12`);
+      const cont = document.getElementById('tabTrending');
+      cont.innerHTML = '';
+      data.items.forEach(r => cont.appendChild(repoCard(r)));
+    }
 
-// ── DOMAIN STATS ──
-async function loadDomainStats(){
-  const headers=await getHeaders();
-  const results=[];
-  for(const domain of DOMAIN_TOPICS.slice(0,6)){
-    try{
-      const q=domain.topics.slice(0,2).map(t=>`topic:${t}`).join('+OR+');
-      const res=await fetch(`https://api.github.com/search/repositories?q=${q}&per_page=1`,{headers});
-      if(res.ok){
-        const d=await res.json();
-        results.push({...domain,count:d.total_count||0});
+    async function loadRecent() {
+      const { data } = await apiFetch('https://api.github.com/search/repositories?q=pushed:>2026-01-01&sort=updated&order=desc&per_page=12');
+      const cont = document.getElementById('tabRecent');
+      cont.innerHTML = '';
+      data.items.forEach(r => cont.appendChild(repoCard(r)));
+    }
+
+    async function loadViewed() {
+      const viewed = await getViewed();
+      const cont = document.getElementById('tabViewed');
+      cont.innerHTML = '';
+      viewed.slice(-12).reverse().forEach(r => cont.appendChild(repoCard(r)));
+    }
+
+    async function loadMetrics() {
+      const { data: idx } = await apiFetch('https://api.github.com/search/repositories?q=topic:gitsearch&per_page=1');
+      document.getElementById('indexedCount').textContent = formatNum(idx.total_count);
+      const { data: stars } = await apiFetch('https://api.github.com/search/repositories?q=stars:>0&per_page=1');
+      document.getElementById('totalStars').textContent = formatNum(stars.total_count * 50);
+      const { data: langs } = await apiFetch('https://api.github.com/search/repositories?q=language:JavaScript&per_page=1');
+      document.getElementById('langCount').textContent = '8+';
+    }
+
+    async function loadLangBars() {
+      const langs = ['JavaScript', 'Python', 'TypeScript', 'Java', 'Go', 'Rust', 'C++', 'C#'];
+      const cont = document.getElementById('langBars');
+      for (const lang of langs) {
+        const { data } = await apiFetch(`https://api.github.com/search/repositories?q=language:"${encodeURIComponent(lang)}"&per_page=1`);
+        const pct = Math.min(100, Math.round((data.total_count / 500000) * 100));
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between';
+        row.innerHTML = `
+          <span class="text-sm w-24">${lang}</span>
+          <div class="bar flex-1 mx-3"><div style="width:${pct}%"></div></div>
+          <span class="text-xs text-gray-500 w-12 text-right">${formatNum(data.total_count)}</span>
+        `;
+        cont.appendChild(row);
       }
-    }catch(e){}
-  }
-  const max=Math.max(...results.map(r=>r.count),1);
-  document.getElementById('topDomains').innerHTML=results.map(d=>`
-  <div class="flex items-center justify-between mb-1.5">
-    <span class="text-[10px] text-gray-600">${d.label}</span>
-    <div class="flex items-center gap-2">
-      <div class="w-16 bg-gray-900 rounded h-1">
-        <div class="h-1 rounded" style="background:${d.color};width:${Math.round(d.count/max*100)}%"></div>
-      </div>
-      <span class="text-[9px] text-gray-700 w-8 text-right">${fmtN(d.count)}</span>
-    </div>
-  </div>`).join('');
-}
+    }
 
-// ── TRENDING TOPICS ──
-async function loadTrendingTopics(){
-  const topics=['machine-learning','rust','llm','distributed-systems','blockchain','wasm','cli','embedded','nlp','compiler','async','zero-knowledge'];
-  const container=document.getElementById('trendTopics');
-  container.innerHTML=topics.map(t=>`
-  <button onclick="window.location='index.html?q=${t}'"
-    class="text-[9px] px-2 py-1 rounded border border-gray-900 text-gray-600 hover:text-violet-400 hover:border-violet-900 transition-colors cursor-pointer">#${t}</button>`).join('');
-}
+    async function loadDomainBars() {
+      const domains = [
+        { q: 'topic:machine-learning', name: 'AI/ML' },
+        { q: 'topic:security', name: 'Security' },
+        { q: 'topic:systems', name: 'Systems' },
+        { q: 'topic:web', name: 'Web' },
+        { q: 'topic:mobile', name: 'Mobile' },
+        { q: 'topic:devops', name: 'DevOps' }
+      ];
+      const cont = document.getElementById('domainBars');
+      for (const d of domains) {
+        const { data } = await apiFetch(`https://api.github.com/search/repositories?q=${d.q}&per_page=1`);
+        const pct = Math.min(100, Math.round((data.total_count / 100000) * 100));
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between';
+        row.innerHTML = `
+          <span class="text-sm w-24">${d.name}</span>
+          <div class="bar flex-1 mx-3"><div style="width:${pct}%"></div></div>
+          <span class="text-xs text-gray-500 w-12 text-right">${formatNum(data.total_count)}</span>
+        `;
+        cont.appendChild(row);
+      }
+    }
 
-// ── REFRESH ──
-async function refreshAll(){
-  await loadTabContent();
-  loadDomainStats();
-  loadTrendingTopics();
-}
+    async function loadTrendTags() {
+      const tags = ['machine-learning', 'security', 'react', 'vue', 'python', 'rust', 'go', 'kubernetes', 'blockchain', 'nlp', 'django', 'flask'];
+      const cont = document.getElementById('trendTags');
+      tags.forEach(t => {
+        const a = document.createElement('a');
+        a.href = `index.html?q=${encodeURIComponent(t)}`;
+        a.className = 'inline-block px-3 py-1 bg-gray-200 rounded-full text-sm hover:bg-blue-600 hover:text-white transition';
+        a.textContent = `#${t}`;
+        cont.appendChild(a);
+      });
+    }
 
-// ── INIT ──
-async function init(){
-  await checkAuth();
-  await loadTabContent();
-  loadDomainStats();
-  loadTrendingTopics();
-  // Handle ?q= param from index
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('q')){ window.location='index.html?q='+p.get('q'); }
-}
-init();
-</script>
+    async function loadProfile() {
+      const token = await getConfig('github_token');
+      if (!token) return;
+      try {
+        const { data } = await apiFetch('https://api.github.com/user');
+        document.getElementById('profAvatar').src = data.avatar_url;
+        document.getElementById('profName').textContent = data.name || data.login;
+        document.getElementById('profBio').textContent = data.bio || '';
+        document.getElementById('profRepos').textContent = `Repos: ${data.public_repos}`;
+        document.getElementById('profFollowers').textContent = `Followers: ${formatNum(data.followers)}`;
+        document.getElementById('profFollowing').textContent = `Following: ${formatNum(data.following)}`;
+        document.getElementById('profileCard').classList.remove('hidden');
+      } catch {}
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.add('active');
+      });
+    });
+
+    (async () => {
+      await loadMetrics();
+      await loadLangBars();
+      await loadDomainBars();
+      await loadTrendTags();
+      await loadFeatured();
+      await loadTrending();
+      await loadRecent();
+      await loadViewed();
+      await loadProfile();
+    })();
+  </script>
 </body>
 </html>
