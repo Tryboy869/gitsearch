@@ -4,748 +4,674 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GITSEARCH — Semantic GitHub Search Engine</title>
-  <meta name="description" content="Moteur de recherche sémantique pour GitHub. Trouvez des repos open-source par domaine, tags et sémantique. Bien au-delà de la recherche GitHub native."/>
+  <meta name="description" content="Moteur de recherche sémantique pour GitHub. Trouvez des repos open-source par domaine, tags et sémantique."/>
   <meta name="keywords" content="github search, semantic search, open source, repositories, topics, tags, developer tools"/>
   <meta name="author" content="Daouda Abdoul Anzize — Nexus Studio"/>
   <meta property="og:title" content="GITSEARCH — Semantic GitHub Search Engine"/>
-  <meta property="og:description" content="Trouve des repos GitHub que le moteur natif ne trouve pas. Recherche sémantique, filtres par tags officiels, historique persistant."/>
+  <meta property="og:description" content="Trouve des repos GitHub que le moteur natif ne trouve pas."/>
   <meta property="og:type" content="website"/>
-  <meta name="theme-color" content="#0d0d1a"/>
+  <meta name="theme-color" content="#0a0e1a"/>
   <link rel="canonical" href="https://tryboy869.github.io/gitsearch/"/>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: {
-        colors: { dark: '#0d0d1a', card: '#0f0f1e', border: '#0d1117' },
-        fontFamily: { mono: ['"Courier New"', 'monospace'] }
-      }}
-    }
-  </script>
   <style>
-    * { font-family: 'Courier New', monospace; }
-    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #000; } ::-webkit-scrollbar-thumb { background: #7b2cbf; }
-    @keyframes spin    { to { transform: rotate(360deg); } }
-    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.3} }
-    @keyframes scanX   { 0%{transform:translateX(-100%)} 100%{transform:translateX(100vw)} }
-    @keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes gradShift {
-      0%   { background-position: 0% 50%; }
-      50%  { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    :root {
+      --bg:    #0a0e1a;
+      --card:  #0d1220;
+      --bord:  #111827;
+      --acc:   #7b2cbf;
+      --cyan:  #00d4ff;
+      --pink:  #ff006e;
     }
-    .spinner   { animation: spin 0.8s linear infinite; display:inline-block; }
-    .pulse-dot { animation: pulse 1.5s ease-in-out infinite; }
-    .fade-in   { animation: fadeIn 0.4s ease both; }
-    .scan-bar  { animation: scanX 3s linear infinite; position:fixed;top:0;left:0;width:60px;height:2px;
-                 background:linear-gradient(90deg,transparent,#7b2cbf,transparent);z-index:100;opacity:0.5; }
-    .grad-text { background: linear-gradient(90deg,#00d4ff,#7b2cbf,#ff006e);
-                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
-    .grad-border { border-image: linear-gradient(90deg,#00d4ff,#7b2cbf,#ff006e) 1; }
-    .search-glow:focus-within { box-shadow: 0 0 0 1px #7b2cbf, 0 0 20px rgba(123,44,191,0.2); }
-    .card-hover { transition: border-color .2s, transform .2s, box-shadow .2s; }
-    .card-hover:hover { border-color: #7b2cbf; transform: translateY(-2px);
-                        box-shadow: 0 4px 20px rgba(123,44,191,0.15); }
-    .tag-pill { background: rgba(123,44,191,0.1); border: 1px solid rgba(123,44,191,0.3);
-                border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; transition: all .15s; }
-    .tag-pill:hover { background: rgba(123,44,191,0.3); border-color: #7b2cbf; }
-    .tag-pill.active { background: rgba(0,212,255,0.15); border-color: #00d4ff; color: #00d4ff; }
-    .filter-btn { border: 1px solid #1f2937; border-radius: 6px; padding: 4px 12px; font-size: 11px;
-                  cursor: pointer; transition: all .15s; background: transparent; color: #6b7280; }
-    .filter-btn:hover, .filter-btn.active { border-color: #7b2cbf; color: #a78bfa; background: rgba(123,44,191,0.1); }
-    .skeleton { background: linear-gradient(90deg,#0f0f1e,#1a1a2e,#0f0f1e);
-                background-size: 200%; animation: gradShift 1.5s linear infinite; border-radius: 4px; }
-    .lang-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .stars-gold { color: #fbbf24; }
+    * { font-family:'Courier New',monospace; box-sizing:border-box; margin:0; padding:0; }
+    html,body { background:var(--bg); color:#9ca3af; min-height:100vh; }
+    ::-webkit-scrollbar { width:3px; }
+    ::-webkit-scrollbar-thumb { background:var(--acc); border-radius:2px; }
+
+    @keyframes spin    { to{transform:rotate(360deg)} }
+    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.25} }
+    @keyframes fadeIn  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes scan    { 0%{left:-80px} 100%{left:100vw} }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .scan-bar {
+      position:fixed;top:0;left:-80px;width:80px;height:2px;z-index:999;
+      background:linear-gradient(90deg,transparent,var(--acc),var(--cyan),transparent);
+      animation:scan 4s linear infinite;opacity:.6;
+    }
+    .fade-in   { animation:fadeIn .35s ease both; }
+    .spinner   { animation:spin .8s linear infinite;display:inline-block; }
+    .pulse-dot { animation:pulse 1.4s ease-in-out infinite; }
+    .skeleton  { background:linear-gradient(90deg,#0d1220,#111827,#0d1220);
+                 background-size:200%;animation:shimmer 1.8s linear infinite;border-radius:8px; }
+
+    /* ── LAYOUT ── */
+    .wrap    { max-width:1100px;margin:0 auto;padding:0 16px; }
+    .card    { background:var(--card);border:1px solid var(--bord);border-radius:10px; }
+    .card-hv { transition:border-color .2s,box-shadow .2s; }
+    .card-hv:hover { border-color:var(--acc);box-shadow:0 0 18px rgba(123,44,191,.1); }
+
+    /* ── HEADER ── */
+    header { background:#060a14;border-bottom:1px solid #0f172a;position:sticky;top:0;z-index:100; }
+    .hbar  { display:flex;align-items:center;gap:10px;padding:10px 16px; }
+
+    /* ── SEARCH ── */
+    .sw { flex:1;position:relative;background:var(--card);border:1px solid #1e293b;
+          border-radius:10px;transition:border-color .2s,box-shadow .2s; }
+    .sw:focus-within { border-color:var(--acc);box-shadow:0 0 0 1px rgba(123,44,191,.35),0 0 22px rgba(123,44,191,.12); }
+    .si { background:transparent;border:none;outline:none;color:#f1f5f9;font-size:15px;
+          width:100%;padding:13px 46px 13px 42px;font-family:'Courier New',monospace; }
+    .si::placeholder { color:#1e293b; }
+
+    /* ── FILTER BAR ── */
+    .fbar { display:flex;align-items:center;gap:7px;padding:6px 16px 8px;overflow-x:auto;scrollbar-width:none; }
+    .fbar::-webkit-scrollbar { display:none; }
+
+    /* ── BUTTONS ── */
+    .fb { border:1px solid #1e293b;border-radius:6px;padding:5px 11px;font-size:11px;
+          cursor:pointer;background:transparent;color:#4b5563;transition:all .15s;
+          white-space:nowrap;font-family:'Courier New',monospace; }
+    .fb:hover,.fb.on { border-color:var(--acc);color:#a78bfa;background:rgba(123,44,191,.1); }
+    .inp { background:#060a14;border:1px solid #1e293b;border-radius:5px;padding:5px 9px;
+           font-size:10px;color:#9ca3af;outline:none;font-family:'Courier New',monospace; }
+    .inp:focus { border-color:var(--acc); }
+
+    /* ── TAGS ── */
+    .tag { background:rgba(123,44,191,.08);border:1px solid rgba(123,44,191,.2);
+           border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;
+           color:#a78bfa;transition:all .15s;white-space:nowrap; }
+    .tag:hover { background:rgba(123,44,191,.2);border-color:var(--acc); }
+
+    /* ── DOMAIN BTN ── */
+    .dbtn { width:100%;text-align:left;font-size:11px;padding:6px 8px;border-radius:5px;
+            cursor:pointer;background:transparent;border:none;color:#374151;
+            transition:all .15s;font-family:'Courier New',monospace; }
+    .dbtn:hover,.dbtn.on { color:#a78bfa;background:rgba(123,44,191,.1); }
+
+    /* ── MOBILE SIDEBAR ── */
+    .mob-overlay { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);
+                   backdrop-filter:blur(4px);display:none; }
+    .mob-overlay.open { display:flex; }
+    .mob-panel { background:#060a14;width:260px;height:100vh;
+                 border-right:1px solid #1e293b;overflow-y:auto;padding:20px; }
+
+    /* ── REPO CARD ── */
+    .rc { background:var(--card);border:1px solid var(--bord);border-radius:10px;
+          padding:14px 16px;transition:border-color .2s,box-shadow .2s;cursor:pointer;
+          margin-bottom:10px; }
+    .rc:hover { border-color:var(--acc);box-shadow:0 0 16px rgba(123,44,191,.1); }
+    .rname { font-size:13px;font-weight:700;color:#f1f5f9; }
+    .rdesc { font-size:11px;color:#4b5563;line-height:1.5;
+             display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+    .lang-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+
+    /* ── GRAD TEXT ── */
+    .gt { background:linear-gradient(90deg,var(--cyan),var(--acc),var(--pink));
+          -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+
+    @media(max-width:768px) {
+      .si { font-size:14px;padding:12px 44px 12px 40px; }
+      #deskSidebar { display:none!important; }
+      #mobBtn { display:flex!important; }
+    }
+    @media(min-width:769px) {
+      #mobBtn { display:none!important; }
+    }
   </style>
 </head>
-<body class="bg-dark text-gray-400 min-h-screen">
+<body>
 <div class="scan-bar"></div>
 
+<!-- MOBILE DRAWER -->
+<div class="mob-overlay" id="mobOverlay" onclick="mobClose(event)">
+  <div class="mob-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-size:9px;color:#374151;letter-spacing:2px">MENU</span>
+      <button onclick="mobClose()" style="background:none;border:none;cursor:pointer;color:#4b5563;font-size:20px">✕</button>
+    </div>
+    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">DOMAINES</div>
+    <div id="mobDomains" style="margin-bottom:16px"></div>
+    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">HISTORIQUE</div>
+    <div id="mobHistory"></div>
+  </div>
+</div>
+
 <!-- HEADER -->
-<header class="border-b border-gray-900 bg-black sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
-    <a href="index.html" class="flex-shrink-0">
-      <img src="assets/logo.svg" alt="GITSEARCH" height="36" style="height:36px;width:auto"/>
+<header>
+  <div class="hbar">
+    <button id="mobBtn" onclick="mobOpen()"
+      style="background:none;border:1px solid #1e293b;border-radius:6px;padding:6px 9px;
+             cursor:pointer;color:#4b5563;font-size:14px;flex-shrink:0">☰</button>
+
+    <a href="index.html" style="flex-shrink:0">
+      <img src="assets/logo.svg" alt="GITSEARCH" style="height:30px;width:auto"/>
     </a>
-    <!-- Main search bar -->
-    <div class="flex-1 relative search-glow rounded-lg border border-gray-800 bg-black transition-all">
-      <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" id="searchIcon">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+    <div class="sw">
+      <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#1e293b;pointer-events:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
         </svg>
-      </div>
-      <input type="text" id="searchInput" placeholder="machine learning, distributed systems, rust async..." autocomplete="off"
-        class="w-full bg-transparent pl-9 pr-20 py-2.5 text-sm text-gray-200 outline-none placeholder-gray-700"
-        oninput="onSearchInput()" onkeydown="if(event.key==='Enter')doSearch()"/>
-      <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-        <kbd class="text-[9px] text-gray-700 border border-gray-800 rounded px-1">↵</kbd>
-        <button onclick="clearSearch()" id="clearBtn" class="hidden text-gray-600 hover:text-gray-400">✕</button>
-      </div>
+      </span>
+      <input type="search" id="SI" class="si"
+        placeholder="machine learning, rust async, distributed systems..."
+        oninput="onInput(this.value)"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();go()}"/>
+      <button id="CB" onclick="cls()"
+        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+               background:none;border:none;cursor:pointer;color:#374151;font-size:18px;display:none">✕</button>
     </div>
-    <!-- Nav -->
-    <nav class="flex items-center gap-3 text-xs flex-shrink-0">
-      <a href="dashboard.html" class="text-gray-600 hover:text-violet-400 transition-colors">Dashboard</a>
-      <a href="settings.html" id="navAuth" class="text-gray-600 hover:text-violet-400 transition-colors">Settings</a>
-      <div id="authStatus" class="flex items-center gap-1.5">
-        <div class="w-1.5 h-1.5 rounded-full bg-gray-700 pulse-dot" id="authDot"></div>
-        <span class="text-[10px] text-gray-700" id="authLabel">not connected</span>
+
+    <nav style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <a href="dashboard.html" style="font-size:11px;color:#374151;text-decoration:none">Dashboard</a>
+      <a href="settings.html"  style="font-size:11px;color:#374151;text-decoration:none">Settings</a>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div class="pulse-dot" id="AD" style="width:6px;height:6px;border-radius:50%;background:#1e293b"></div>
+        <span id="AL" style="font-size:9px;color:#1e293b">—</span>
       </div>
     </nav>
   </div>
-  <!-- Filter bar -->
-  <div class="max-w-6xl mx-auto px-4 pb-2 flex items-center gap-2 overflow-x-auto" id="filterBar">
-    <span class="text-[10px] text-gray-700 flex-shrink-0">FILTER:</span>
-    <div class="flex gap-1.5 flex-shrink-0">
-      <button class="filter-btn active" onclick="setSort('stars')" id="sort-stars">⭐ Stars</button>
-      <button class="filter-btn" onclick="setSort('updated')" id="sort-updated">🕐 Recent</button>
-      <button class="filter-btn" onclick="setSort('old')" id="sort-old">🏛 Oldest</button>
-    </div>
-    <div class="w-px h-4 bg-gray-800 mx-1 flex-shrink-0"></div>
-    <select id="langFilter" onchange="doSearch()" class="bg-black border border-gray-800 text-gray-600 text-xs rounded px-2 py-1 outline-none">
-      <option value="">All languages</option>
+
+  <!-- FILTER BAR -->
+  <div class="fbar">
+    <span style="font-size:9px;color:#1e293b;letter-spacing:2px;flex-shrink:0">TRIER:</span>
+    <button class="fb on" id="sort-stars"   onclick="setSort('stars')">⭐ Stars</button>
+    <button class="fb"    id="sort-updated" onclick="setSort('updated')">🕐 Récents</button>
+    <button class="fb"    id="sort-old"     onclick="setSort('old')">🏛 Anciens</button>
+    <div style="width:1px;height:14px;background:#111827;flex-shrink:0"></div>
+    <select id="LF" onchange="go()" class="inp">
+      <option value="">Langue</option>
       <option>Python</option><option>JavaScript</option><option>TypeScript</option>
       <option>Rust</option><option>Go</option><option>C</option><option>C++</option>
       <option>Java</option><option>Ruby</option><option>Kotlin</option><option>Swift</option>
-      <option>PHP</option><option>Zig</option><option>Haskell</option><option>Elixir</option>
+      <option>PHP</option><option>Zig</option><option>Haskell</option>
     </select>
-    <select id="licFilter" onchange="doSearch()" class="bg-black border border-gray-800 text-gray-600 text-xs rounded px-2 py-1 outline-none">
-      <option value="">All licenses</option>
-      <option value="mit">MIT</option><option value="apache-2.0">Apache 2.0</option>
-      <option value="gpl-3.0">GPL 3.0</option><option value="bsd-2-clause">BSD 2</option>
-      <option value="bsd-3-clause">BSD 3</option><option value="isc">ISC</option>
-    </select>
-    <select id="starsFilter" onchange="doSearch()" class="bg-black border border-gray-800 text-gray-600 text-xs rounded px-2 py-1 outline-none">
-      <option value="">Any stars</option>
+    <select id="SF" onchange="go()" class="inp">
+      <option value="">Stars</option>
       <option value="10">10+</option><option value="100">100+</option>
       <option value="1000">1k+</option><option value="10000">10k+</option>
     </select>
-    <!-- Active tags display -->
-    <div id="activeTagsBar" class="flex gap-1.5 items-center"></div>
-    <!-- Result count -->
-    <span class="ml-auto text-[10px] text-gray-700 flex-shrink-0" id="resultCount"></span>
+    <span id="RC" style="font-size:9px;color:#1e293b;margin-left:auto;flex-shrink:0;white-space:nowrap"></span>
   </div>
 </header>
 
-<!-- MAIN LAYOUT -->
-<div class="max-w-6xl mx-auto px-4 py-6 flex gap-6">
+<!-- BODY -->
+<div class="wrap" style="display:flex;gap:20px;padding-top:20px;padding-bottom:40px">
 
-  <!-- LEFT SIDEBAR -->
-  <aside class="w-52 flex-shrink-0 space-y-4 hidden lg:block">
+  <!-- DESKTOP SIDEBAR -->
+  <aside id="deskSidebar" style="width:190px;flex-shrink:0">
+    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">DOMAINES</div>
+    <div id="DL" style="margin-bottom:18px"></div>
 
-    <!-- Domains -->
-    <div>
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2">DOMAINES</div>
-      <div class="space-y-0.5" id="domainList">
-        <!-- Generated by JS -->
-      </div>
+    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px">POPULAIRES</div>
+    <div id="TT" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px"></div>
+
+    <div style="font-size:9px;color:#374151;letter-spacing:2px;margin-bottom:8px;
+                display:flex;justify-content:space-between;align-items:center">
+      <span>HISTORIQUE</span>
+      <button onclick="clrH()" style="font-size:9px;color:#1e293b;background:none;border:none;cursor:pointer">clear</button>
     </div>
+    <div id="HL"></div>
 
-    <!-- Trending tags -->
-    <div>
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2">TAGS POPULAIRES</div>
-      <div class="flex flex-wrap gap-1.5" id="trendingTags">
-        <!-- Generated by JS -->
-      </div>
-    </div>
-
-    <!-- History -->
-    <div>
-      <div class="text-[9px] text-gray-700 tracking-widest mb-2 flex justify-between">
-        <span>HISTORIQUE</span>
-        <button onclick="clearHistory()" class="text-gray-800 hover:text-red-900 text-[9px]">clear</button>
-      </div>
-      <div class="space-y-0.5" id="historyList">
-        <div class="text-[9px] text-gray-800">Aucune recherche.</div>
-      </div>
-    </div>
-
-    <!-- Gitsearch CTA -->
-    <div class="border border-gray-900 rounded-lg p-3 bg-card">
-      <div class="text-[9px] text-violet-600 mb-1.5 font-bold">INDEXEZ VOTRE REPO</div>
-      <p class="text-[9px] text-gray-700 leading-relaxed mb-2">Ajoutez le badge GITSEARCH dans votre README pour apparaître ici.</p>
-      <a href="https://github.com/Tryboy869/gitsearch#how-to-index" target="_blank"
-        class="block text-center text-[9px] py-1 bg-violet-900 bg-opacity-30 border border-violet-900 rounded text-violet-500 hover:bg-violet-900 hover:bg-opacity-50 transition-colors">
-        → Comment faire
-      </a>
+    <div class="card" style="padding:12px;margin-top:16px">
+      <div style="font-size:9px;color:#7b2cbf;font-weight:bold;margin-bottom:5px">✦ INDEXEZ VOTRE REPO</div>
+      <p style="font-size:9px;color:#374151;line-height:1.6;margin-bottom:7px">
+        Ajoutez le badge GITSEARCH dans votre README pour apparaître ici.
+      </p>
+      <a href="settings.html#how-to-index" style="display:block;text-align:center;font-size:9px;padding:5px;
+         border:1px solid #2d1b4e;border-radius:4px;color:#7b2cbf;text-decoration:none;
+         background:rgba(123,44,191,.08)">→ Comment faire</a>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 min-w-0">
+  <!-- MAIN -->
+  <main style="flex:1;min-width:0">
 
-    <!-- Hero (shown before search) -->
-    <div id="heroSection">
-      <div class="text-center py-8">
-        <div class="text-[10px] text-gray-700 tracking-widest mb-6">SEMANTIC GITHUB SEARCH ENGINE</div>
-        <p class="text-gray-600 text-sm max-w-lg mx-auto leading-relaxed mb-8">
+    <!-- HERO -->
+    <div id="HZ">
+      <div style="text-align:center;padding:36px 0">
+        <div style="font-size:9px;color:#1e293b;letter-spacing:3px;margin-bottom:14px">SEMANTIC GITHUB SEARCH ENGINE</div>
+        <p style="color:#374151;font-size:13px;max-width:460px;margin:0 auto 26px;line-height:1.7">
           Trouve des repos GitHub que le moteur natif ne trouve jamais.<br/>
-          Recherche sémantique, filtres par tags officiels, indexation de l'écosystème.
+          Expansion sémantique, filtres par domaine, historique local.
         </p>
-        <!-- Example queries -->
-        <div class="flex flex-wrap justify-center gap-2 mb-8">
-          <button onclick="exampleSearch('distributed systems golang')" class="tag-pill text-gray-500">distributed systems golang</button>
-          <button onclick="exampleSearch('machine learning rust')" class="tag-pill text-gray-500">machine learning rust</button>
-          <button onclick="exampleSearch('semantic search nlp')" class="tag-pill text-gray-500">semantic search nlp</button>
-          <button onclick="exampleSearch('zero knowledge proof')" class="tag-pill text-gray-500">zero knowledge proof</button>
-          <button onclick="exampleSearch('embedded systems real-time')" class="tag-pill text-gray-500">embedded systems real-time</button>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-bottom:28px">
+          <button onclick="ex('distributed systems golang')" class="tag">distributed systems golang</button>
+          <button onclick="ex('machine learning rust')"     class="tag">machine learning rust</button>
+          <button onclick="ex('semantic search nlp')"       class="tag">semantic search nlp</button>
+          <button onclick="ex('zero knowledge proof')"      class="tag">zero knowledge proof</button>
+          <button onclick="ex('embedded systems rtos')"     class="tag">embedded systems rtos</button>
+          <button onclick="ex('compiler llvm')"             class="tag">compiler llvm</button>
         </div>
-        <!-- How it works -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
-          <div class="border border-gray-900 rounded-lg p-4 bg-card">
-            <div class="text-violet-600 text-xl mb-2">🔍</div>
-            <div class="text-xs text-gray-300 font-bold mb-1">Sémantique</div>
-            <div class="text-[10px] text-gray-600">Normalise tes mots-clés en topics officiels GitHub automatiquement.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;max-width:520px;margin:0 auto;text-align:left">
+          <div class="card" style="padding:14px"><div style="font-size:20px;margin-bottom:7px">🔍</div>
+            <div style="font-size:11px;color:#e2e8f0;font-weight:bold;margin-bottom:3px">Sémantique</div>
+            <div style="font-size:10px;color:#374151;line-height:1.5">Normalise tes mots-clés vers les topics GitHub officiels.</div>
           </div>
-          <div class="border border-gray-900 rounded-lg p-4 bg-card">
-            <div class="text-violet-600 text-xl mb-2">🏷</div>
-            <div class="text-xs text-gray-300 font-bold mb-1">Tags enrichis</div>
-            <div class="text-[10px] text-gray-600">Cherche dans les tags GITSEARCH embarqués dans les READMEs.</div>
+          <div class="card" style="padding:14px"><div style="font-size:20px;margin-bottom:7px">🏷</div>
+            <div style="font-size:11px;color:#e2e8f0;font-weight:bold;margin-bottom:3px">Tags enrichis</div>
+            <div style="font-size:10px;color:#374151;line-height:1.5">Cherche dans les tags GITSEARCH des READMEs.</div>
           </div>
-          <div class="border border-gray-900 rounded-lg p-4 bg-card">
-            <div class="text-violet-600 text-xl mb-2">📡</div>
-            <div class="text-xs text-gray-300 font-bold mb-1">GitHub API live</div>
-            <div class="text-[10px] text-gray-600">Résultats en temps réel, aucun backend, zéro latence serveur.</div>
+          <div class="card" style="padding:14px"><div style="font-size:20px;margin-bottom:7px">⚡</div>
+            <div style="font-size:11px;color:#e2e8f0;font-weight:bold;margin-bottom:3px">Zéro backend</div>
+            <div style="font-size:10px;color:#374151;line-height:1.5">GitHub API directe. Aucun serveur. 100% local.</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Results section (hidden initially) -->
-    <div id="resultsSection" class="hidden">
-      <!-- Semantic expansion notice -->
-      <div id="semanticNotice" class="hidden mb-4 p-3 border border-violet-900 border-opacity-50 rounded-lg bg-card text-[10px] text-gray-600">
-        <span class="text-violet-500">✦ Expansion sémantique :</span> <span id="semanticExpansionText"></span>
-      </div>
-      <!-- Results grid -->
-      <div id="resultsGrid" class="space-y-3"></div>
-      <!-- Load more -->
-      <div class="flex justify-center mt-6">
-        <button id="loadMoreBtn" class="hidden filter-btn px-6 py-2" onclick="loadMore()">
-          Charger plus →
-        </button>
-      </div>
+    <!-- SEMANTIC NOTICE -->
+    <div id="SN" style="display:none;margin-bottom:12px;padding:10px 14px;
+         border:1px solid rgba(123,44,191,.25);border-radius:8px;background:var(--card);
+         font-size:10px;color:#4b5563">
+      <span style="color:#a78bfa">✦ Expansion sémantique :</span>
+      <span id="ST"></span>
     </div>
 
-    <!-- Loading state -->
-    <div id="loadingSection" class="hidden text-center py-12">
-      <div class="inline-flex items-center gap-3 text-gray-600 text-sm">
-        <svg class="spinner w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="30" stroke-dashoffset="10"/>
+    <!-- LOADING -->
+    <div id="LS" style="display:none;text-align:center;padding:48px 0">
+      <div style="display:inline-flex;align-items:center;gap:10px;color:#374151;font-size:13px">
+        <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b2cbf" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
         </svg>
-        <span id="loadingMsg">Recherche sémantique en cours...</span>
+        Recherche en cours...
       </div>
-      <!-- Skeleton cards -->
-      <div class="space-y-3 mt-8">
-        <div class="skeleton h-24 w-full rounded-lg"></div>
-        <div class="skeleton h-24 w-full rounded-lg"></div>
-        <div class="skeleton h-24 w-full rounded-lg"></div>
+      <div style="margin-top:20px">
+        <div class="skeleton" style="height:76px;margin-bottom:8px"></div>
+        <div class="skeleton" style="height:76px;margin-bottom:8px"></div>
+        <div class="skeleton" style="height:76px"></div>
       </div>
     </div>
 
-    <!-- Empty state -->
-    <div id="emptySection" class="hidden text-center py-16">
-      <div class="text-4xl mb-4 opacity-20">🔍</div>
-      <div class="text-gray-600 text-sm mb-2">Aucun résultat trouvé.</div>
-      <div class="text-gray-700 text-xs">Essaie des termes différents ou retire des filtres.</div>
+    <!-- RESULTS -->
+    <div id="RS" style="display:none">
+      <div id="RG"></div>
+      <div style="text-align:center;margin-top:18px">
+        <button id="LMB" onclick="more()" class="fb" style="padding:8px 24px;display:none">Charger plus →</button>
+      </div>
     </div>
+
+    <!-- EMPTY -->
+    <div id="ES" style="display:none;text-align:center;padding:60px 0">
+      <div style="font-size:38px;opacity:.12;margin-bottom:10px">🔍</div>
+      <div style="color:#374151;font-size:13px;margin-bottom:5px">Aucun résultat.</div>
+      <div style="color:#1e293b;font-size:11px">Essaie des termes différents ou retire des filtres.</div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="ER" style="display:none">
+      <div class="card" style="padding:20px;text-align:center;border-color:rgba(239,68,68,.15)">
+        <div style="color:#ef4444;font-size:13px;margin-bottom:6px">Erreur</div>
+        <div id="EM" style="color:#4b5563;font-size:11px;margin-bottom:12px"></div>
+        <a href="settings.html" style="color:#7b2cbf;font-size:11px;text-decoration:none">→ Configurer votre token GitHub</a>
+      </div>
+    </div>
+
   </main>
 </div>
 
 <!-- FOOTER -->
-<footer class="border-t border-gray-900 mt-12 py-6 text-center">
-  <img src="assets/footer.svg" alt="GITSEARCH footer" class="mx-auto mb-4" style="max-width:600px;width:100%"/>
-  <div class="text-[10px] text-gray-800">
-    <a href="index.html" class="hover:text-violet-700 mx-2">Search</a>
-    <a href="dashboard.html" class="hover:text-violet-700 mx-2">Dashboard</a>
-    <a href="settings.html" class="hover:text-violet-700 mx-2">Settings</a>
-    <a href="https://github.com/Tryboy869/gitsearch" class="hover:text-violet-700 mx-2">GitHub</a>
-    <a href="CONTRIBUTING.md" class="hover:text-violet-700 mx-2">Contribute</a>
+<footer style="border-top:1px solid #0f172a;padding:24px 16px;text-align:center">
+  <img src="assets/footer.svg" alt="GITSEARCH" style="max-width:500px;width:100%;margin:0 auto 12px"/>
+  <div style="font-size:10px;color:#111827">
+    <a href="index.html"    style="color:inherit;text-decoration:none;margin:0 8px">Search</a>
+    <a href="dashboard.html"style="color:inherit;text-decoration:none;margin:0 8px">Dashboard</a>
+    <a href="settings.html" style="color:inherit;text-decoration:none;margin:0 8px">Settings</a>
+    <a href="https://github.com/Tryboy869/gitsearch" style="color:inherit;text-decoration:none;margin:0 8px">GitHub</a>
   </div>
 </footer>
 
 <script>
 'use strict';
 
-// ═══════════════════════════════════════════════
-//  CONSTANTS
-// ═══════════════════════════════════════════════
-const DOMAINS = [
-  { label: 'AI & Machine Learning', topics: ['machine-learning','deep-learning','neural-network','nlp','llm','transformers','pytorch','tensorflow','computer-vision'] },
-  { label: 'Systems & OS',          topics: ['operating-system','kernel','embedded','rtos','systems-programming','low-level'] },
-  { label: 'Distributed Systems',   topics: ['distributed-systems','consensus','raft','microservices','message-queue','grpc','rpc'] },
-  { label: 'Web & Frontend',        topics: ['frontend','react','vue','angular','svelte','webassembly','css','html','browser'] },
-  { label: 'Web & Backend',         topics: ['backend','api','rest','graphql','server','nodejs','django','rails','fastapi'] },
-  { label: 'Data & Databases',      topics: ['database','sql','nosql','postgresql','redis','mongodb','data-engineering','etl'] },
-  { label: 'Security & Crypto',     topics: ['security','cryptography','zero-knowledge','tls','penetration-testing','blockchain'] },
-  { label: 'DevTools & CLI',        topics: ['devtools','cli','terminal','linter','formatter','debugger','build-tool','makefile'] },
-  { label: 'Networking',            topics: ['networking','protocol','tcp','http','proxy','vpn','p2p','websocket'] },
-  { label: 'Languages & Compilers', topics: ['compiler','interpreter','parser','programming-language','llvm','jit','bytecode'] },
-  { label: 'Mobile',                topics: ['android','ios','react-native','flutter','mobile','kotlin','swift'] },
-  { label: 'Finance & Blockchain',  topics: ['blockchain','defi','ethereum','bitcoin','smart-contracts','web3','crypto'] },
-  { label: 'Sciences & Research',   topics: ['bioinformatics','physics','mathematics','simulation','scientific-computing','astronomy'] },
+// ─── DATA ────────────────────────────────────────────────────
+const DOMAINS=[
+  {label:'AI & Machine Learning', kw:['machine-learning','deep-learning','neural-network','nlp','llm','pytorch','tensorflow']},
+  {label:'Systems & OS',          kw:['operating-system','kernel','embedded','rtos','systems-programming','firmware']},
+  {label:'Distributed Systems',   kw:['distributed-systems','consensus','microservices','raft','message-queue']},
+  {label:'Web & Frontend',        kw:['frontend','react','vue','svelte','webassembly','css','angular']},
+  {label:'Web & Backend',         kw:['backend','api','rest','graphql','nodejs','django','fastapi']},
+  {label:'Data & Databases',      kw:['database','sql','nosql','postgresql','redis','mongodb','data-engineering']},
+  {label:'Security & Crypto',     kw:['security','cryptography','zero-knowledge','tls','blockchain']},
+  {label:'DevTools & CLI',        kw:['cli','terminal','linter','formatter','debugger','build-tool']},
+  {label:'Networking',            kw:['networking','protocol','tcp','http','proxy','vpn','websocket']},
+  {label:'Languages & Compilers', kw:['compiler','interpreter','parser','programming-language','llvm','jit']},
+  {label:'Mobile',                kw:['android','ios','react-native','flutter','mobile','kotlin','swift']},
+  {label:'Finance & Blockchain',  kw:['blockchain','defi','ethereum','bitcoin','smart-contracts','web3']},
+  {label:'Sciences & Research',   kw:['bioinformatics','physics','mathematics','simulation','scientific-computing']},
 ];
 
-const SEMANTIC_MAP = {
-  'machine learning': ['machine-learning','ml','deep-learning','neural-network','ai'],
-  'ml':               ['machine-learning','deep-learning','neural-network'],
-  'ia': ['artificial-intelligence','machine-learning','deep-learning'],
-  'ai': ['artificial-intelligence','machine-learning','llm'],
-  'llm': ['llm','large-language-model','gpt','transformers','chatbot'],
-  'nlp': ['nlp','natural-language-processing','text-processing','sentiment-analysis'],
-  'distributed': ['distributed-systems','microservices','consensus','cluster'],
-  'real-time': ['real-time','rtos','embedded','low-latency'],
-  'web3': ['blockchain','ethereum','defi','smart-contracts','web3'],
-  'crypto': ['cryptography','security','encryption','blockchain'],
-  'database': ['database','sql','nosql','storage','persistence'],
-  'compiler': ['compiler','parser','interpreter','llvm','programming-language'],
-  'embedded': ['embedded','rtos','microcontroller','firmware','iot'],
-  'systems': ['systems-programming','low-level','operating-system','kernel'],
-  'async': ['async','asynchronous','concurrency','event-loop','tokio'],
-  'protocol': ['protocol','networking','rpc','grpc','http','tcp'],
-  'framework': ['framework','library','sdk','toolkit'],
-  'cli': ['cli','command-line','terminal','shell','tui'],
+// KEY FIX: synonym → ONE primary keyword + plain text extras
+// GitHub /search/repositories does NOT support "topic:A OR topic:B" → 422
+// Correct strategy: use 1 topic: filter max, rest as plain keywords
+const SYN={
+  'machine learning':['machine-learning','deep-learning','neural','ml'],
+  'ml':['machine-learning','deep-learning','neural'],
+  'ia':['artificial-intelligence','machine-learning'],
+  'ai':['artificial-intelligence','machine-learning','llm'],
+  'llm':['llm','large-language-model','gpt','transformers'],
+  'nlp':['nlp','natural-language-processing','text-mining'],
+  'distributed':['distributed-systems','microservices','cluster'],
+  'real-time':['real-time','rtos','low-latency'],
+  'web3':['blockchain','ethereum','defi','smart-contracts'],
+  'crypto':['cryptography','encryption','security'],
+  'database':['database','sql','nosql','storage'],
+  'compiler':['compiler','parser','interpreter','llvm'],
+  'embedded':['embedded','rtos','microcontroller','firmware','iot'],
+  'systems':['systems-programming','kernel','operating-system'],
+  'async':['async','asynchronous','concurrency','tokio'],
+  'protocol':['protocol','networking','rpc','grpc'],
+  'cli':['cli','command-line','terminal','shell'],
+  'security':['security','cryptography','vulnerability'],
+  'data science':['data-science','machine-learning','jupyter'],
+  'devops':['devops','docker','kubernetes','terraform'],
+  'framework':['framework','library','sdk'],
+  'api':['api','rest','graphql','openapi'],
+  'wasm':['webassembly','wasm'],
+  'gamedev':['game-development','game-engine','opengl'],
+  'iot':['iot','embedded','mqtt','firmware'],
+  'monitoring':['monitoring','observability','prometheus'],
+  'testing':['testing','unit-test','tdd'],
+  'container':['docker','kubernetes','container'],
 };
 
-const TRENDING_TAGS = ['rust','python','go','typescript','ai','llm','cli','wasm','security','distributed','database','ml','embedded','compiler','async'];
+const TRENDING=['rust','python','go','typescript','llm','cli','wasm','security','distributed','database','ml','embedded','compiler','async'];
 
-const LANG_COLORS = {
-  python:'#3572A5', javascript:'#f1e05a', typescript:'#2b7489', rust:'#dea584',
-  go:'#00ADD8', 'c++':'#f34b7d', c:'#555555', java:'#b07219', ruby:'#701516',
-  kotlin:'#F18E33', swift:'#ffac45', zig:'#ec915c', haskell:'#5e5086', elixir:'#6e4a7e',
-  php:'#4F5D95', scala:'#c22d40', shell:'#89e051', default:'#7b2cbf'
-};
+const LC={python:'#3572A5',javascript:'#f1e05a',typescript:'#2b7489',rust:'#dea584',
+  go:'#00ADD8','c++':'#f34b7d',c:'#555555',java:'#b07219',ruby:'#701516',
+  kotlin:'#F18E33',swift:'#ffac45',zig:'#ec915c',shell:'#89e051',default:'#7b2cbf'};
 
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
-let currentSort    = 'stars';
-let currentPage    = 1;
-let currentResults = [];
-let currentQuery   = '';
-let activeDomain   = null;
-let activeTags     = new Set();
-let lastExpanded   = [];
+// ─── STATE ───────────────────────────────────────────────────
+let sortMode='stars', curQ='', curPage=1, curItems=[], pending=false, activeD=null;
 
-// ═══════════════════════════════════════════════
-//  INDEXEDDB
-// ═══════════════════════════════════════════════
-function openDB() {
-  return new Promise((res, rej) => {
-    const req = indexedDB.open('gitsearch_v1', 1);
-    req.onupgradeneeded = e => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains('searches')) db.createObjectStore('searches', { autoIncrement: true });
-      if (!db.objectStoreNames.contains('viewed'))   db.createObjectStore('viewed', { keyPath: 'url' });
-      if (!db.objectStoreNames.contains('config'))   db.createObjectStore('config', { keyPath: 'key' });
+// ─── DB ──────────────────────────────────────────────────────
+function oDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('gitsearch_v1',2);
+    r.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('searches'))db.createObjectStore('searches',{autoIncrement:true});
+      if(!db.objectStoreNames.contains('viewed'))db.createObjectStore('viewed',{keyPath:'url'});
+      if(!db.objectStoreNames.contains('config'))db.createObjectStore('config',{keyPath:'key'});
     };
-    req.onsuccess = e => res(e.target.result);
-    req.onerror   = e => rej(e);
+    r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e);
   });
 }
-async function dbGet(store, key) {
-  const db = await openDB();
-  return new Promise(res => { const r = db.transaction(store,'readonly').objectStore(store).get(key); r.onsuccess=e=>res(e.target.result?.value??null); r.onerror=()=>res(null); });
-}
-async function dbSet(store, key, value) {
-  const db = await openDB();
-  return new Promise(res => { const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put({key,value}); tx.oncomplete=()=>res(); });
-}
-async function dbAdd(store, value) {
-  const db = await openDB();
-  return new Promise(res => { const tx=db.transaction(store,'readwrite'); tx.objectStore(store).add(value); tx.oncomplete=()=>res(); });
-}
-async function dbGetAll(store) {
-  const db = await openDB();
-  return new Promise(res => { const r=db.transaction(store,'readonly').objectStore(store).getAll(); r.onsuccess=e=>res(e.target.result??[]); r.onerror=()=>res([]); });
-}
-async function dbClear(store) {
-  const db = await openDB();
-  return new Promise(res => { const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=()=>res(); });
+async function dGet(s,k){const db=await oDB();return new Promise(res=>{const r=db.transaction(s,'readonly').objectStore(s).get(k);r.onsuccess=e=>res(e.target.result?.value??null);r.onerror=()=>res(null);});}
+async function dSet(s,k,v){const db=await oDB();return new Promise(res=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).put({key:k,value:v});tx.oncomplete=()=>res();});}
+async function dAdd(s,v){const db=await oDB();return new Promise(res=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).add(v);tx.oncomplete=()=>res();});}
+async function dAll(s){const db=await oDB();return new Promise(res=>{const r=db.transaction(s,'readonly').objectStore(s).getAll();r.onsuccess=e=>res(e.target.result??[]);r.onerror=()=>res([]);});}
+async function dClr(s){const db=await oDB();return new Promise(res=>{const tx=db.transaction(s,'readwrite');tx.objectStore(s).clear();tx.oncomplete=()=>res();});}
+
+// ─── AUTH ────────────────────────────────────────────────────
+async function checkAuth(){
+  const t=await dGet('config','gh_token'),u=await dGet('config','gh_username');
+  const dot=document.getElementById('AD'),lbl=document.getElementById('AL');
+  if(t&&u){dot.style.background='#10b981';lbl.textContent='@'+u;lbl.style.color='#10b981';}
+  else{dot.style.background='#1e293b';lbl.textContent='non connecté';lbl.style.color='#1e293b';}
 }
 
-// ═══════════════════════════════════════════════
-//  AUTH
-// ═══════════════════════════════════════════════
-async function getToken() { return await dbGet('config','gh_token'); }
-async function getUsername() { return await dbGet('config','gh_username'); }
-function buildHeaders(token) {
-  const h = { Accept: 'application/vnd.github.v3+json' };
-  if (token) h['Authorization'] = `token ${token}`;
+function ghH(token){
+  const h={Accept:'application/vnd.github.v3+json'};
+  if(token)h['Authorization']=`token ${token}`;
   return h;
 }
 
-async function checkAuth() {
-  const token = await getToken();
-  const user  = await getUsername();
-  const dot   = document.getElementById('authDot');
-  const label = document.getElementById('authLabel');
-  if (token && user) {
-    dot.style.background   = '#10b981';
-    label.textContent      = '@' + user;
-    label.style.color      = '#10b981';
-  } else {
-    dot.style.background   = '#374151';
-    label.textContent      = 'non connecté';
-    label.style.color      = '#4b5563';
-  }
-}
+// ─── SEMANTIC EXPANSION ───────────────────────────────────────
+// Returns: { topic, extras, label }
+// topic  → used as "topic:X" (only 1, avoids 422)
+// extras → plain text keywords added to query
+// label  → what we display in semantic notice
+function expand(raw){
+  const words=raw.toLowerCase().trim().split(/[\s,+]+/).filter(Boolean);
+  let topic=null;
+  const extras=[];
+  const label=[];
 
-// ═══════════════════════════════════════════════
-//  SEMANTIC EXPANSION
-// ═══════════════════════════════════════════════
-function expandQuery(raw) {
-  const words  = raw.toLowerCase().split(/[\s,+]+/).filter(Boolean);
-  const topics = new Set(words);
-
-  for (const word of words) {
-    // Direct match
-    if (SEMANTIC_MAP[word]) SEMANTIC_MAP[word].forEach(t => topics.add(t));
-    // Partial match
-    for (const [key, vals] of Object.entries(SEMANTIC_MAP)) {
-      if (word.includes(key) || key.includes(word)) vals.forEach(t => topics.add(t));
+  for(const w of words){
+    let hit=false;
+    for(const[key,vals] of Object.entries(SYN)){
+      if(w===key||key.startsWith(w)||w.startsWith(key)){
+        if(!topic){topic=vals[0];label.push(vals[0]);}
+        extras.push(...vals.slice(1,3));
+        label.push(...vals.slice(1,3));
+        hit=true;break;
+      }
     }
-    // Domain match
-    for (const domain of DOMAINS) {
-      if (domain.label.toLowerCase().includes(word)) domain.topics.forEach(t => topics.add(t));
+    if(!hit){
+      // Check domain
+      for(const d of DOMAINS){
+        if(d.label.toLowerCase().includes(w)){
+          if(!topic){topic=d.kw[0];label.push(d.kw[0]);}
+          extras.push(d.kw[1]||'');
+          hit=true;break;
+        }
+      }
     }
+    if(!hit){extras.push(w);label.push(w);}
   }
 
-  return [...topics].slice(0, 10); // GitHub max topics per query
+  return{topic,extras:[...new Set(extras)].filter(Boolean).slice(0,5),label:[...new Set(label)].slice(0,8)};
 }
 
-// ═══════════════════════════════════════════════
-//  GITHUB SEARCH
-// ═══════════════════════════════════════════════
-async function searchGitHub(query, page = 1) {
-  const token   = await getToken();
-  const headers = buildHeaders(token);
-  const lang    = document.getElementById('langFilter').value;
-  const lic     = document.getElementById('licFilter').value;
-  const stars   = document.getElementById('starsFilter').value;
+// ─── GITHUB SEARCH ───────────────────────────────────────────
+async function ghSearch(raw,page=1){
+  const token=await dGet('config','gh_token');
+  const lang=document.getElementById('LF').value;
+  const stars=document.getElementById('SF').value;
+  const{topic,extras,label}=expand(raw);
 
-  const expanded = expandQuery(query);
-  lastExpanded   = expanded;
+  // Build query string — NO "OR" between topic: filters (causes 422)
+  // Correct: topic:X keyword1 keyword2 language:Y stars:>=N
+  let q='';
+  if(topic) q=`topic:${topic}`;
+  if(extras.length) q+=(q?' ':'')+extras.join(' ');
+  if(!q.trim()) q=raw.trim(); // raw fallback
+  if(lang)  q+=` language:${lang}`;
+  if(stars) q+=` stars:>=${stars}`;
 
-  // Build query string
-  let q = expanded.length > 0
-    ? expanded.map(t => `topic:${t}`).join(' OR ')
-    : query;
+  const s=sortMode==='stars'?'stars':'updated';
+  const o=sortMode==='old'?'asc':'desc';
+  const url=`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=${s}&order=${o}&per_page=20&page=${page}`;
 
-  if (lang)  q += ` language:${lang}`;
-  if (lic)   q += ` license:${lic}`;
-  if (stars) q += ` stars:>=${stars}`;
-
-  const sort = currentSort === 'old' ? 'updated' : (currentSort === 'stars' ? 'stars' : 'updated');
-  const order = currentSort === 'old' ? 'asc' : 'desc';
-
-  const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=${sort}&order=${order}&per_page=20&page=${page}`;
-
-  const res  = await fetch(url, { headers });
-
-  if (!res.ok) {
-    if (res.status === 403) throw new Error('Rate limit atteint. Connectez-vous dans Settings pour un quota plus large.');
-    if (res.status === 401) throw new Error('Token invalide. Vérifiez vos credentials dans Settings.');
-    throw new Error(`Erreur GitHub API: ${res.status}`);
+  const res=await fetch(url,{headers:ghH(token)});
+  if(!res.ok){
+    const b=await res.json().catch(()=>({}));
+    if(res.status===403)throw new Error('Rate limit atteint — connectez-vous dans Settings pour 5000 req/h.');
+    if(res.status===401)throw new Error('Token invalide — vérifiez vos credentials dans Settings.');
+    if(res.status===422)throw new Error(`Requête invalide (422) : ${b.message||'simplifiez votre recherche'}`);
+    throw new Error(`GitHub API ${res.status}: ${b.message||''}`);
   }
-
-  const data = await res.json();
-  return { items: data.items || [], total: data.total_count || 0, expanded };
+  const d=await res.json();
+  return{items:d.items||[],total:d.total_count||0,label};
 }
 
-// ═══════════════════════════════════════════════
-//  RENDER RESULT CARD
-// ═══════════════════════════════════════════════
-function langColor(lang) {
-  return LANG_COLORS[(lang||'').toLowerCase()] || LANG_COLORS.default;
-}
+// ─── RENDER ──────────────────────────────────────────────────
+function fN(n){if(!n)return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'k';return n.toString();}
+function fD(d){if(!d)return'';return new Date(d).toLocaleDateString('fr-FR',{year:'numeric',month:'short'});}
+function lc(l){return LC[(l||'').toLowerCase()]||LC.default;}
 
-function fmtStars(n) {
-  if (!n) return '0';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'k';
-  return n.toString();
-}
-
-function fmtDate(d) {
-  if (!d) return '';
-  const dt = new Date(d);
-  return dt.getFullYear() + '/' + String(dt.getMonth()+1).padStart(2,'0');
-}
-
-function renderCard(repo, idx) {
-  const topics  = (repo.topics || []).slice(0, 6);
-  const lc      = langColor(repo.language);
-  const hasGS   = topics.includes('gitsearch') || (repo.description||'').includes('gitsearch');
-  const delay   = idx * 0.04;
-
-  return `
-  <article class="border border-gray-900 rounded-lg p-4 bg-card card-hover fade-in cursor-pointer"
-    style="animation-delay:${delay}s" onclick="openRepo('${repo.html_url}','${repo.full_name}')">
-    <div class="flex items-start justify-between gap-4">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <img src="${repo.owner?.avatar_url}" alt="${repo.owner?.login}" width="16" height="16"
-            class="rounded-full flex-shrink-0" loading="lazy" onerror="this.style.display='none'"/>
-          <span class="text-[10px] text-gray-600">${repo.owner?.login}</span>
-          ${hasGS ? '<span class="text-[9px] bg-violet-900 bg-opacity-30 text-violet-500 border border-violet-900 border-opacity-50 rounded px-1.5 py-0.5">✦ GITSEARCH</span>' : ''}
+function mkCard(r,i){
+  const tp=(r.topics||[]).slice(0,5);
+  const isGS=tp.includes('gitsearch');
+  return`<div class="rc fade-in" style="animation-delay:${(i%20)*.04}s"
+    onclick="openR('${r.html_url}','${r.full_name}')">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <img src="${r.owner?.avatar_url||''}" alt="" width="26" height="26"
+        style="border-radius:50%;border:1px solid #1e293b;flex-shrink:0;margin-top:2px"
+        onerror="this.style.display='none'" loading="lazy"/>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">
+          <span style="font-size:10px;color:#1e293b">${r.owner?.login||''}/</span>
+          <span class="rname">${r.name}</span>
+          ${isGS?'<span style="font-size:9px;background:rgba(123,44,191,.12);border:1px solid rgba(123,44,191,.25);border-radius:3px;padding:1px 5px;color:#a78bfa">✦ GITSEARCH</span>':''}
         </div>
-        <h3 class="text-sm font-bold text-white mb-1 truncate">${repo.name}</h3>
-        <p class="text-xs text-gray-600 leading-relaxed line-clamp-2 mb-2">
-          ${repo.description || '<span class="text-gray-800 italic">Pas de description.</span>'}
-        </p>
-        <div class="flex flex-wrap gap-1.5">
-          ${topics.map(t => `<span class="tag-pill text-violet-500" onclick="event.stopPropagation();searchByTag('${t}')">#${t}</span>`).join('')}
+        <p class="rdesc" style="margin-bottom:8px">${r.description||'<em style="color:#1e293b">Pas de description</em>'}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+          ${tp.map(t=>`<span class="tag" style="font-size:9px" onclick="event.stopPropagation();ex('${t}')">#${t}</span>`).join('')}
         </div>
-      </div>
-      <div class="flex-shrink-0 text-right space-y-1.5">
-        <div class="text-sm stars-gold font-bold">⭐ ${fmtStars(repo.stargazers_count)}</div>
-        <div class="text-[10px] text-gray-700">🍴 ${fmtStars(repo.forks_count)}</div>
-        <div class="text-[10px] text-gray-700">📅 ${fmtDate(repo.pushed_at)}</div>
-        ${repo.language ? `<div class="flex items-center gap-1 justify-end">
-          <div class="lang-dot" style="background:${lc}"></div>
-          <span class="text-[10px] text-gray-600">${repo.language}</span>
-        </div>` : ''}
-        ${repo.license?.spdx_id ? `<div class="text-[9px] text-gray-800 border border-gray-900 rounded px-1">${repo.license.spdx_id}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="color:#fbbf24;font-size:11px;font-weight:700">⭐ ${fN(r.stargazers_count)}</span>
+          <span style="color:#1e293b;font-size:10px">🍴 ${fN(r.forks_count)}</span>
+          ${r.language?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#374151">
+            <span class="lang-dot" style="background:${lc(r.language)}"></span>${r.language}</span>`:''}
+          ${r.license?.spdx_id?`<span style="font-size:9px;color:#1e293b;border:1px solid #111827;border-radius:3px;padding:1px 4px">${r.license.spdx_id}</span>`:''}
+          <span style="font-size:10px;color:#111827;margin-left:auto">${fD(r.pushed_at)}</span>
+        </div>
       </div>
     </div>
-  </article>`;
+  </div>`;
 }
 
-// ═══════════════════════════════════════════════
-//  SEARCH FLOW
-// ═══════════════════════════════════════════════
-let debounceTimer;
-function onSearchInput() {
-  const v = document.getElementById('searchInput').value;
-  document.getElementById('clearBtn').classList.toggle('hidden', !v);
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => { if (v.trim().length > 2) doSearch(); }, 600);
-}
-
-async function doSearch(query) {
-  const q = query || document.getElementById('searchInput').value.trim();
-  if (!q && !activeDomain) { showHero(); return; }
-
-  currentQuery = q || (activeDomain ? DOMAINS.find(d=>d.label===activeDomain)?.topics.join(' ') : '');
-  currentPage  = 1;
-
-  showLoading();
-  saveToHistory(currentQuery);
-
-  try {
-    const { items, total, expanded } = await searchGitHub(currentQuery, 1);
-    currentResults = items;
-
-    hideHero();
-    showResults(items, total, expanded);
-  } catch(e) {
-    showError(e.message);
+// ─── SECTIONS ────────────────────────────────────────────────
+function sec(name){
+  const map={hero:'HZ',loading:'LS',results:'RS',empty:'ES',error:'ER'};
+  Object.values(map).forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const el=document.getElementById(map[name]);
+  if(el)el.style.display='';
+  if(name!=='results'){
+    document.getElementById('SN').style.display='none';
+    document.getElementById('RC').textContent='';
   }
 }
 
-function showResults(items, total, expanded) {
-  document.getElementById('loadingSection').classList.add('hidden');
-  document.getElementById('emptySection').classList.add('hidden');
+// ─── SEARCH ──────────────────────────────────────────────────
+let dt;
+function onInput(v){
+  document.getElementById('CB').style.display=v?'':'none';
+  clearTimeout(dt);
+  if(v.trim().length>=3){dt=setTimeout(go,450);}
+  else if(!v.trim()){activeD=null;updDomUI();sec('hero');}
+}
 
-  // Semantic notice
-  const notice = document.getElementById('semanticNotice');
-  const expText = document.getElementById('semanticExpansionText');
-  if (expanded && expanded.length > 0) {
-    expText.textContent = expanded.map(e => `#${e}`).join(', ');
-    notice.classList.remove('hidden');
-  } else {
-    notice.classList.add('hidden');
+async function go(q){
+  const raw=q!==undefined?q:document.getElementById('SI').value.trim();
+  if(!raw){sec('hero');return;}
+  if(pending)return;
+  curQ=raw;curPage=1;curItems=[];
+  pending=true;
+  sec('loading');
+  await svH(raw);
+
+  try{
+    const{items,total,label}=await ghSearch(raw,1);
+    curItems=items;pending=false;
+
+    const sn=document.getElementById('SN'),st=document.getElementById('ST');
+    if(label.length>0){st.textContent=' '+label.map(l=>`#${l}`).join('  ');sn.style.display='';}
+    else sn.style.display='none';
+
+    document.getElementById('RC').textContent=total>0?total.toLocaleString()+' résultats':'';
+
+    if(items.length===0){sec('empty');return;}
+    document.getElementById('RG').innerHTML=items.map((r,i)=>mkCard(r,i)).join('');
+    document.getElementById('LMB').style.display=items.length>=20?'':'none';
+    sec('results');
+  }catch(e){
+    pending=false;
+    document.getElementById('EM').textContent=e.message;
+    sec('error');
   }
-
-  document.getElementById('resultCount').textContent = total > 0 ? `${total.toLocaleString()} résultats` : '';
-
-  const grid = document.getElementById('resultsGrid');
-  if (items.length === 0) {
-    document.getElementById('resultsSection').classList.remove('hidden');
-    grid.innerHTML = '';
-    document.getElementById('emptySection').classList.remove('hidden');
-    document.getElementById('loadMoreBtn').classList.add('hidden');
-    return;
-  }
-
-  grid.innerHTML = items.map((r, i) => renderCard(r, i)).join('');
-  document.getElementById('resultsSection').classList.remove('hidden');
-  document.getElementById('loadMoreBtn').classList.toggle('hidden', items.length < 20);
 }
 
-async function loadMore() {
-  currentPage++;
-  document.getElementById('loadMoreBtn').textContent = '⏳ Chargement...';
-  document.getElementById('loadMoreBtn').disabled = true;
-  try {
-    const { items } = await searchGitHub(currentQuery, currentPage);
-    const grid = document.getElementById('resultsGrid');
-    items.forEach((r, i) => { grid.innerHTML += renderCard(r, currentResults.length + i); });
-    currentResults = [...currentResults, ...items];
-    document.getElementById('loadMoreBtn').textContent = 'Charger plus →';
-    document.getElementById('loadMoreBtn').disabled = false;
-    document.getElementById('loadMoreBtn').classList.toggle('hidden', items.length < 20);
-  } catch(e) { showError(e.message); }
+async function more(){
+  curPage++;
+  const b=document.getElementById('LMB');
+  b.textContent='⏳ Chargement...';b.disabled=true;
+  try{
+    const{items}=await ghSearch(curQ,curPage);
+    items.forEach((r,i)=>{document.getElementById('RG').innerHTML+=mkCard(r,curItems.length+i);});
+    curItems=[...curItems,...items];
+    b.textContent='Charger plus →';b.disabled=false;
+    b.style.display=items.length>=20?'':'none';
+  }catch(e){b.textContent='Erreur — réessayer';b.disabled=false;}
 }
 
-function showLoading() {
-  document.getElementById('heroSection').classList.add('hidden');
-  document.getElementById('resultsSection').classList.add('hidden');
-  document.getElementById('emptySection').classList.add('hidden');
-  document.getElementById('loadingSection').classList.remove('hidden');
+function ex(q){document.getElementById('SI').value=q;document.getElementById('CB').style.display='';go(q);}
+function cls(){document.getElementById('SI').value='';document.getElementById('CB').style.display='none';activeD=null;updDomUI();sec('hero');}
+
+function setSort(s){
+  sortMode=s;
+  ['stars','updated','old'].forEach(id=>document.getElementById('sort-'+id).classList.toggle('on',id===s));
+  if(curQ)go(curQ);
 }
 
-function hideHero() { document.getElementById('heroSection').classList.add('hidden'); }
-function showHero()  {
-  document.getElementById('heroSection').classList.remove('hidden');
-  document.getElementById('resultsSection').classList.add('hidden');
-  document.getElementById('loadingSection').classList.add('hidden');
-  document.getElementById('emptySection').classList.add('hidden');
-  document.getElementById('resultCount').textContent = '';
-  document.getElementById('semanticNotice').classList.add('hidden');
+async function openR(url,name){
+  const db=await oDB();
+  db.transaction('viewed','readwrite').objectStore('viewed').put({url,name,viewedAt:new Date().toISOString()});
+  window.open(url,'_blank');
 }
 
-function showError(msg) {
-  document.getElementById('loadingSection').classList.add('hidden');
-  document.getElementById('resultsSection').classList.remove('hidden');
-  document.getElementById('resultsGrid').innerHTML = `
-    <div class="border border-red-900 border-opacity-50 rounded-lg p-4 bg-card text-center">
-      <div class="text-red-600 text-sm mb-1">Erreur</div>
-      <div class="text-gray-600 text-xs">${msg}</div>
-      <a href="settings.html" class="inline-block mt-2 text-violet-500 text-xs hover:text-violet-400">
-        → Configurer votre token GitHub
-      </a>
-    </div>`;
+// ─── SIDEBAR ─────────────────────────────────────────────────
+function buildDomains(cid){
+  const el=document.getElementById(cid);if(!el)return;
+  el.innerHTML=DOMAINS.map(d=>`<button class="dbtn" id="${cid}_${d.label.replace(/\W/g,'_')}"
+    onclick="selD('${d.label}','${cid}')">${d.label}</button>`).join('');
 }
 
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('clearBtn').classList.add('hidden');
-  activeDomain = null;
-  activeTags.clear();
-  renderActiveTagsBar();
-  showHero();
+function selD(label,cid){
+  activeD=activeD===label?null:label;
+  updDomUI();
+  if(activeD){
+    const d=DOMAINS.find(x=>x.label===label);
+    const q=d.kw.slice(0,3).join(' ');
+    document.getElementById('SI').value=q;
+    document.getElementById('CB').style.display='';
+    go(q);
+    if(window.innerWidth<769)mobClose();
+  }else cls();
 }
 
-function exampleSearch(q) {
-  document.getElementById('searchInput').value = q;
-  document.getElementById('clearBtn').classList.remove('hidden');
-  doSearch(q);
-}
-
-function searchByTag(tag) {
-  const input = document.getElementById('searchInput');
-  input.value = tag;
-  document.getElementById('clearBtn').classList.remove('hidden');
-  doSearch(tag);
-}
-
-// ═══════════════════════════════════════════════
-//  REPO OPEN + VIEW HISTORY
-// ═══════════════════════════════════════════════
-async function openRepo(url, name) {
-  const db = await openDB();
-  db.transaction('viewed','readwrite').objectStore('viewed').put({ url, name, viewedAt: new Date().toISOString() });
-  window.open(url, '_blank');
-}
-
-// ═══════════════════════════════════════════════
-//  SORT
-// ═══════════════════════════════════════════════
-function setSort(s) {
-  currentSort = s;
-  ['stars','updated','old'].forEach(id => {
-    document.getElementById('sort-'+id).classList.toggle('active', id===s);
+function updDomUI(){
+  ['DL','mobDomains'].forEach(cid=>{
+    DOMAINS.forEach(d=>{
+      const el=document.getElementById(cid+'_'+d.label.replace(/\W/g,'_'));
+      if(el)el.classList.toggle('on',d.label===activeD);
+    });
   });
-  if (currentQuery) doSearch(currentQuery);
 }
 
-// ═══════════════════════════════════════════════
-//  SIDEBAR
-// ═══════════════════════════════════════════════
-function buildSidebar() {
-  // Domains
-  const dl = document.getElementById('domainList');
-  dl.innerHTML = DOMAINS.map(d => `
-    <button onclick="selectDomain('${d.label}')"
-      class="w-full text-left text-[10px] py-1 px-2 rounded transition-colors text-gray-600 hover:text-violet-400 hover:bg-violet-900 hover:bg-opacity-10"
-      id="domain-${d.label.replace(/[^a-z]/gi,'_')}">
-      ${d.label}
-    </button>`).join('');
-
-  // Trending tags
-  const tt = document.getElementById('trendingTags');
-  tt.innerHTML = TRENDING_TAGS.map(t => `
-    <button class="tag-pill text-gray-600" onclick="searchByTag('${t}')">#${t}</button>
-  `).join('');
+function buildTrending(){
+  const el=document.getElementById('TT');if(!el)return;
+  el.innerHTML=TRENDING.map(t=>`<button class="tag" onclick="ex('${t}')">#${t}</button>`).join('');
 }
 
-function selectDomain(label) {
-  activeDomain = activeDomain === label ? null : label;
-  document.querySelectorAll('[id^="domain-"]').forEach(b => b.classList.remove('text-violet-400','bg-violet-900'));
-  if (activeDomain) {
-    const id = 'domain-' + label.replace(/[^a-z]/gi,'_');
-    const el = document.getElementById(id);
-    if (el) el.classList.add('text-violet-400');
-    const domain = DOMAINS.find(d => d.label === label);
-    const query  = domain.topics.slice(0, 5).join(' ');
-    document.getElementById('searchInput').value = query;
-    doSearch(query);
-  } else {
-    showHero();
-  }
+// ─── HISTORY ─────────────────────────────────────────────────
+async function svH(q){
+  const p=await dGet('config','prefs')||{};
+  if(p.saveHistory===false)return;
+  await dAdd('searches',{q,at:new Date().toISOString()});
+  rH();
 }
 
-// ═══════════════════════════════════════════════
-//  ACTIVE TAGS BAR
-// ═══════════════════════════════════════════════
-function renderActiveTagsBar() {
-  const bar = document.getElementById('activeTagsBar');
-  bar.innerHTML = [...activeTags].map(t => `
-    <span class="tag-pill active">#${t}
-      <button onclick="removeTag('${t}')" class="ml-1 text-gray-500 hover:text-red-500">×</button>
-    </span>`).join('');
+async function rH(){
+  const all=await dAll('searches');
+  const u=[...new Map(all.filter(s=>s.q).map(s=>[s.q,s])).values()].reverse().slice(0,8);
+  ['HL','mobHistory'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    if(u.length===0){el.innerHTML='<div style="font-size:9px;color:#111827">Aucune.</div>';return;}
+    el.innerHTML=u.map(s=>`<button onclick="ex('${s.q}')"
+      style="display:block;width:100%;text-align:left;font-size:10px;padding:4px 6px;
+             color:#1e293b;background:none;border:none;cursor:pointer;border-radius:4px;
+             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Courier New',monospace"
+      title="${s.q}">🔍 ${s.q}</button>`).join('');
+  });
 }
-function removeTag(t) { activeTags.delete(t); renderActiveTagsBar(); if(currentQuery) doSearch(); }
+async function clrH(){await dClr('searches');rH();}
 
-// ═══════════════════════════════════════════════
-//  HISTORY
-// ═══════════════════════════════════════════════
-async function saveToHistory(q) {
-  if (!q) return;
-  await dbAdd('searches', { q, at: new Date().toISOString() });
-  renderHistory();
-}
+// ─── MOBILE SIDEBAR ──────────────────────────────────────────
+function mobOpen(){document.getElementById('mobOverlay').classList.add('open');buildDomains('mobDomains');updDomUI();rH();}
+function mobClose(e){if(!e||e.target===document.getElementById('mobOverlay'))document.getElementById('mobOverlay').classList.remove('open');}
 
-async function renderHistory() {
-  const all = await dbGetAll('searches');
-  const unique = [...new Map(all.map(s => [s.q, s])).values()].reverse().slice(0, 8);
-  const hl = document.getElementById('historyList');
-  if (unique.length === 0) {
-    hl.innerHTML = '<div class="text-[9px] text-gray-800">Aucune recherche.</div>';
-    return;
-  }
-  hl.innerHTML = unique.map(s => `
-    <button onclick="exampleSearch('${s.q}')"
-      class="block w-full text-left text-[10px] py-1 px-2 text-gray-700 hover:text-violet-400 rounded truncate">
-      🔍 ${s.q}
-    </button>`).join('');
-}
-
-async function clearHistory() {
-  await dbClear('searches');
-  renderHistory();
-}
-
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
-async function init() {
-  buildSidebar();
+// ─── INIT ────────────────────────────────────────────────────
+async function init(){
+  buildDomains('DL');
+  buildTrending();
   await checkAuth();
-  await renderHistory();
+  await rH();
+  sec('hero');
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('q')){document.getElementById('SI').value=p.get('q');document.getElementById('CB').style.display='';go(p.get('q'));}
 }
-
 init();
 </script>
 </body>
