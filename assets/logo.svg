@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 100" width="520" height="100" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">GITSEARCH — Semantic GitHub Search Engine</title>
+  <style>
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+  <defs>
+    <linearGradient id="lgBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d0d1a"/>
+      <stop offset="100%" stop-color="#0a0a18"/>
+    </linearGradient>
+    <linearGradient id="lgAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="50%" stop-color="#7b2cbf"/>
+      <stop offset="100%" stop-color="#ff006e"/>
+    </linearGradient>
+    <linearGradient id="lgLens" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#7b2cbf" stop-opacity="0.1"/>
+    </linearGradient>
+    <filter id="lgGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="lgGlowStrong">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="lgTextClip">
+      <rect x="110" y="0" width="0" height="100">
+        <animate attributeName="width" from="0" to="410" dur="1.8s" begin="0.6s" fill="freeze" calcMode="spline" keySplines="0.25,0.1,0.25,1"/>
+      </rect>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="520" height="100" fill="url(#lgBg)" rx="8"/>
+
+  <!-- === MAGNIFYING GLASS === -->
+  <!-- Outer glow ring -->
+  <circle cx="50" cy="47" r="34" fill="none" stroke="#7b2cbf" stroke-width="1" opacity="0.3" filter="url(#lgGlowStrong)">
+    <animate attributeName="r" values="34;38;34" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Lens circle -->
+  <circle cx="50" cy="47" r="26" fill="url(#lgLens)" stroke="url(#lgAccent)" stroke-width="2.5" filter="url(#lgGlow)">
+    <animate attributeName="stroke-dasharray" values="0,165;165,0" dur="1s" fill="freeze" begin="0s"/>
+  </circle>
+
+  <!-- Inner lens shine -->
+  <circle cx="42" cy="39" r="6" fill="white" opacity="0">
+    <animate attributeName="opacity" values="0;0.15;0;0.08;0" dur="4s" begin="1.5s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Scan line inside lens -->
+  <line x1="30" y1="47" x2="70" y2="47" stroke="#00d4ff" stroke-width="1" opacity="0" stroke-dasharray="3,3">
+    <animate attributeName="opacity" values="0;0.6;0" dur="2s" begin="1s" repeatCount="indefinite"/>
+    <animate attributeName="y1" values="35;58;35" dur="2s" begin="1s" repeatCount="indefinite"/>
+    <animate attributeName="y2" values="35;58;35" dur="2s" begin="1s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Orbiting dot -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="0 50 47" to="360 50 47" dur="6s" repeatCount="indefinite"/>
+    <circle cx="50" cy="21" r="3" fill="#00d4ff" filter="url(#lgGlow)">
+      <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="180 50 47" to="540 50 47" dur="6s" repeatCount="indefinite"/>
+    <circle cx="50" cy="21" r="2" fill="#ff006e" filter="url(#lgGlow)">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Handle -->
+  <line x1="69" y1="66" x2="88" y2="85" stroke="url(#lgAccent)" stroke-width="4" stroke-linecap="round" filter="url(#lgGlow)">
+    <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="0.5s" fill="freeze"/>
+  </line>
+
+  <!-- === GITSEARCH TEXT === -->
+  <g clip-path="url(#lgTextClip)">
+    <!-- G -->
+    <text x="115" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="url(#lgAccent)" filter="url(#lgGlow)" letter-spacing="-1">G</text>
+    <!-- I -->
+    <text x="155" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="white" filter="url(#lgGlow)">I</text>
+    <!-- T -->
+    <text x="176" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="white" filter="url(#lgGlow)">T</text>
+    <!-- S -->
+    <text x="211" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="url(#lgAccent)" filter="url(#lgGlow)">S</text>
+    <!-- E -->
+    <text x="245" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="white" filter="url(#lgGlow)">E</text>
+    <!-- A -->
+    <text x="278" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="white" filter="url(#lgGlow)">A</text>
+    <!-- R -->
+    <text x="314" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="url(#lgAccent)" filter="url(#lgGlow)">R</text>
+    <!-- C -->
+    <text x="350" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="white" filter="url(#lgGlow)">C</text>
+    <!-- H -->
+    <text x="385" y="70" font-family="'Courier New', monospace" font-size="52" font-weight="900" fill="white" filter="url(#lgGlow)">H</text>
+
+    <!-- Underline scan -->
+    <rect x="115" y="76" width="0" height="2" fill="url(#lgAccent)" rx="1">
+      <animate attributeName="width" from="0" to="400" dur="1.4s" begin="1.2s" fill="freeze" calcMode="spline" keySplines="0.25,0.1,0.25,1"/>
+    </rect>
+  </g>
+
+  <!-- Cursor blink after text -->
+  <rect x="508" y="22" width="3" height="52" fill="#00d4ff" rx="1">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" begin="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="x" from="115" to="508" dur="1.8s" begin="0.6s" fill="freeze"/>
+  </rect>
+
+  <!-- Tagline -->
+  <text x="115" y="92" font-family="'Courier New', monospace" font-size="9" fill="#4b5563" letter-spacing="3" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="2.5s" fill="freeze"/>
+    SEMANTIC GITHUB SEARCH ENGINE
+  </text>
+</svg>
