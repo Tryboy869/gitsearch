@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# =============================================================
+# ================================================================
 #  GITSEARCH — release.sh
-#  Détecte une nouvelle version dans CHANGELOG.md et publie
-#  automatiquement une GitHub Release via l'API.
+#  Détecte une nouvelle section dans CHANGELOG.md
+#  et publie automatiquement une GitHub Release.
 #
-#  Utilisé par : .github/workflows/release.yml
-#  Variables requises (GitHub Actions secrets) :
-#    GH_TOKEN  — Personal Access Token (scope: repo)
-#    REPO      — owner/repo (ex: Tryboy869/gitsearch)
-# =============================================================
+#  Dépendances : jq (préinstallé sur GitHub Actions runners)
+#  Variables :
+#    GH_TOKEN          — secrets.GITHUB_TOKEN (scope: contents:write)
+#    GITHUB_REPOSITORY — auto-injecté par GitHub Actions
+# ================================================================
 
 set -euo pipefail
 
@@ -16,82 +16,80 @@ CHANGELOG="CHANGELOG.md"
 TOKEN="${GH_TOKEN:-}"
 REPO="${GITHUB_REPOSITORY:-Tryboy869/gitsearch}"
 
-# ── Couleurs (désactivées en CI sans TTY) ──
-if [ -t 1 ]; then
-  GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
-else
-  GREEN=''; YELLOW=''; RED=''; NC=''
-fi
+log()  { echo "[RELEASE] $*"; }
+warn() { echo "[WARN]    $*"; }
+die()  { echo "[ERROR]   $*" >&2; exit 1; }
 
-log()  { echo -e "${GREEN}[RELEASE]${NC} $*"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
-err()  { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
+# ── Vérifications ──────────────────────────────────────────────
+[ -f "$CHANGELOG" ] || die "CHANGELOG.md introuvable."
+[ -n "$TOKEN"     ] || die "GH_TOKEN non défini."
+command -v jq >/dev/null 2>&1 || die "jq non disponible."
 
-# ── Vérifications ──
-[ -f "$CHANGELOG" ] || err "CHANGELOG.md introuvable."
-[ -n "$TOKEN"     ] || err "GH_TOKEN non défini."
-
-# ── Extraire la dernière version du CHANGELOG ──
+# ── Extraire la dernière version ───────────────────────────────
 # Format attendu : ## [1.2.3] — 2026-03-01
-LATEST_LINE=$(grep -m1 '^## \[' "$CHANGELOG" || true)
-[ -n "$LATEST_LINE" ] || err "Aucune version trouvée dans CHANGELOG.md"
+LATEST_LINE=$(grep -m1 '^## \[' "$CHANGELOG" 2>/dev/null || true)
+[ -n "$LATEST_LINE" ] || die "Aucune version trouvée dans CHANGELOG.md"
 
-VERSION=$(echo "$LATEST_LINE" | grep -oP '\[\K[^\]]+')
-DATE=$(echo "$LATEST_LINE" | grep -oP '\d{4}-\d{2}-\d{2}' || echo "")
+VERSION=$(echo "$LATEST_LINE" | sed 's/## \[\([^]]*\)\].*/\1/')
 TAG="v${VERSION}"
 
-log "Dernière version détectée : ${TAG} (${DATE})"
+log "Dernière version dans CHANGELOG : ${TAG}"
 
-# ── Vérifier si le tag existe déjà sur GitHub ──
+# ── Vérifier si le tag existe déjà ────────────────────────────
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -H "Authorization: token ${TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/${REPO}/git/ref/tags/${TAG}")
 
 if [ "$HTTP_CODE" = "200" ]; then
-  warn "Tag ${TAG} existe déjà. Aucune release à publier."
+  warn "Tag ${TAG} existe déjà — aucune nouvelle release."
   exit 0
 fi
 
-log "Tag ${TAG} inexistant. Création de la release..."
+log "Tag ${TAG} absent — création de la release..."
 
-# ── Extraire les notes de release depuis le CHANGELOG ──
-# Tout ce qui est entre la première ligne ## et la suivante
-NOTES=$(awk "/^## \[${VERSION}\]/{found=1; next} found && /^## \[/{exit} found{print}" "$CHANGELOG")
+# ── Extraire les notes depuis le CHANGELOG ────────────────────
+NOTES=$(awk "
+  /^## \[${VERSION}\]/ { found=1; next }
+  found && /^## \[/    { exit }
+  found                { print }
+" "$CHANGELOG" | sed '/^[[:space:]]*$/d')
 
-if [ -z "$NOTES" ]; then
-  NOTES="See CHANGELOG.md for details."
-fi
+[ -n "$NOTES" ] || NOTES="Voir CHANGELOG.md pour les détails."
 
-# ── Préparer le body JSON ──
-BODY=$(printf '%s\n\n---\n*Released automatically from CHANGELOG.md*' "$NOTES")
+BODY="${NOTES}
 
-# Échapper pour JSON
-JSON_BODY=$(echo "$BODY" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
+---
+*Release publiée automatiquement depuis CHANGELOG.md*"
 
-# ── Créer la GitHub Release via API ──
+# ── Créer la release via GitHub API ──────────────────────────
+PAYLOAD=$(jq -n \
+  --arg tag  "$TAG" \
+  --arg name "GITSEARCH ${TAG}" \
+  --arg body "$BODY" \
+  '{
+    tag_name:         $tag,
+    target_commitish: "main",
+    name:             $name,
+    body:             $body,
+    draft:            false,
+    prerelease:       false
+  }')
+
 RESPONSE=$(curl -s -w "\n%{http_code}" \
   -X POST \
   -H "Authorization: token ${TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Content-Type: application/json" \
   "https://api.github.com/repos/${REPO}/releases" \
-  -d "{
-    \"tag_name\": \"${TAG}\",
-    \"target_commitish\": \"main\",
-    \"name\": \"GITSEARCH ${TAG}\",
-    \"body\": ${JSON_BODY},
-    \"draft\": false,
-    \"prerelease\": false
-  }")
+  -d "$PAYLOAD")
 
-HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
-RESPONSE_BODY=$(echo "$RESPONSE" | head -n-1)
+STATUS=$(echo "$RESPONSE" | tail -n1)
+BODY_R=$(echo "$RESPONSE" | head -n -1)
 
-if [ "$HTTP_STATUS" = "201" ]; then
-  RELEASE_URL=$(echo "$RESPONSE_BODY" | python3 -c "import sys,json; print(json.load(sys.stdin)['html_url'])")
-  log "✅ Release publiée avec succès !"
-  log "URL : ${RELEASE_URL}"
+if [ "$STATUS" = "201" ]; then
+  URL=$(echo "$BODY_R" | jq -r '.html_url')
+  log "✅ Release publiée : ${URL}"
 else
-  err "Échec de la release (HTTP ${HTTP_STATUS}): ${RESPONSE_BODY}"
+  die "Échec release (HTTP ${STATUS}) : $(echo "$BODY_R" | jq -r '.message // "unknown error"')"
 fi
