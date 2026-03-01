@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'CHANGELOG.md'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -20,11 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Make release script executable
+      - name: Make script executable
         run: chmod +x scripts/release.sh
 
-      - name: Detect new version & publish release
+      - name: Run release script
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: ./scripts/release.sh
+        run: bash scripts/release.sh
