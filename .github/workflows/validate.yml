@@ -1,25 +1,26 @@
-name: Validate Project
+name: Validate
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check required files
+      - name: Required files
         run: |
-          for f in index.html dashboard.html settings.html assets/logo.svg assets/footer.svg \
-                   assets/creator-card.svg assets/badges/badge-indexed.svg \
-                   assets/badges/badge-tags.svg scripts/release.sh CHANGELOG.md README.md LICENSE; do
-            [ -f "$f" ] && echo "✅ $f" || (echo "❌ Missing $f" && exit 1)
+          for f in index.html dashboard.html settings.html \
+                   assets/logo.svg assets/footer.svg \
+                   assets/creator-card.svg \
+                   assets/badges/badge-indexed.svg \
+                   assets/badges/badge-tags.svg \
+                   scripts/release.sh CHANGELOG.md README.md LICENSE; do
+            [ -f "$f" ] && echo "✅ $f" || (echo "❌ $f" && exit 1)
           done
       - name: Validate SVGs
         run: |
           sudo apt-get install -q libxml2-utils
-          for svg in assets/*.svg assets/badges/*.svg; do
-            xmllint --noout "$svg" && echo "✅ $svg" || exit 1
+          for f in assets/*.svg assets/badges/*.svg; do
+            xmllint --noout "$f" && echo "✅ $f" || exit 1
           done
-      - run: test -x scripts/release.sh

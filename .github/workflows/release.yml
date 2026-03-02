@@ -1,8 +1,8 @@
-name: Auto-Release from CHANGELOG
+name: Auto-Release
 on:
   push:
     branches: [main]
-    paths: ["CHANGELOG.md"]
+    paths: [CHANGELOG.md]
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,7 +14,6 @@ jobs:
         with:
           fetch-depth: 0
       - run: chmod +x scripts/release.sh
-      - name: Detect and release
-        env:
+      - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/release.sh

@@ -1,164 +1,377 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GITSEARCH</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0a0e1a;
-            --card: #0d1220;
-            --accent: #7b2cbf;
-            --cyan: #00d4ff;
-            --text: #f1f5f9;
-        }
-        body {
-            font-family: 'Courier New', monospace;
-            background-color: var(--bg);
-            color: var(--text);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>GITSEARCH – Semantic GitHub Search</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="assets/favicon.ico">
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+  <style>
+    :root{
+      --bg:#0a0e1a;
+      --card:#0d1220;
+      --accent:#7b2cbf;
+      --cyan:#00d4ff;
+      --pink:#ff006e;
+      --text:#f1f5f9;
+      --sub:#9ca3af;
+      --line:#1e293b;
+    }
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:"Courier New",monospace;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+    }
+    .card:hover{
+      border-color:var(--accent);
+    }
+    .glow:focus{
+      box-shadow:0 0 8px var(--cyan);
+      outline:none;
+    }
+    .dot{
+      width:8px;
+      height:8px;
+      background:var(--cyan);
+      border-radius:50%;
+      display:inline-block;
+      animation:pulse 1.5s infinite;
+    }
+    @keyframes pulse{
+      0%,100%{opacity:1;}
+      50%{opacity:.4;}
+    }
+    .line-clamp-2{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+  </style>
 </head>
-<body>
-    <header class="sticky top-0 bg-card py-2 flex justify-between items-center">
-        <img src="assets/logo.svg" alt="GITSEARCH" class="h-10">
-        <input type="search" id="search-input" class="px-2 py-1 rounded-md focus:ring-accent focus:ring-2" placeholder="Rechercher...">
-        <nav>
-            <a href="dashboard.html" class="mx-2">Dashboard</a>
-            <a href="settings.html" class="mx-2">Settings</a>
-        </nav>
-        <span id="username" class="text-accent"></span>
-    </header>
-    <div class="flex flex-col md:flex-row">
-        <aside class="hidden md:block w-64 p-4 bg-card">
-            <h2 class="text-lg font-bold mb-2">Domaines</h2>
-            <ul>
-                <li><a href="#" class="block py-1">AI</a></li>
-                <li><a href="#" class="block py-1">Systems</a></li>
-                <li><a href="#" class="block py-1">Security</a></li>
-                <!-- 10 autres domaines -->
-            </ul>
-            <h2 class="text-lg font-bold mt-4 mb-2">Trending Tags</h2>
-            <ul>
-                <li><a href="#" class="block py-1">machine learning</a></li>
-                <li><a href="#" class="block py-1">nlp</a></li>
-                <li><a href="#" class="block py-1">distributed</a></li>
-                <!-- 12 autres tags -->
-            </ul>
-            <h2 class="text-lg font-bold mt-4 mb-2">Historique</h2>
-            <ul id="search-history">
-                <!-- 8 dernières recherches -->
-            </ul>
-            <button class="bg-accent py-1 px-2 rounded-md mt-4">Index your repo</button>
-        </aside>
-        <main class="flex-1 p-4">
-            <div class="flex flex-col md:flex-row mb-4">
-                <div class="flex-1">
-                    <label class="block text-lg font-bold mb-2">Filtres</label>
-                    <div class="flex flex-wrap mb-2">
-                        <input type="radio" id="stars" name="filter" value="stars" class="mr-2">
-                        <label for="stars" class="mr-4">Stars</label>
-                        <input type="radio" id="recent" name="filter" value="recent" class="mr-2">
-                        <label for="recent" class="mr-4">Récents</label>
-                        <input type="radio" id="anciens" name="filter" value="anciens" class="mr-2">
-                        <label for="anciens" class="mr-4">Anciens</label>
-                    </div>
-                    <div class="flex flex-wrap mb-2">
-                        <select id="language" class="block py-1 px-2 rounded-md mr-2">
-                            <option value="all">Toutes les langues</option>
-                            <option value="python">Python</option>
-                            <option value="javascript">JavaScript</option>
-                            <!-- 10 autres langues -->
-                        </select>
-                        <select id="stars" class="block py-1 px-2 rounded-md mr-2">
-                            <option value="all">Tous les repos</option>
-                            <option value="10+">10+</option>
-                            <option value="100+">100+</option>
-                            <option value="1k+">1k+</option>
-                            <option value="10k+">10k+</option>
-                        </select>
-                    </div>
-                    <p id="result-count" class="text-lg font-bold mb-2"></p>
-                </div>
-                <div class="md:ml-4">
-                    <button id="search-button" class="bg-accent py-1 px-2 rounded-md">Rechercher</button>
-                </div>
-            </div>
-            <div id="results" class="flex flex-wrap justify-center"></div>
-        </main>
+<body class="min-h-screen">
+  <header class="sticky top-0 z-40 bg-opacity-90 backdrop-blur" style="background:var(--bg);">
+    <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color:var(--line);">
+      <div class="flex items-center gap-3">
+        <img src="assets/logo.svg" alt="logo" class="h-10">
+        <input id="q" type="search" placeholder="semantic search…" class="px-3 py-2 rounded bg-transparent border glow focus:border-cyan-400 w-64">
+      </div>
+      <nav class="flex items-center gap-4">
+        <a href="dashboard.html" class="hover:text-cyan-400">Dashboard</a>
+        <a href="settings.html" class="hover:text-cyan-400">Settings</a>
+        <span id="user" class="flex items-center gap-2">
+          <span class="dot"></span>
+          <span id="username">@guest</span>
+        </span>
+      </nav>
     </div>
-    <script>
-        // Expand semantic search terms
-        function expandSemantic(query) {
-            const terms = {
-                'machine learning': ['ml', 'deep-learning'],
-                'nlp': ['natural language processing'],
-                'distributed': ['distributed systems'],
-                // 17 autres termes
-            };
-            return query.split(' ').map(word => {
-                if (terms[word]) {
-                    return terms[word].join(' ');
-                }
-                return word;
-            }).join(' ');
-        }
+  </header>
 
-        // Perform search
-        async function search(query) {
-            const expandedQuery = expandSemantic(query);
-            const filters = {
-                language: document.getElementById('language').value,
-                stars: document.getElementById('stars').value,
-            };
-            const results = await Promise.allSettled([
-                fetch(`https://api.github.com/search/repositories?q=${expandedQuery}&sort=stars&order=desc&per_page=20`),
-                fetch(`https://api.github.com/search/repositories?q=${expandedQuery}+in:name&sort=stars&order=desc&per_page=20`),
-                fetch(`https://api.github.com/search/code?q=${expandedQuery}+in:file+filename:README&sort=stars&order=desc&per_page=20`),
-            ]);
-            const data = await Promise.all(results.map(result => result.value.json()));
-            const mergedResults = [...data[0].items, ...data[1].items, ...data[2].items];
-            const uniqueResults = mergedResults.filter((result, index, self) => self.findIndex(r => r.full_name === result.full_name) === index);
-            return uniqueResults;
-        }
+  <div class="flex">
+    <aside id="sidebar" class="hidden md:block w-[190px] p-4 border-r" style="border-color:var(--line);">
+      <h2 class="text-sm uppercase tracking-wide mb-2" style="color:var(--sub);">Domains</h2>
+      <ul class="space-y-1 text-sm">
+        <li><button class="domain" data-domain="ai">AI/ML</button></li>
+        <li><button class="domain" data-domain="systems">Systems</button></li>
+        <li><button class="domain" data-domain="distributed">Distributed</button></li>
+        <li><button class="domain" data-domain="web-frontend">Web-Frontend</button></li>
+        <li><button class="domain" data-domain="web-backend">Web-Backend</button></li>
+        <li><button class="domain" data-domain="data">Data/DB</button></li>
+        <li><button class="domain" data-domain="security">Security</button></li>
+        <li><button class="domain" data-domain="devtools">DevTools</button></li>
+        <li><button class="domain" data-domain="networking">Networking</button></li>
+        <li><button class="domain" data-domain="languages">Languages</button></li>
+        <li><button class="domain" data-domain="mobile">Mobile</button></li>
+        <li><button class="domain" data-domain="finance">Finance</button></li>
+        <li><button class="domain" data-domain="sciences">Sciences</button></li>
+      </ul>
+      <h2 class="text-sm uppercase tracking-wide mt-6 mb-2" style="color:var(--sub);">Trending</h2>
+      <ul class="space-y-1 text-sm">
+        <li><button class="tag">rust</button></li>
+        <li><button class="tag">zig</button></li>
+        <li><button class="tag">wasm</button></li>
+        <li><button class="tag">llm</button></li>
+        <li><button class="tag">gpt</button></li>
+        <li><button class="tag">transformers</button></li>
+        <li><button class="tag">tokio</button></li>
+        <li><button class="tag">pytorch</button></li>
+        <li><button class="tag">react</button></li>
+        <li><button class="tag">vue</button></li>
+        <li><button class="tag">svelte</button></li>
+        <li><button class="tag">solidjs</button></li>
+        <li><button class="tag">deno</button></li>
+        <li><button class="tag">bun</button></li>
+        <li><button class="tag">turbopack</button></li>
+      </ul>
+      <h2 class="text-sm uppercase tracking-wide mt-6 mb-2" style="color:var(--sub);">History</h2>
+      <ul id="history" class="space-y-1 text-sm"></ul>
+      <div class="mt-4">
+        <a href="https://github.com/tryboy869/gitsearch" target="_blank" class="text-xs underline" style="color:var(--cyan);">Index your repo</a>
+      </div>
+    </aside>
 
-        // Display results
-        function displayResults(results) {
-            const resultsContainer = document.getElementById('results');
-            resultsContainer.innerHTML = '';
-            results.forEach(result => {
-                const card = document.createElement('div');
-                card.classList.add('bg-card', 'p-4', 'rounded-md', 'mb-4');
-                card.innerHTML = `
-                    <img src="${result.owner.avatar_url}" alt="${result.owner.login}" class="h-10 w-10 rounded-full">
-                    <h2 class="text-lg font-bold mb-2">${result.full_name}</h2>
-                    <p class="text-sm mb-2">${result.description}</p>
-                    <ul class="flex flex-wrap mb-2">
-                        ${result.topics.map(topic => `<li class="mr-2">${topic}</li>`).join('')}
-                    </ul>
-                    <p class="text-sm mb-2">${result.stargazers_count} stars, ${result.forks_count} forks</p>
-                `;
-                resultsContainer.appendChild(card);
-            });
-        }
+    <main class="flex-1 p-4">
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <label class="text-sm" style="color:var(--sub);">Sort:</label>
+        <div class="flex gap-2 text-sm">
+          <label><input type="radio" name="sort" value="stars" checked> Stars</label>
+          <label><input type="radio" name="sort" value="recent"> Récents</label>
+          <label><input type="radio" name="sort" value="old"> Anciens</label>
+        </div>
+        <select id="lang" class="px-2 py-1 rounded bg-transparent border text-sm">
+          <option value="">Langue</option>
+          <option>Rust</option><option>TypeScript</option><option>Python</option><option>Go</option><option>C++</option><option>C</option><option>Java</option><option>Kotlin</option><option>Swift</option><option>C#</option><option>F#</option><option>Zig</option><option>Nim</option><option>V</option>
+        </select>
+        <select id="stars" class="px-2 py-1 rounded bg-transparent border text-sm">
+          <option value="">Stars</option>
+          <option value="10">10+</option><option value="100">100+</option><option value="1000">1k+</option><option value="10000">10k+</option>
+        </select>
+        <span id="count" class="ml-auto text-sm" style="color:var(--sub);">0 repos</span>
+      </div>
 
-        // Handle search button click
-        document.getElementById('search-button').addEventListener('click', async () => {
-            const query = document.getElementById('search-input').value;
-            const results = await search(query);
-            displayResults(results);
+      <div id="results" class="grid gap-3"></div>
+    </main>
+  </div>
+
+  <aside id="drawer" class="fixed inset-y-0 left-0 z-50 w-[280px] bg-opacity-90 backdrop-blur transform -translate-x-full md:hidden p-4 border-r" style="background:var(--bg);border-color:var(--line);">
+    <button id="closeDrawer" class="absolute top-3 right-3 text-xl">&times;</button>
+    <div id="drawerContent"></div>
+  </aside>
+  <div id="overlay" class="fixed inset-0 z-40 bg-black bg-opacity-30 hidden"></div>
+
+  <script>
+    const DB_NAME='gitsearch_v1', DB_VERSION=1;
+    const SEMANTIC={
+      'machine learning':['machine-learning','deep-learning','neural-network','ml'],
+      'llm':['llm','large-language-model','gpt','transformers'],
+      'nlp':['nlp','natural-language-processing','text-mining'],
+      'distributed':['distributed-systems','microservices','cluster'],
+      'crypto':['cryptography','encryption','blockchain','security'],
+      'embedded':['embedded','rtos','microcontroller','firmware','iot'],
+      'compiler':['compiler','parser','interpreter','llvm','jit'],
+      'async':['async','asynchronous','concurrency','tokio'],
+      'devops':['devops','docker','kubernetes','terraform'],
+      'wasm':['webassembly','wasm','emscripten'],
+      'security':['security','cryptography','vulnerability'],
+      'gamedev':['game-development','game-engine','opengl','vulkan'],
+      'ai':['ai','artificial-intelligence','neural','pytorch','tensorflow'],
+      'gui':['gui','ui','frontend','react','vue','svelte'],
+      'systems':['systems','os','kernel','drivers','rust','c'],
+      'web':['web','frontend','backend','react','vue','svelte','next','nuxt'],
+      'mobile':['mobile','android','ios','flutter','react-native'],
+      'data':['data','database','sql','nosql','postgres','redis'],
+      'blockchain':['blockchain','ethereum','solidity','defi'],
+      'quantum':['quantum','qiskit','quantum-computing'],
+      'robotics':['robotics','ros','automation'],
+      'vision':['vision','opencv','yolo','detection'],
+      'audio':['audio','dsp','signal-processing','webaudio'],
+      'language':['language','parser','lexer','grammar'],
+      'scripting':['scripting','lua','python','ruby'],
+      'networking':['networking','tcp','udp','http','quic'],
+      'cloud':['cloud','aws','azure','gcp','serverless'],
+      'testing':['testing','test','jest','pytest'],
+      'docs':['docs','documentation','mdbook','docusaurus'],
+      'p2p':['p2p','torrent','ipfs','libp2p']
+    };
+    let db;
+    async function openDB(){
+      return new Promise((resolve,reject)=>{
+        const req=indexedDB.open(DB_NAME,DB_VERSION);
+        req.onerror=()=>reject(req.error);
+        req.onsuccess=()=>{
+          db=req.result;
+          resolve(db);
+        };
+        req.onupgradeneeded=()=>{
+          const d=req.result;
+          if(!d.objectStoreNames.contains('searches')) d.createObjectStore('searches',{autoIncrement:true});
+          if(!d.objectStoreNames.contains('viewed')) d.createObjectStore('viewed',{keyPath:'url'});
+          if(!d.objectStoreNames.contains('config')) d.createObjectStore('config',{keyPath:'key'});
+        };
+      });
+    }
+    async function getConfig(k){
+      const tx=db.transaction('config','readonly');
+      const s=tx.objectStore('config');
+      return s.get(k);
+    }
+    async function setConfig(k,v){
+      const tx=db.transaction('config','readwrite');
+      const s=tx.objectStore('config');
+      return s.put({key:k,value:v});
+    }
+    async function addSearch(term){
+      const tx=db.transaction('searches','readwrite');
+      const s=tx.objectStore('searches');
+      await s.add({term,ts:Date.now()});
+      const all=await s.getAll();
+      if(all.length>8){
+        const curs=await s.openCursor();
+        let i=0;
+        while((await curs.continue()) && i<all.length-8){
+          await curs.delete();
+          i++;
+        }
+      }
+    }
+    async function markViewed(url){
+      const tx=db.transaction('viewed','readwrite');
+      const s=tx.objectStore('viewed');
+      await s.put({url,ts:Date.now()});
+    }
+    async function loadHistory(){
+      const tx=db.transaction('searches','readonly');
+      const s=tx.objectStore('searches');
+      const all=await s.getAll();
+      const ul=document.getElementById('history');
+      ul.innerHTML='';
+      all.reverse().slice(0,8).forEach(r=>{
+        const li=document.createElement('li');
+        const b=document.createElement('button');
+        b.textContent=r.term;
+        b.className='tag';
+        b.onclick=()=>{document.getElementById('q').value=r.term;search();};
+        li.appendChild(b);
+        ul.appendChild(li);
+      });
+    }
+    function expandSemantic(term){
+      const t=term.toLowerCase();
+      const out=[t];
+      for(const[k,v] of Object.entries(SEMANTIC)){
+        if(t.includes(k) || k.includes(t)) out.push(...v);
+      }
+      return [...new Set(out)];
+    }
+    async function search(){
+      const q=document.getElementById('q').value.trim();
+      if(!q) return;
+      await addSearch(q);
+      await loadHistory();
+      const expanded=expandSemantic(q).join(' ');
+      const slug=q.replace(/\s+/g,'-');
+      const headers={
+        'Accept':'application/vnd.github+json',
+        'Authorization': (await getConfig('gh_token')).value ? 'Bearer '+(await getConfig('gh_token')).value : ''
+      };
+      const A=fetch(`https://api.github.com/search/repositories?q=${expanded}&sort=stars&per_page=30`,{headers,mode:'cors'});
+      const B=fetch(`https://api.github.com/search/repositories?q=${slug}+in:name&per_page=30`,{headers,mode:'cors'});
+      const C=fetch(`https://api.github.com/search/code?q=${q}+in:file+filename:README.md&per_page=30`,{headers,mode:'cors'});
+      const [a,b,c]=await Promise.allSettled([A,B,C]);
+      let repos=[];
+      if(a.status==='fulfilled' && a.value.ok){
+        const j=await a.value.json();
+        repos.push(...j.items);
+      }
+      if(b.status==='fulfilled' && b.value.ok){
+        const j=await b.value.json();
+        repos.push(...j.items);
+      }
+      if(c.status==='fulfilled' && c.value.ok){
+        const j=await c.value.json();
+        repos.push(...j.items.map(it=>({full_name:it.repository.full_name,description:it.repository.description||'',html_url:it.repository.html_url,language:it.repository.language||'',stargazers_count:it.repository.stargazers_count||0,forks_count:it.repository.forks_count||0,topics:it.repository.topics||[],license:it.repository.license?it.repository.license.spdx_id:'',created_at:it.repository.created_at})));
+      }
+      const map=new Map();
+      for(const r of repos){
+        if(!map.has(r.full_name)) map.set(r.full_name,r);
+      }
+      let list=[...map.values()];
+      const sort=document.querySelector('input[name="sort"]:checked').value;
+      if(sort==='stars') list.sort((x,y)=>y.stargazers_count-x.stargazers_count);
+      if(sort==='recent') list.sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
+      if(sort==='old') list.sort((x,y)=>new Date(x.created_at)-new Date(y.created_at));
+      const langF=document.getElementById('lang').value;
+      if(langF) list=list.filter(r=>r.language===langF);
+      const starsF=document.getElementById('stars').value;
+      if(starsF) list=list.filter(r=>r.stargazers_count>=+starsF);
+      document.getElementById('count').textContent=list.length+' repos';
+      const out=document.getElementById('results');
+      out.innerHTML='';
+      let idx=0;
+      for(const r of list){
+        const card=document.createElement('div');
+        card.className='card rounded p-3 opacity-0';
+        const [owner,name]=r.full_name.split('/');
+        const gitsearch=r.topics&&r.topics.includes('gitsearch');
+        card.innerHTML=`
+          <div class="flex items-start gap-3">
+            <img data-src="${r.owner&&r.owner.avatar_url?r.owner.avatar_url:'https://github.com/ghost.png'}" class="avatar w-10 h-10 rounded">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <a href="${r.html_url}" target="_blank" class="hover:text-cyan-400">${owner}/<span class="font-bold">${name}</span></a>
+                ${gitsearch?'<span class="text-xs px-2 py-0.5 rounded" style="background:var(--accent);">✦GITSEARCH</span>':''}
+              </div>
+              <p class="text-sm line-clamp-2 mt-1" style="color:var(--sub);">${r.description||''}</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                ${(r.topics||[]).slice(0,5).map(t=>`<button class="text-xs px-2 py-0.5 rounded border" style="border-color:var(--line);">${t}</button>`).join('')}
+              </div>
+              <div class="flex items-center gap-4 text-xs mt-2" style="color:var(--sub);">
+                <span>⭐ ${r.stargazers_count}</span>
+                <span>🍴 ${r.forks_count}</span>
+                <span>${r.language||'—'}</span>
+                <span>${r.license||'—'}</span>
+                <span>${new Date(r.created_at).getFullYear()}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        card.onclick=(e)=>{
+          if(!e.target.closest('a') && !e.target.closest('button')){
+            markViewed(r.html_url);
+            window.open(r.html_url,'_blank');
+          }
+        };
+        card.querySelectorAll('button').forEach(b=>{
+          if(b.classList.contains('tag')) b.onclick=()=>{document.getElementById('q').value=b.textContent;search();};
         });
-
-        // Initialize IndexedDB
-        const db = await indexedDB.open('gitsearch_v1', 1);
-        db.createObjectStore('searches', { keyPath: 'id' });
-        db.createObjectStore('viewed', { keyPath: 'id' });
-        db.createObjectStore('config', { keyPath: 'id' });
-
-        // Load search history
-        const searchHistory = await db.transaction('searches').objectStore('searches').getAll();
-        document.getElementById('search-history').innerHTML = searchHistory.map(search => `<li>${search.query}</li>`).join('');
-    </script>
+        out.appendChild(card);
+        setTimeout(()=>card.classList.replace('opacity-0','opacity-100'),idx*40);
+        idx++;
+      }
+      const observer=new IntersectionObserver((entries,obs)=>{
+        entries.forEach(en=>{
+          if(en.isIntersecting){
+            const img=en.target;
+            img.src=img.dataset.src;
+            obs.unobserve(img);
+          }
+        });
+      });
+      document.querySelectorAll('img[data-src]').forEach(img=>observer.observe(img));
+    }
+    async function init(){
+      await openDB();
+      window.db=db;
+      const t=await getConfig('gh_token');
+      const u=await getConfig('gh_username');
+      if(t&&t.value) document.getElementById('username').textContent='@'+(u&&u.value?u.value:'user');
+      await loadHistory();
+      document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter') search();});
+      document.querySelectorAll('input[name="sort"],#lang,#stars').forEach(el=>el.addEventListener('change',search));
+      document.querySelectorAll('.domain,.tag').forEach(b=>{
+        b.onclick=()=>{document.getElementById('q').value=b.textContent;search();};
+      });
+      const drawer=document.getElementById('drawer');
+      const overlay=document.getElementById('overlay');
+      const close=()=>{drawer.classList.add('-translate-x-full');overlay.classList.add('hidden');};
+      document.getElementById('closeDrawer').onclick=close;
+      overlay.onclick=close;
+      document.getElementById('drawerContent').innerHTML=document.getElementById('sidebar').innerHTML;
+      document.getElementById('drawerContent').querySelectorAll('.domain,.tag').forEach(b=>{
+        b.onclick=()=>{document.getElementById('q').value=b.textContent;close();search();};
+      });
+      const toggle=()=>{drawer.classList.toggle('-translate-x-full');overlay.classList.toggle('hidden');};
+      const btn=document.createElement('button');
+      btn.innerHTML='☰';
+      btn.className='md:hidden text-xl';
+      btn.onclick=toggle;
+      document.querySelector('header > div').appendChild(btn);
+    }
+    init();
+  </script>
 </body>
 </html>

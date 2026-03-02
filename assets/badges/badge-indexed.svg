@@ -1,27 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 28" width="210" height="28">
-  <rect x="0" y="0" width="140" height="28" fill="#1e293b" rx="4"/>
-  <rect x="140" y="0" width="70" height="28" fill="#7b2cbf" rx="4"/>
-  <g transform="translate(10, 14)">
-    <circle cx="0" cy="0" r="8" fill="#00d4ff"/>
-    <path d="M 8 0 L 8 14 L 16 7 Z" fill="#00d4ff"/>
+<svg width="210" height="28" viewBox="0 0 210 28" xmlns="http://www.w3.org/2000/svg" color-profile="sRGB">
+  <defs>
+    <style>
+      @media (prefers-reduced-motion:reduce){
+        svg *{animation:none!important}
+      }
+    </style>
+  </defs>
+  <rect width="210" height="28" rx="4" fill="#0a0e1a"/>
+  <rect x="0" y="0" width="140" height="28" fill="#1e293b"/>
+  <rect x="140" y="0" width="70" height="28" fill="#7b2cbf"/>
+  <g fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round">
+    <circle cx="12" cy="14" r="5"/>
+    <path d="m17 19 5 5"/>
   </g>
-  <text x="25" y="20" font-family="Courier New, monospace" font-size="14" fill="#00d4ff">gitsearch</text>
-  <text x="150" y="20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">indexed &#10003;</text>
-  <rect x="0" y="13" width="140" height="2" fill="#00d4ff">
-    <animate attributeName="x" from="0" to="140" dur="2s" repeatCount="indefinite"/>
-  </rect>
-  <text x="150" y="20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">
-    <animate attributeName="opacity" from="0.5" to="1" dur="1s" repeatCount="indefinite"/>
-    indexed &#10003;
+  <text x="26" y="17" font-family="Courier New" font-size="12" fill="#00d4ff">gitsearch</text>
+  <text x="155" y="17" font-family="Courier New" font-size="12" fill="#fff">
+    indexed ✓
+    <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite"/>
   </text>
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      rect {
-        animation: none;
-      }
-      text {
-        animation: none;
-      }
-    }
-  </style>
+  <rect x="0" y="0" width="140" height="28" fill="#0a0e1a">
+    <animate attributeName="x" values="-140;0" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
 </svg>

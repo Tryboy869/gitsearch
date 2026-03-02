@@ -1,59 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 70" width="100%" height="70" preserveAspectRatio="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="70" viewBox="0 0 900 70">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <animate attributeName="x2" from="0%" to="100%" dur="10s" repeatCount="indefinite" />
-      <stop offset="0%" stop-color="#0a0e1a" />
-      <stop offset="100%" stop-color="#0d1220" />
+    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="0">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#0d1220"/>
+      <animate attributeName="x1" values="0;900;0" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="900;0;900" dur="6s" repeatCount="indefinite"/>
     </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-      <feMerge>
-        <feMergeNode in="coloredBlur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-  </defs>
-  <rect x="0" y="0" width="900" height="70" fill="url(#grad)" />
-  <g transform="translate(50, 35)">
-    <text x="-400" y="0" font-family="Courier New, monospace" font-size="16" fill="#f1f5f9">🔍 GITSEARCH · Built by Nexus Studio · Cotonou, Bénin · 2026</text>
-  </g>
-  <g transform="translate(100, 35)">
-    <circle cx="0" cy="0" r="5" fill="#7b2cbf" filter="url(#glow)">
-      <set attributeName="r" from="5" to="10" begin="0s" dur="1s" repeatCount="indefinite" />
-      <set attributeName="r" from="10" to="5" begin="0.5s" dur="1s" repeatCount="indefinite" />
-    </circle>
-  </g>
-  <g transform="translate(800, 35)">
-    <circle cx="0" cy="0" r="5" fill="#7b2cbf" filter="url(#glow)">
-      <set attributeName="r" from="5" to="10" begin="0s" dur="1s" repeatCount="indefinite" />
-      <set attributeName="r" from="10" to="5" begin="0.5s" dur="1s" repeatCount="indefinite" />
-    </circle>
-  </g>
-  <g transform="translate(50, 35)">
-    <text x="-200" y="-20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">search/</text>
-    <animateTransform attributeName="transform" type="translate" from="0 0" to="0 10" begin="0s" dur="2s" repeatCount="indefinite" />
-  </g>
-  <g transform="translate(150, 35)">
-    <text x="0" y="-20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">semantic()</text>
-    <animateTransform attributeName="transform" type="translate" from="0 0" to="0 10" begin="0.5s" dur="2s" repeatCount="indefinite" />
-  </g>
-  <g transform="translate(250, 35)">
-    <text x="0" y="-20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">index[]</text>
-    <animateTransform attributeName="transform" type="translate" from="0 0" to="0 10" begin="1s" dur="2s" repeatCount="indefinite" />
-  </g>
-  <g transform="translate(350, 35)">
-    <text x="0" y="-20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9">query{}</text>
-    <animateTransform attributeName="transform" type="translate" from="0 0" to="0 10" begin="1.5s" dur="2s" repeatCount="indefinite" />
-  </g>
-  <line x1="0" y1="35" x2="900" y2="35" stroke="#00d4ff" stroke-width="1" stroke-dasharray="10 10">
-    <animateMotion path="M 0 35 L 900 35" begin="0s" dur="10s" repeatCount="indefinite" />
-  </line>
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      animate, set, animateTransform, animateMotion {
-        animation: none;
+    <style>
+      @media (prefers-reduced-motion:reduce){
+        svg *{animation:none!important}
       }
-    }
-  </style>
+      text{font-family:Courier New,monospace;font-size:14px;fill:#a0aec0}
+    </style>
+  </defs>
+  <rect width="900" height="70" fill="url(#bg)"/>
+  <g>
+    <circle cx="80" cy="35" r="2" fill="#7b2cbf"/>
+    <animate attributeName="y" values="35;50;35" dur="4s" repeatCount="indefinite"/>
+  </g>
+  <g>
+    <circle cx="220" cy="35" r="2" fill="#7b2cbf"/>
+    <animate attributeName="y" values="35;20;35" dur="5s" repeatCount="indefinite"/>
+  </g>
+  <g>
+    <circle cx="680" cy="35" r="2" fill="#7b2cbf"/>
+    <animate attributeName="y" values="35;48;35" dur="6s" repeatCount="indefinite"/>
+  </g>
+  <g>
+    <circle cx="820" cy="35" r="2" fill="#7b2cbf"/>
+    <animate attributeName="y" values="35;22;35" dur="7s" repeatCount="indefinite"/>
+  </g>
+  <text x="450" y="40" text-anchor="middle">🔍 GITSEARCH · Built by Nexus Studio · Cotonou, Bénin · 2026</text>
+  <circle cx="200" cy="55" r="2" fill="#7b2cbf">
+    <animate attributeName="r" values="2;4;2" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="700" cy="55" r="2" fill="#7b2cbf">
+    <animate attributeName="r" values="2;4;2" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+  <line x1="0" y1="10" x2="0" y2="10" stroke="#7b2cbf" stroke-width="1">
+    <animate attributeName="x1" values="0;900" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="0;900" dur="3s" repeatCount="indefinite"/>
+  </line>
 </svg>

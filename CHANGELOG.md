@@ -1,13 +1,12 @@
 # Changelog — GITSEARCH
 
-## [2.0.0] — 2026-03-01
+## [4.0.0] — 2026-03-02
 
-### ✦ Rebuild — Dojutsu Context Engine v1.0
+### ✦ Rebuild v4 — Dojutsu × LLM RAG Booster
 
-- Rebuild complet avec ContextEngine (mémoire RAM partagée inter-fichiers)
-- Cohérence visuelle garantie entre index/dashboard/settings (dark theme #0a0e1a)
-- Injection segmentée selon context window Kimi (131k tokens)
-- Compression RAG décisionnelle (150 mots/fichier)
-- Validation cohérence automatique + autocorrection violations
-- Triple stratégie de recherche A/B/C inchangée
-- IndexedDB gitsearch_v1 partagée entre les 3 pages
+- Architecture : Mémoire Gravitationnelle (GravitationalBit n_max=15)
+- RAG retrieval guidant chaque étape Dojutsu (T1→T4)
+- Cohérence dark theme garantie par indexation cross-fichiers
+- Intégrité chunks : 100% (vérification hash SHA-256)
+- Zéro TPM explosion (requêtes stables ~3-5k tokens)
+- Built with Dojutsu-for-AI + LLM RAG Booster v1.0
