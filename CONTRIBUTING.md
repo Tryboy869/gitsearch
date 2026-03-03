@@ -1,3 +1,3 @@
 # Contributing
 
-No npm runtime. No backend. WCAG 2.1 AA. SVG < 150KB. prefers-reduced-motion.
+No npm. No backend. WCAG 2.1 AA. prefers-reduced-motion.

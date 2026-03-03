@@ -1,39 +1,39 @@
-<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>GitSearch Logo</title>
-  <desc>Animated GitSearch logo with magnifying glass and typewriter text</desc>
-  <style>
-    @media (prefers-reduced-motion:reduce){
-      *{animation:none!important}
-    }
-  </style>
-  <rect id="bg" width="400" height="120" fill="#0a0e1a">
-    <animate attributeName="opacity" values="1;0.92;1" dur="3s" repeatCount="indefinite"/>
-  </rect>
-  <g transform="translate(60,60)">
-    <circle r="28" fill="none" stroke="#7b2cbf" stroke-width="3"/>
-    <line x1="20" y1="20" x2="32" y2="32" stroke="#7b2cbf" stroke-width="3" stroke-linecap="round"/>
-    <g>
-      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="3s" repeatCount="indefinite"/>
-      <circle cx="0" cy="0" r="2" fill="#00d4ff"/>
-      <circle cx="28" cy="0" r="2" fill="#00d4ff"/>
-      <circle cx="-14" cy="24.2" r="2" fill="#00d4ff"/>
-    </g>
-    <line x1="-20" y1="0" x2="20" y2="0" stroke="#00d4ff" stroke-width="1" opacity="0.3">
-      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="3s" repeatCount="indefinite"/>
-    </line>
-  </g>
-  <g transform="translate(120,60)">
-    <clipPath id="txtClip">
-      <rect x="0" y="-15" width="0" height="30">
-        <animate attributeName="width" values="0;260" dur="2.4s" fill="freeze"/>
+<svg viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitSearch">
+  <defs>
+    <clipPath id="typewriter">
+      <rect x="0" y="0" width="0" height="32">
+        <animate attributeName="width" values="0;120" dur="4s" fill="freeze"/>
       </rect>
     </clipPath>
-    <text font-family="Courier New" font-size="24" fill="#00d4ff" letter-spacing="2" clip-path="url(#txtClip)">GITSEARCH</text>
-    <rect x="0" y="15" width="0" height="2" fill="#00d4ff">
-      <animate attributeName="width" values="0;120" begin="2.4s" dur="0.6s" fill="freeze"/>
-    </rect>
-    <rect x="0" y="-15" width="2" height="30" fill="#00d4ff">
-      <animate attributeName="opacity" values="1;0" dur="0.5s" begin="3.4s" repeatCount="indefinite"/>
-    </rect>
+  </defs>
+
+  <!-- Loupe -->
+  <circle cx="16" cy="16" r="12" fill="none" stroke="#7b2cbf" stroke-width="2"/>
+  <line x1="24" y1="24" x2="30" y2="30" stroke="#7b2cbf" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Dots orbitant -->
+  <g transform="translate(16 16)">
+    <circle r="2" fill="#00d4ff">
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#00d4ff">
+      <animateTransform attributeName="transform" type="rotate" values="120;480" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#00d4ff">
+      <animateTransform attributeName="transform" type="rotate" values="240;600" dur="6s" repeatCount="indefinite"/>
+    </circle>
   </g>
+
+  <!-- Texte -->
+  <text x="40" y="20" font-family="Courier New, monospace" font-size="14" fill="#f1f5f9" clip-path="url(#typewriter)">GITSEARCH</text>
+
+  <!-- Souligné -->
+  <line x1="40" y1="22" x2="112" y2="22" stroke="#7b2cbf" stroke-width="1">
+    <animate attributeName="stroke-dasharray" values="0 72;72 0" dur="4s" fill="freeze"/>
+  </line>
+
+  <!-- Cursor -->
+  <rect x="112" y="14" width="1" height="10" fill="#f1f5f9">
+    <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+  </rect>
 </svg>

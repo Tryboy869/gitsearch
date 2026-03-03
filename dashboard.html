@@ -1,348 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>gitsearch dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <title>GITSEARCH — Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
   <style>
-    :root {
-      --bg: #0a0e1a;
-      --card: #111827;
-      --border: #1f2937;
-      --text: #e5e7eb;
-      --sub: #9ca3af;
-      --accent: #38bdf8;
-      --pink: #ec4899;
-    }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Courier New", monospace;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      padding: 1rem;
-    }
-    .text-sub { color: var(--sub); }
-    .text-accent { color: var(--accent); }
-    .text-pink { color: var(--pink); }
-    .bar {
-      height: 0.5rem;
-      background: var(--accent);
-      border-radius: 0.25rem;
-    }
-    .bar-pink { background: var(--pink); }
-    .opacity-0 { opacity: 0; }
-    .opacity-100 { opacity: 1; }
-    .transition { transition: opacity 0.3s ease; }
+    :root{--bg:#0a0e1a;}
+    body{background:var(--bg);color:#e2e8f0;font-family:Courier New,monospace;}
+    .bg-bg{background:var(--bg);}
+    .text-violet{color:#a78bfa;}
+    .border-violet{border-color:#a78bfa;}
+    .hover\:border-violet:hover{border-color:#a78bfa;}
+    .shadow-violet{box-shadow:0 0 12px #a78bfa;}
+    .fadeIn{animation:fadeIn .4s ease-out forwards;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    .bar{height:8px;background:#1e293b;border-radius:4px;overflow:hidden;margin-top:4px;}
+    .fill{height:100%;background:#a78bfa;transition:width .6s ease-out;}
+    .glow:focus{box-shadow:0 0 8px #a78bfa;}
   </style>
 </head>
-<body class="min-h-screen">
-  <header class="border-b border-gray-800">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-xl font-bold text-accent">gitsearch dashboard</h1>
-      <div id="profile" class="flex items-center gap-3"></div>
+<body class="antialiased" style="background:#0a0e1a;font-family:Courier New">
+<header id="header" class="fixed top-0 left-0 right-0 h-16 bg-bg bg-opacity-90 backdrop-blur z-40 flex items-center justify-between px-4 border-b border-gray-800">
+  <a href="/" class="flex items-center space-x-2">
+    <img src="assets/logo.svg" alt="Logo" class="h-10"/>
+  </a>
+  <input id="q" type="search" class="glow w-48 md:w-64 px-3 py-2 rounded border border-gray-700 bg-gray-900 text-sm focus:outline-none" placeholder="Search…"/>
+  <nav class="flex gap-4 text-sm">
+    <a href="index.html" class="hover:text-violet">Home</a>
+    <a href="dashboard.html" class="text-violet">Dashboard</a>
+    <a href="settings.html" class="hover:text-violet">Settings</a>
+  </nav>
+</header>
+
+<main class="flex mt-16">
+  <aside class="hidden md:block w-[190px] border-r border-gray-800 p-4">
+    <div class="uppercase tracking-widest text-xs text-gray-400 mb-2">Métriques</div>
+    <div class="mb-4">
+      <div class="flex justify-between text-sm"><span>Repos indexés</span><span id="metricRepos">0</span></div>
+      <div class="bar"><div id="barRepos" class="fill" style="width:0%"></div></div>
     </div>
-  </header>
+    <div class="mb-4">
+      <div class="flex justify-between text-sm"><span>Total stars</span><span id="metricStars">0</span></div>
+      <div class="bar"><div id="barStars" class="fill" style="width:0%"></div></div>
+    </div>
+    <div class="mb-4">
+      <div class="flex justify-between text-sm"><span>Top langages</span></div>
+      <div id="topLangs" class="text-xs mt-2 space-y-1"></div>
+    </div>
+    <div class="uppercase tracking-widest text-xs text-gray-400 mb-2 mt-6">Profil</div>
+    <div id="profile" class="text-sm"></div>
+  </aside>
 
-  <main class="max-w-6xl mx-auto px-4 py-6">
-    <div class="flex gap-2 mb-4">
-      <button id="btnFeatured" class="px-3 py-1 rounded border border-gray-700 bg-gray-900 text-accent">Featured</button>
-      <button id="btnTrending" class="px-3 py-1 rounded border border-gray-700 bg-gray-900 text-sub">Trending</button>
-      <button id="btnRecent" class="px-3 py-1 rounded border border-gray-700 bg-gray-900 text-sub">Recent</button>
-      <button id="btnViewed" class="px-3 py-1 rounded border border-gray-700 bg-gray-900 text-sub">Viewed</button>
+  <section class="flex-1 p-4 md:p-6">
+    <div class="flex gap-4 mb-6 tabs">
+      <button data-tab="featured" class="tab px-3 py-1 border border-gray-700 rounded text-sm hover:border-violet active">Featured</button>
+      <button data-tab="trending" class="tab px-3 py-1 border border-gray-700 rounded text-sm hover:border-violet">Trending</button>
+      <button data-tab="recent" class="tab px-3 py-1 border border-gray-700 rounded text-sm hover:border-violet">Recent</button>
+      <button data-tab="viewed" class="tab px-3 py-1 border border-gray-700 rounded text-sm hover:border-violet">Viewed</button>
     </div>
 
-    <section id="metrics" class="card mb-4">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-        <div>
-          <div class="text-sub">repos indexed</div>
-          <div id="count" class="text-xl font-bold">-</div>
-        </div>
-        <div>
-          <div class="text-sub">total stars</div>
-          <div id="stars" class="text-xl font-bold">-</div>
-        </div>
-        <div>
-          <div class="text-sub">top language</div>
-          <div id="toplang" class="text-xl font-bold">-</div>
-        </div>
-        <div>
-          <div class="text-sub">trending tags</div>
-          <div id="trendtags" class="flex flex-wrap gap-1"></div>
+    <div id="tabfeatured" class="tab-content"></div>
+    <div id="tabtrending" class="tab-content hidden"></div>
+    <div id="tabrecent" class="tab-content hidden"></div>
+    <div id="tabviewed" class="tab-content hidden"></div>
+  </section>
+</main>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+const contents=document.querySelectorAll('.tab-content');
+tabs.forEach(t=>t.onclick=()=>{
+  contents.forEach(c=>c.classList.add('hidden'));
+  document.getElementById('tab'+t.dataset.tab).classList.remove('hidden');
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  loadTab(t.dataset.tab);
+});
+const cache=new Map();
+async function loadTab(name){
+  const el=document.getElementById('tab'+name);
+  if(el.dataset.loaded)return;
+  el.innerHTML='<div class="text-sm text-gray-400">Chargement…</div>';
+  let data=[];
+  if(name==='viewed'){
+    const db=await openDB();
+    const tx=db.transaction('viewed','readonly');
+    data=await tx.store.getAll();
+    data.reverse();
+  }else{
+    const q={
+      featured:'topic:gitsearch',
+      trending:'stars:>100',
+      recent:'pushed:>2026-01-01'
+    }[name];
+    const url=`https://api.github.com/search/repositories?q=${q}&sort=${name==='recent'?'updated':'stars'}&per_page=20`;
+    const headers={};
+    const tok=localStorage.github_token;
+    if(tok)headers.Authorization='token '+tok;
+    const r=await fetch(url,{headers});
+    const j=await r.json();
+    data=j.items||[];
+    if(name==='featured')updateMetrics(j);
+  }
+  renderRepos(el,data);
+  el.dataset.loaded='1';
+}
+function renderRepos(el,repos){
+  if(!repos.length){el.innerHTML='<div class="text-sm text-gray-400">Aucun résultat</div>';return;}
+  el.innerHTML='<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">'+repos.map(r=>{
+    const hasTopic=r.topics&&r.topics.includes('gitsearch');
+    return `<div class="border border-gray-800 rounded p-3 hover:border-violet hover:shadow-violet transition cursor-pointer fadeIn" onclick="viewRepo('${r.full_name}')">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <img data-src="${r.owner.avatar_url}" class="lazy w-6 h-6 rounded"/>
+          <a class="text-violet hover:underline text-sm">${r.full_name}</a>
+          ${hasTopic?'<span class="text-xs border border-violet text-violet px-1 rounded">✦ GITSEARCH</span>':''}
         </div>
       </div>
-      <div class="mt-4">
-        <div class="text-sub mb-2">languages</div>
-        <div id="langbars" class="space-y-2"></div>
+      <div class="text-xs text-gray-400 mb-2 line-clamp-2">${r.description||''}</div>
+      <div class="flex flex-wrap gap-1 mb-2">${(r.topics||[]).slice(0,5).map(t=>`<span class="text-xs bg-gray-800 px-2 py-0.5 rounded cursor-pointer hover:bg-gray-700" onclick="event.stopPropagation();location='index.html?q='+encodeURIComponent(t)">${t}</span>`).join('')}</div>
+      <div class="flex items-center gap-3 text-xs text-gray-400">
+        <span>⭐ ${r.stargazers_count}</span>
+        <span>🍴 ${r.forks_count}</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:${langColor(r.language)}"></span>${r.language||'—'}</span>
+        <span>${r.license&&r.license.spdx_id||'—'}</span>
+        <span>${new Date(r.pushed_at).toLocaleDateString('fr')}</span>
       </div>
-      <div class="mt-4">
-        <div class="text-sub mb-2">domains</div>
-        <div id="domainbars" class="space-y-2"></div>
-      </div>
-    </section>
-
-    <section id="featured" class="hidden"></section>
-    <section id="trending" class="hidden"></section>
-    <section id="recent" class="hidden"></section>
-    <section id="viewed" class="hidden"></section>
-    <div id="empty-viewed" class="hidden text-sub">No viewed repos yet</div>
-  </main>
-
-  <script>
-    const SEMANTIC = {
-      react: ["react", "jsx", "nextjs"],
-      vue: ["vue", "nuxt"],
-      svelte: ["svelte", "kit"],
-      angular: ["angular", "ng"],
-      node: ["node", "express", "fastify"],
-      python: ["python", "django", "flask", "fastapi"],
-      rust: ["rust", "cargo"],
-      go: ["go", "golang"],
-      cpp: ["cpp", "c++", "cmake"],
-      js: ["javascript", "js", "typescript", "ts"]
-    };
-
-    async function openDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open("gitsearch_v1", 1);
-        req.onupgradeneeded = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains("history")) db.createObjectStore("history", { keyPath: "id", autoIncrement: true });
-          if (!db.objectStoreNames.contains("viewed")) db.createObjectStore("viewed", { keyPath: "id" });
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
+    </div>`;
+  }).join('')+'</div>';
+  lazy();
+}
+function langColor(l){
+  const map={JavaScript:'#f1e05a',TypeScript:'#2b7489',Python:'#3572A5',Go:'#00ADD8',Rust:'#dea584',C:'#555555','C++':'#f34b7d',Java:'#b07219',CSharp:'#239120',PHP:'#4F5D95',Ruby:'#701516',Swift:'#ffac45',Kotlin:'#F18E33',Dart:'#00B4AB',Vue:'#4FC08D',Svelte:'#ff3e00',React:'#61dafb'};
+  return map[l]||'#a78bfa';
+}
+async function viewRepo(fullName){
+  const db=await openDB();
+  const tx=db.transaction('viewed','readwrite');
+  await tx.store.put({full_name:fullName,ts:Date.now()});
+  location='repo.html?r='+encodeURIComponent(fullName);
+}
+function lazy(){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){
+      const img=e.target;
+      img.src=img.dataset.src;
+      img.classList.remove('lazy');
+      io.unobserve(img);
     }
-
-    async function getConfig(key) {
-      const db = await openDB();
-      return new Promise((resolve) => {
-        const tx = db.transaction("config", "readonly");
-        const store = tx.objectStore("config");
-        const req = store.get(key);
-        req.onsuccess = () => resolve(req.result || { value: "" });
-      });
-    }
-
-    async function setConfig(key, value) {
-      const db = await openDB();
-      return new Promise((resolve) => {
-        const tx = db.transaction("config", "readwrite");
-        const store = tx.objectStore("config");
-        store.put({ id: key, value });
-        tx.oncomplete = () => resolve();
-      });
-    }
-
-    async function loadProfile() {
-      const token = (await getConfig("gh_token")).value;
-      const holder = document.getElementById("profile");
-      if (!token) {
-        holder.innerHTML = '<a href="index.html" class="text-accent">login</a>';
-        return;
-      }
-      const res = await fetch("https://api.github.com/user", {
-        headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}` }
-      }).catch(() => {});
-      if (!res || !res.ok) {
-        holder.innerHTML = '<span class="text-sub">rate limited</span>';
-        return;
-      }
-      const u = await res.json();
-      holder.innerHTML = `
-        <img src="${u.avatar_url}" class="w-8 h-8 rounded-full">
-        <span class="text-sm">${u.login}</span>
-      `;
-    }
-
-    function toggleSection(id) {
-      ["featured", "trending", "recent", "viewed"].forEach(sec => {
-        document.getElementById(sec).classList.add("hidden");
-        document.getElementById("btn" + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.remove("text-accent");
-        document.getElementById("btn" + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.add("text-sub");
-      });
-      document.getElementById(id).classList.remove("hidden");
-      document.getElementById("btn" + id.charAt(0).toUpperCase() + id.slice(1)).classList.add("text-accent");
-      document.getElementById("btn" + id.charAt(0).toUpperCase() + id.slice(1)).classList.remove("text-sub");
-    }
-
-    async function fetchRepos(url, headers) {
-      const res = await fetch(url, { headers, mode: "cors" }).catch(() => {});
-      if (!res || !res.ok) return [];
-      const j = await res.json();
-      return j.items || [];
-    }
-
-    async function loadFeatured() {
-      const headers = { Accept: "application/vnd.github+json" };
-      const token = (await getConfig("gh_token")).value;
-      if (token) headers.Authorization = `Bearer ${token}`;
-      const repos = await fetchRepos("https://api.github.com/search/repositories?q=topic:gitsearch&per_page=30", headers);
-      renderCards("featured", repos);
-      const total = repos.length;
-      const stars = repos.reduce((a, b) => a + (b.stargazers_count || 0), 0);
-      const langs = {};
-      repos.forEach(r => {
-        const l = r.language || "Unknown";
-        langs[l] = (langs[l] || 0) + 1;
-      });
-      const sorted = Object.entries(langs).sort((a, b) => b[1] - a[1]);
-      document.getElementById("count").textContent = total;
-      document.getElementById("stars").textContent = stars.toLocaleString();
-      document.getElementById("toplang").textContent = sorted[0] ? sorted[0][0] : "-";
-      const langbars = document.getElementById("langbars");
-      langbars.innerHTML = "";
-      sorted.slice(0, 8).forEach(([lang, cnt]) => {
-        const pct = Math.round((cnt / total) * 100);
-        const row = document.createElement("div");
-        row.className = "flex items-center justify-between text-sm";
-        row.innerHTML = `
-          <span>${lang}</span>
-          <div class="w-32 bg-gray-700 rounded">
-            <div class="bar" style="width:${pct}%"></div>
-          </div>
-        `;
-        langbars.appendChild(row);
-      });
-      const domains = {};
-      repos.forEach(r => {
-        try {
-          const u = new URL(r.html_url);
-          const d = u.hostname.replace("github.com", "").replace(".", "") || "github";
-          domains[d] = (domains[d] || 0) + 1;
-        } catch {}
-      });
-      const domsorted = Object.entries(domains).sort((a, b) => b[1] - a[1]);
-      const dombars = document.getElementById("domainbars");
-      dombars.innerHTML = "";
-      domsorted.slice(0, 6).forEach(([dom, cnt]) => {
-        const pct = Math.round((cnt / total) * 100);
-        const row = document.createElement("div");
-        row.className = "flex items-center justify-between text-sm";
-        row.innerHTML = `
-          <span>${dom || "github"}</span>
-          <div class="w-32 bg-gray-700 rounded">
-            <div class="bar bar-pink" style="width:${pct}%"></div>
-          </div>
-        `;
-        dombars.appendChild(row);
-      });
-      const tags = ["gitsearch", "react", "vue", "svelte", "angular", "node", "python", "rust", "go", "cpp", "js"];
-      const tagholder = document.getElementById("trendtags");
-      tagholder.innerHTML = "";
-      tags.slice(0, 12).forEach(t => {
-        const b = document.createElement("button");
-        b.textContent = t;
-        b.className = "px-2 py-1 rounded border border-gray-700 text-xs hover:border-accent";
-        b.onclick = () => window.location.href = `index.html?q=${encodeURIComponent(t)}`;
-        tagholder.appendChild(b);
-      });
-    }
-
-    async function loadTrending() {
-      const headers = { Accept: "application/vnd.github+json" };
-      const token = (await getConfig("gh_token")).value;
-      if (token) headers.Authorization = `Bearer ${token}`;
-      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-      const repos = await fetchRepos(`https://api.github.com/search/repositories?q=pushed:>${since}&sort=stars&per_page=30`, headers);
-      renderCards("trending", repos);
-    }
-
-    async function loadRecent() {
-      const headers = { Accept: "application/vnd.github+json" };
-      const token = (await getConfig("gh_token")).value;
-      if (token) headers.Authorization = `Bearer ${token}`;
-      const repos = await fetchRepos("https://api.github.com/search/repositories?q=topic:gitsearch&sort=pushed&per_page=30", headers);
-      renderCards("recent", repos);
-    }
-
-    async function loadViewed() {
-      const db = await openDB();
-      const tx = db.transaction("viewed", "readonly");
-      const store = tx.objectStore("viewed");
-      const all = await store.getAll();
-      const holder = document.getElementById("viewed");
-      const empty = document.getElementById("empty-viewed");
-      holder.innerHTML = "";
-      if (all.length === 0) {
-        empty.classList.remove("hidden");
-        return;
-      }
-      empty.classList.add("hidden");
-      all.reverse().slice(0, 30).forEach((r, idx) => {
-        const card = document.createElement("div");
-        card.className = "card opacity-0 transition mb-3";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <a href="${r.html_url}" target="_blank" class="text-accent font-bold">${r.full_name}</a>
-              <p class="text-sm text-sub mt-1">${r.description || ""}</p>
-              <div class="flex gap-3 text-xs text-sub mt-2">
-                <span>${r.language || ""}</span>
-                <span>⭐ ${r.stargazers_count || 0}</span>
-                <span>🍴 ${r.forks_count || 0}</span>
-              </div>
-            </div>
-          </div>
-        `;
-        holder.appendChild(card);
-        setTimeout(() => card.classList.add("opacity-100"), idx * 60);
-      });
-    }
-
-    function renderCards(section, repos) {
-      const holder = document.getElementById(section);
-      holder.innerHTML = "";
-      const uniq = new Map();
-      repos.forEach(r => uniq.set(r.full_name, r));
-      [...uniq.values()].slice(0, 30).forEach((r, idx) => {
-        const card = document.createElement("div");
-        card.className = "card opacity-0 transition mb-3";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <a href="${r.html_url}" target="_blank" class="text-accent font-bold">${r.full_name}</a>
-              <p class="text-sm text-sub mt-1">${r.description || ""}</p>
-              <div class="flex gap-3 text-xs text-sub mt-2">
-                <span>${r.language || ""}</span>
-                <span>⭐ ${r.stargazers_count || 0}</span>
-                <span>🍴 ${r.forks_count || 0}</span>
-              </div>
-            </div>
-          </div>
-        `;
-        holder.appendChild(card);
-        setTimeout(() => card.classList.add("opacity-100"), idx * 60);
-      });
-    }
-
-    document.getElementById("btnFeatured").onclick = () => {
-      toggleSection("featured");
-      loadFeatured();
-    };
-    document.getElementById("btnTrending").onclick = () => {
-      toggleSection("trending");
-      loadTrending();
-    };
-    document.getElementById("btnRecent").onclick = () => {
-      toggleSection("recent");
-      loadRecent();
-    };
-    document.getElementById("btnViewed").onclick = () => {
-      toggleSection("viewed");
-      loadViewed();
-    };
-
-    (async () => {
-      await loadProfile();
-      toggleSection("featured");
-      await loadFeatured();
-    })();
-  </script>
+  }));
+  document.querySelectorAll('img.lazy').forEach(i=>io.observe(i));
+}
+function updateMetrics(j){
+  const total=Math.min(j.total_count,1000);
+  document.getElementById('metricRepos').textContent=total.toLocaleString('fr');
+  animateBar('barRepos',total/1000*100);
+  const stars=j.items.reduce((a,it)=>a+it.stargazers_count,0);
+  document.getElementById('metricStars').textContent=stars.toLocaleString('fr');
+  animateBar('barStars',Math.min(stars/50000*100,100));
+  const langs={};
+  j.items.forEach(it=>{
+    const l=it.language||'—';
+    langs[l]=(langs[l]||0)+1;
+  });
+  const top=Object.entries(langs).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('topLangs').innerHTML=top.map(([l,n])=>`<div class="flex justify-between"><span>${l}</span><span>${n}</span></div>`).join('');
+}
+function animateBar(id,pct){
+  setTimeout(()=>document.getElementById(id).style.width=pct+'%',100);
+}
+async function loadProfile(){
+  const tok=localStorage.github_token;
+  if(!tok)return;
+  const r=await fetch('https://api.github.com/user',{headers:{Authorization:'token '+tok}});
+  if(!r.ok)return;
+  const u=await r.json();
+  document.getElementById('profile').innerHTML=`
+    <img src="${u.avatar_url}" class="w-12 h-12 rounded mb-2"/>
+    <div class="font-bold">${u.name||u.login}</div>
+    <div class="text-xs text-gray-400">${u.bio||''}</div>
+    <div class="flex gap-3 text-xs mt-2">
+      <span>Repos: ${u.public_repos}</span>
+      <span>Followers: ${u.followers}</span>
+      <span>Following: ${u.following}</span>
+    </div>`;
+}
+function init(){
+  loadProfile();
+  loadTab('featured');
+}
+init();
+</script>
 </body>
 </html>

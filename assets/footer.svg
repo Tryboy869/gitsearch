@@ -1,44 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="70" viewBox="0 0 900 70">
+<svg viewBox="0 0 900 70" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="0">
-      <stop offset="0%" stop-color="#0a0e1a"/>
-      <stop offset="100%" stop-color="#0d1220"/>
-      <animate attributeName="x1" values="0;900;0" dur="6s" repeatCount="indefinite"/>
-      <animate attributeName="x2" values="900;0;900" dur="6s" repeatCount="indefinite"/>
+    <linearGradient id="gitsearch-footer-gf" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7b2cbf">
+        <animate attributeName="offset" values="0;1;0" dur="8s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#00d4ff">
+        <animate attributeName="offset" values="0;1;0" dur="8s" repeatCount="indefinite"/>
+      </stop>
     </linearGradient>
-    <style>
-      @media (prefers-reduced-motion:reduce){
-        svg *{animation:none!important}
-      }
-      text{font-family:Courier New,monospace;font-size:14px;fill:#a0aec0}
-    </style>
+    <filter id="gitsearch-footer-glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <rect width="900" height="70" fill="url(#bg)"/>
-  <g>
-    <circle cx="80" cy="35" r="2" fill="#7b2cbf"/>
-    <animate attributeName="y" values="35;50;35" dur="4s" repeatCount="indefinite"/>
+  <style>@media(prefers-reduced-motion:reduce){svg *{animation:none!important}}</style>
+  <!-- Fond animé -->
+  <rect width="900" height="70" fill="url(#gitsearch-footer-gf)"/>
+  <!-- Particules flottantes -->
+  <g filter="url(#gitsearch-footer-glow)">
+    <text x="50" y="45" fill="#00d4ff" font-size="14" font-family="Courier New">
+      &lt;search/&gt;
+      <animate attributeName="y" values="45;35;45" dur="6s" repeatCount="indefinite"/>
+    </text>
+    <text x="200" y="45" fill="#00d4ff" font-size="14" font-family="Courier New">
+      semantic()
+      <animate attributeName="y" values="45;30;45" dur="7s" repeatCount="indefinite"/>
+    </text>
+    <text x="350" y="45" fill="#00d4ff" font-size="14" font-family="Courier New">
+      index[]
+      <animate attributeName="y" values="45;40;45" dur="5s" repeatCount="indefinite"/>
+    </text>
+    <text x="500" y="45" fill="#00d4ff" font-size="14" font-family="Courier New">
+      vector
+      <animate attributeName="y" values="45;32;45" dur="8s" repeatCount="indefinite"/>
+    </text>
   </g>
-  <g>
-    <circle cx="220" cy="35" r="2" fill="#7b2cbf"/>
-    <animate attributeName="y" values="35;20;35" dur="5s" repeatCount="indefinite"/>
-  </g>
-  <g>
-    <circle cx="680" cy="35" r="2" fill="#7b2cbf"/>
-    <animate attributeName="y" values="35;48;35" dur="6s" repeatCount="indefinite"/>
-  </g>
-  <g>
-    <circle cx="820" cy="35" r="2" fill="#7b2cbf"/>
-    <animate attributeName="y" values="35;22;35" dur="7s" repeatCount="indefinite"/>
-  </g>
-  <text x="450" y="40" text-anchor="middle">🔍 GITSEARCH · Built by Nexus Studio · Cotonou, Bénin · 2026</text>
-  <circle cx="200" cy="55" r="2" fill="#7b2cbf">
-    <animate attributeName="r" values="2;4;2" dur="1.6s" repeatCount="indefinite"/>
+  <!-- Texte central -->
+  <text x="450" y="40" text-anchor="middle" fill="#e2e8f0" font-size="16" font-family="Courier New">
+    GITSEARCH — Recherche sémantique de repos
+  </text>
+  <!-- Dots pulsants -->
+  <circle cx="420" cy="40" r="3" fill="#00d4ff">
+    <animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="700" cy="55" r="2" fill="#7b2cbf">
-    <animate attributeName="r" values="2;4;2" dur="1.6s" repeatCount="indefinite"/>
+  <circle cx="480" cy="40" r="3" fill="#00d4ff">
+    <animate attributeName="opacity" values="1;0.2;1" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
   </circle>
-  <line x1="0" y1="10" x2="0" y2="10" stroke="#7b2cbf" stroke-width="1">
-    <animate attributeName="x1" values="0;900" dur="3s" repeatCount="indefinite"/>
-    <animate attributeName="x2" values="0;900" dur="3s" repeatCount="indefinite"/>
-  </line>
+  <!-- Ligne scan -->
+  <rect x="0" y="68" width="900" height="2" fill="#00d4ff">
+    <animate attributeName="x" values="-900;0" dur="3s" repeatCount="indefinite"/>
+  </rect>
 </svg>

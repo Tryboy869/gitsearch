@@ -1,19 +1,14 @@
 name: Auto-Release
 on:
-  push:
-    branches: [main]
-    paths: [CHANGELOG.md]
+  push: {branches: [main], paths: [CHANGELOG.md]}
   workflow_dispatch:
-permissions:
-  contents: write
+permissions: {contents: write}
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: {fetch-depth: 0}
       - run: chmod +x scripts/release.sh
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - env: {GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"}
         run: bash scripts/release.sh

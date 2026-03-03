@@ -1,47 +1,23 @@
-<svg width="340" height="28" viewBox="0 0 340 28" xmlns="http://www.w3.org/2000/svg" color-profile="sRGB">
+<svg viewBox="0 0 340 28" width="340" height="28" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7b2cbf"/>
-      <stop offset="100%" stop-color="#00d4ff"/>
-    </linearGradient>
-    <clipPath id="tagClip">
-      <rect x="0" y="0" width="340" height="28"/>
+    <clipPath id="seq">
+      <rect width="0" height="28">
+        <animate attributeName="width" values="0;340" dur="2s" fill="freeze"/>
+      </rect>
     </clipPath>
-    <style>
-      @media (prefers-reduced-motion:reduce){
-        svg *{animation:none!important}
-      }
-    </style>
   </defs>
-  <rect width="340" height="28" rx="4" fill="#0a0e1a"/>
-  <text x="8" y="19" font-family="Courier New" font-size="13" fill="#00d4ff">🏷</text>
-  <g clip-path="url(#tagClip)">
-    <text x="32" y="19" font-family="Courier New" font-size="13" fill="#7b2cbf" opacity="0">·
-      <animate attributeName="opacity" from="0" to="1" begin="0.4s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="42" y="19" font-family="Courier New" font-size="13" fill="#00d4ff" opacity="0">ml
-      <animate attributeName="opacity" from="0" to="1" begin="0.5s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="62" y="19" font-family="Courier New" font-size="13" fill="#7b2cbf" opacity="0">·
-      <animate attributeName="opacity" from="0" to="1" begin="0.9s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="72" y="19" font-family="Courier New" font-size="13" fill="#00d4ff" opacity="0">nlp
-      <animate attributeName="opacity" from="0" to="1" begin="1.0s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="97" y="19" font-family="Courier New" font-size="13" fill="#7b2cbf" opacity="0">·
-      <animate attributeName="opacity" from="0" to="1" begin="1.4s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="107" y="19" font-family="Courier New" font-size="13" fill="#00d4ff" opacity="0">python
-      <animate attributeName="opacity" from="0" to="1" begin="1.5s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="152" y="19" font-family="Courier New" font-size="13" fill="#7b2cbf" opacity="0">·
-      <animate attributeName="opacity" from="0" to="1" begin="1.9s" dur="0.1s" fill="freeze"/>
-    </text>
-    <text x="162" y="19" font-family="Courier New" font-size="13" fill="#00d4ff" opacity="0">oss
-      <animate attributeName="opacity" from="0" to="1" begin="2.0s" dur="0.1s" fill="freeze"/>
-    </text>
+  <rect width="340" height="28" fill="#0a0e1a"/>
+  <g clip-path="url(#seq)">
+    <text x="10" y="18" font-family="Courier New" font-size="12" fill="#00d4ff">🏷 ml</text>
+    <text x="45" y="18" font-family="Courier New" font-size="12" fill="#7b2cbf">·</text>
+    <text x="55" y="18" font-family="Courier New" font-size="12" fill="#00d4ff">nlp</text>
+    <text x="90" y="18" font-family="Courier New" font-size="12" fill="#7b2cbf">·</text>
+    <text x="100" y="18" font-family="Courier New" font-size="12" fill="#00d4ff">python</text>
+    <text x="155" y="18" font-family="Courier New" font-size="12" fill="#7b2cbf">·</text>
+    <text x="165" y="18" font-family="Courier New" font-size="12" fill="#00d4ff">oss</text>
+    <rect x="0" y="22" width="340" height="1" fill="#00d4ff">
+      <animate attributeName="x" values="-340;0" dur="1.2s" repeatCount="indefinite"/>
+    </rect>
   </g>
-  <rect x="32" y="22" width="0" height="1" fill="url(#g)">
-    <animate attributeName="width" from="0" to="130" begin="2.5s" dur="0.5s" fill="freeze"/>
-  </rect>
+  <style>@media(prefers-reduced-motion:reduce){svg *{animation:none!important}}</style>
 </svg>
