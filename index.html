@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <title>GITSEARCH — Recherche Sémantique de Repos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
   <style>
     :root{--bg:#0a0e1a;}
     body{background:var(--bg);color:#e2e8f0;font-family:Courier New,monospace;}
@@ -174,10 +174,13 @@ async function openDB(){
     r.onerror=()=>rej(r.error);
   });
 }
-async function dbPut(store,data){const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(data);return tx.complete;}
-async function dbGet(store,key){const tx=db.transaction(store,'readonly');return tx.objectStore(store).get(key);}
-async function dbDel(store,key){const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);return tx.complete;}
-async function dbAll(store){const tx=db.transaction(store,'readonly');return tx.objectStore(store).getAll();}
+// Wrappers IDBRequest → Promise (tx.complete n'existe pas en IndexedDB natif)
+function idbReq(req){return new Promise((res,rej)=>{req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error);});}
+function idbTx(tx){return new Promise((res,rej)=>{tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);});}
+async function dbPut(store,data){const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(data);return idbTx(tx);}
+async function dbGet(store,key){return idbReq(db.transaction(store,'readonly').objectStore(store).get(key));}
+async function dbDel(store,key){const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(key);return idbTx(tx);}
+async function dbAll(store){return idbReq(db.transaction(store,'readonly').objectStore(store).getAll());}
 
 /* ---------- GITHUB ---------- */
 let ctrl=new AbortController();
@@ -257,7 +260,7 @@ async function addHistory(term){
   if(exists) exists.ts=Date.now(); else searches.push({term,ts:Date.now()});
   searches.sort((a,b)=>b.ts-a.ts);
   const keep=searches.slice(0,MAX_HISTORY);
-  const tx=db.transaction('searches','readwrite'); const st=tx.objectStore('searches'); st.clear(); keep.forEach(s=>st.put(s)); await tx.complete;
+  const tx=db.transaction('searches','readwrite'); const st=tx.objectStore('searches'); st.clear(); keep.forEach(s=>st.put(s)); await idbTx(tx);
   renderHistory();
 }
 function renderHistory(){
@@ -265,8 +268,8 @@ function renderHistory(){
     const h=qs('#history'),hd=qs('#history-drawer');
     h.innerHTML=''; hd.innerHTML='';
     arr.forEach(({term})=>{
-      const a=el('a',{href:'#',class:'text-gray-400 hover:text-violet',onclick:e=>{e.preventDefault();qs('#search').value=term;runSearch(term);}},term);
-      h.appendChild(a.cloneNode(true)); hd.appendChild(a);
+      const mk=()=>{const a=el('a',{href:'#',class:'block text-gray-400 hover:text-violet cursor-pointer'},term);a.onclick=e=>{e.preventDefault();qs('#search').value=term;runSearch(term);};return a;};
+      h.appendChild(mk()); hd.appendChild(mk());
     });
   });
 }
@@ -311,8 +314,8 @@ async function init(){
   // trending tags
   const tg=qs('#trending-tags'),tgd=qs('#trending-tags-drawer');
   TRENDING.slice(0,15).forEach(t=>{
-    const b=el('button',{class:'bg-gray-800 px-2 py-1 rounded text-xs hover:bg-gray-700',onclick:()=>runSearch(t)},t);
-    tg.appendChild(b); tgd.appendChild(b.cloneNode(true));
+    const mk=()=>{const b=el('button',{class:'bg-gray-800 px-2 py-1 rounded text-xs hover:bg-gray-700'},t);b.onclick=()=>runSearch(t);return b;};
+    tg.appendChild(mk()); tgd.appendChild(mk());
   });
   renderHistory();
   // events
